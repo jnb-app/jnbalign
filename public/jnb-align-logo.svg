@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" fill="none">
+  <defs>
+    <!-- Background Radial Gradient (Deep Space Navy with Golden Ambient Core) -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#142145" />
+      <stop offset="45%" stop-color="#0A1128" />
+      <stop offset="100%" stop-color="#050814" />
+    </radialGradient>
+
+    <!-- Imperial Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A" />
+      <stop offset="25%" stop-color="#F59E0B" />
+      <stop offset="60%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#92400E" />
+    </linearGradient>
+
+    <!-- Platinum / White Gold Accent Gradient -->
+    <linearGradient id="brightGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#FEF08A" />
+      <stop offset="70%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+
+    <!-- Cyan Laser Incident Ray -->
+    <linearGradient id="laserBeam" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#93C5FD" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Emerald Precision Gradient -->
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6EE7B7" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+
+    <!-- Ambient Glow Filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="highGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22" result="blurHigh" />
+      <feComposite in="SourceGraphic" in2="blurHigh" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Solid Luxury Background -->
+  <rect width="1024" height="1024" fill="url(#bgGlow)" />
+
+  <!-- Outer Safe Circle Guide / Subtle Border -->
+  <circle cx="512" cy="512" r="496" stroke="url(#goldGrad)" stroke-width="3" stroke-opacity="0.4" />
+  <circle cx="512" cy="512" r="476" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="6 12" stroke-opacity="0.25" />
+
+  <!-- Astrolabe Geometrical Concentric Rings -->
+  <circle cx="512" cy="512" r="420" stroke="url(#goldGrad)" stroke-width="2.5" stroke-opacity="0.65" stroke-dasharray="14 8" />
+  <circle cx="512" cy="512" r="380" stroke="url(#goldGrad)" stroke-width="2" stroke-opacity="0.4" />
+  <circle cx="512" cy="512" r="320" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="4 10" />
+
+  <!-- 360-Degree Compass Ticks (32 ticks) -->
+  <!-- Major 4 Cardinal Ticks -->
+  <line x1="512" y1="92" x2="512" y2="142" stroke="url(#brightGold)" stroke-width="5" stroke-linecap="round" filter="url(#glow)" />
+  <line x1="932" y1="512" x2="882" y2="512" stroke="url(#brightGold)" stroke-width="5" stroke-linecap="round" filter="url(#glow)" />
+  <line x1="512" y1="932" x2="512" y2="882" stroke="url(#brightGold)" stroke-width="5" stroke-linecap="round" filter="url(#glow)" />
+  <line x1="92" y1="512" x2="142" y2="512" stroke="url(#brightGold)" stroke-width="5" stroke-linecap="round" filter="url(#glow)" />
+
+  <!-- Secondary 4 Diagonal Ticks (45°) -->
+  <line x1="809" y1="215" x2="774" y2="250" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.85" />
+  <line x1="809" y1="809" x2="774" y2="774" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.85" />
+  <line x1="215" y1="809" x2="250" y2="774" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.85" />
+  <line x1="215" y1="215" x2="250" y2="250" stroke="url(#goldGrad)" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.85" />
+
+  <!-- The 4 Strategic Cardinal Pillars -->
+  <text x="512" y="80" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="900" letter-spacing="6" text-anchor="middle" filter="url(#glow)">ATS PRECISION</text>
+  <text x="944" y="520" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" letter-spacing="4" text-anchor="end" filter="url(#glow)">IMPACT STAR</text>
+  <text x="512" y="960" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="900" letter-spacing="6" text-anchor="middle" filter="url(#glow)">FAITS RÉELS</text>
+  <text x="80" y="520" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" letter-spacing="4" text-anchor="start" filter="url(#glow)">CLARTÉ</text>
+
+  <!-- Incident Laser Beam (Input Data from West) -->
+  <path d="M 140 512 L 400 512" stroke="url(#laserBeam)" stroke-width="6" stroke-dasharray="10 6" stroke-linecap="round" filter="url(#highGlow)" />
+  <circle cx="140" cy="512" r="9" fill="#38BDF8" filter="url(#glow)" />
+
+  <!-- The Optical Equilateral Prism (Center: 512, 512) -->
+  <!-- Apex at (512, 245), Bottom-Right at (745, 650), Bottom-Left at (279, 650) -->
+  <polygon points="512,245 745,650 279,650" fill="none" stroke="url(#brightGold)" stroke-width="7" stroke-linejoin="round" filter="url(#glow)" />
+
+  <!-- Crystalline Facets & Internal Reflections -->
+  <polygon points="512,245 745,650 512,525" fill="url(#goldGrad)" fill-opacity="0.16" />
+  <polygon points="512,245 279,650 512,525" fill="#38BDF8" fill-opacity="0.14" />
+  <polygon points="279,650 745,650 512,525" fill="#10B981" fill-opacity="0.10" />
+
+  <!-- Internal Facet Precision Lines -->
+  <line x1="512" y1="245" x2="512" y2="650" stroke="url(#brightGold)" stroke-width="3" stroke-opacity="0.75" />
+  <line x1="279" y1="650" x2="628" y2="447" stroke="#FEF08A" stroke-width="2" stroke-opacity="0.6" />
+  <line x1="745" y1="650" x2="395" y2="447" stroke="#38BDF8" stroke-width="2" stroke-opacity="0.6" />
+
+  <!-- Refracted Dispersion Rays (Output Aligned Documents to East) -->
+  <!-- Top Ray (Gold) -->
+  <path d="M 590 490 L 890 320" stroke="#FDE047" stroke-width="6" stroke-linecap="round" filter="url(#highGlow)" />
+  <circle cx="890" cy="320" r="9" fill="#FEF08A" filter="url(#glow)" />
+
+  <!-- Mid Ray (Warm Amber) -->
+  <path d="M 620 530 L 910 435" stroke="#F59E0B" stroke-width="5.5" stroke-linecap="round" filter="url(#highGlow)" />
+  <circle cx="910" cy="435" r="8" fill="#FBBF24" filter="url(#glow)" />
+
+  <!-- Bottom Ray (Emerald ATS Validation) -->
+  <path d="M 640 575 L 895 595" stroke="url(#emeraldGrad)" stroke-width="5" stroke-linecap="round" filter="url(#highGlow)" />
+  <circle cx="895" cy="595" r="8" fill="#34D399" filter="url(#glow)" />
+
+  <!-- Central Compass Needle (Rotated 28 degrees for dynamic tension) -->
+  <g transform="rotate(28, 512, 512)">
+    <!-- North Needle (Luminous Gold) -->
+    <polygon points="512,310 528,512 512,500 496,512" fill="url(#brightGold)" stroke="#D97706" stroke-width="1.5" filter="url(#highGlow)" />
+    <!-- South Needle (Deep Space Metallic Indigo) -->
+    <polygon points="512,714 528,512 512,524 496,512" fill="#1E293B" stroke="url(#goldGrad)" stroke-width="2" />
+    <!-- Center Pivot Gem -->
+    <circle cx="512" cy="512" r="16" fill="#0A1128" stroke="url(#brightGold)" stroke-width="5" filter="url(#glow)" />
+    <circle cx="512" cy="512" r="6" fill="#FEF08A" />
+  </g>
+
+  <!-- Wordmark at Bottom Center: "JNB ALIGN" -->
+  <g transform="translate(512, 790)">
+    <!-- Subtle Golden Pill Badge Background for Typography -->
+    <rect x="-190" y="-35" width="380" height="70" rx="35" fill="#0A1128" fill-opacity="0.85" stroke="url(#goldGrad)" stroke-width="2" filter="url(#glow)" />
+    <text x="0" y="8" fill="url(#brightGold)" font-family="system-ui, -apple-system, 'Plus Jakarta Sans', sans-serif" font-size="34" font-weight="900" letter-spacing="7" text-anchor="middle">JNB ALIGN</text>
+    <text x="0" y="24" fill="#94A3B8" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" text-anchor="middle">ATS PRECISION ENGINE</text>
+  </g>
+</svg>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JNB Align | Optimiseur CV & LM ATS</title>
+    <meta name="description" content="JNB Align : L'alignement parfait entre votre parcours et l'offre idéale. Analyse d'écart sémantique IA, préservation stricte de vos expériences réelles, CV optimisé pour le parsing ATS et lettre de motivation stratégique." />
+    <link rel="canonical" href="https://jnbalign.com/" />
+    <link rel="icon" type="image/svg+xml" href="/jnb-align-logo.svg" />
+    <meta property="og:title" content="JNB Align | Optimiseur CV & LM ATS" />
+    <meta property="og:description" content="JNB Align : L'alignement parfait entre votre parcours et l'offre idéale. Réfraction sémantique, authenticité préservée et candidatures d'élite optimisées pour les parseurs ATS." />
+    <meta property="og:url" content="https://jnbalign.com/" />
+    <meta property="og:image" content="https://jnbalign.com/jnb-align-logo.svg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JNB Align | Optimiseur CV & LM ATS" />
+    <meta name="twitter:description" content="L'alignement parfait entre votre parcours et l'offre idéale. CV certifié ATS et lettre stratégique." />
+    <meta name="twitter:image" content="https://jnbalign.com/jnb-align-logo.svg" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JNB Align",
+      "url": "https://jnbalign.com/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "description": "Optimiseur IA de CV et de lettre de motivation aligné sur les critères ATS. Analyse sémantique sans falsification, préparation d'entretien STAR et scores de compatibilité.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      }
+    }
+    </script>
+    <script>
+      // Gracefully silence harmless Vite HMR WebSocket disconnects in iframe/preview environments
+      (function() {
+        const _origError = console.error;
+        console.error = function(...args) {
+          const str = args.map(a => String(a?.message || a || '')).join(' ');
+          if (str.includes('[vite]') || str.includes('WebSocket') || str.includes('websocket')) {
+            return;
+          }
+          _origError.apply(console, args);
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+          const str = String(event.reason?.message || event.reason || '');
+          if (str.includes('WebSocket') || str.includes('websocket') || str.includes('vite')) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+        window.addEventListener('error', function(event) {
+          const str = String(event.message || event.error?.message || '');
+          if (str.includes('WebSocket') || str.includes('websocket') || str.includes('vite')) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#060B18] text-slate-100 antialiased selection:bg-amber-400 selection:text-slate-950">
+    <div id="root" class="min-h-screen bg-[#060B18]"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

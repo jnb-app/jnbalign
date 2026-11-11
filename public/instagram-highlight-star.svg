@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <!-- Background Radial Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#14244D" />
+      <stop offset="45%" stop-color="#0A142D" />
+      <stop offset="85%" stop-color="#050A17" />
+      <stop offset="100%" stop-color="#02050D" />
+    </radialGradient>
+
+    <radialGradient id="coreGlowStar" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.45" />
+      <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Luxury Gold Linear Gradients -->
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF0" />
+      <stop offset="25%" stop-color="#FDE68A" />
+      <stop offset="55%" stop-color="#F59E0B" />
+      <stop offset="85%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#9A7B1C" />
+    </linearGradient>
+
+    <linearGradient id="goldDark" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#78590F" />
+      <stop offset="35%" stop-color="#AA820A" />
+      <stop offset="70%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+
+    <linearGradient id="facetHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#FDE68A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="starGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="20" flood-color="#F59E0B" flood-opacity="0.4" />
+    </filter>
+    <filter id="outerRingShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#D4AF37" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1080" height="1080" fill="url(#bgGlow)" />
+
+  <!-- Center Ambient Radiant Flare -->
+  <circle cx="540" cy="540" r="440" fill="url(#coreGlowStar)" />
+
+  <!-- Outer Decorative Rings for Instagram Story Highlights -->
+  <circle cx="540" cy="540" r="390" fill="none" stroke="url(#goldLight)" stroke-width="3" stroke-opacity="0.4" stroke-dasharray="6 6" />
+  <circle cx="540" cy="540" r="360" fill="none" stroke="url(#goldLight)" stroke-width="5" filter="url(#outerRingShadow)" />
+  <circle cx="540" cy="540" r="340" fill="none" stroke="url(#goldDark)" stroke-width="1.5" stroke-opacity="0.6" />
+
+  <!-- 4 Orbital Nodes symbolizing S - T - A - R (Situation, Tâche, Action, Résultat) -->
+  <g fill="url(#goldLight)">
+    <!-- Top Left : S -->
+    <circle cx="280" cy="280" r="16" filter="url(#starGlow)" />
+    <circle cx="280" cy="280" r="8" fill="#FFFFFF" />
+    <!-- Top Right : T -->
+    <circle cx="800" cy="280" r="16" filter="url(#starGlow)" />
+    <circle cx="800" cy="280" r="8" fill="#FFFFFF" />
+    <!-- Bottom Right : A -->
+    <circle cx="800" cy="800" r="16" filter="url(#starGlow)" />
+    <circle cx="800" cy="800" r="8" fill="#FFFFFF" />
+    <!-- Bottom Left : R -->
+    <circle cx="280" cy="800" r="16" filter="url(#starGlow)" />
+    <circle cx="280" cy="800" r="8" fill="#FFFFFF" />
+  </g>
+
+  <!-- STAR Letters on the Orbit -->
+  <g font-family="Cinzel, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="bold" fill="url(#goldLight)" text-anchor="middle" opacity="0.85" letter-spacing="3">
+    <text x="280" y="245">S</text>
+    <text x="800" y="245">T</text>
+    <text x="800" y="855">A</text>
+    <text x="280" y="855">R</text>
+  </g>
+
+  <!-- Thin constellation connecting tracks -->
+  <path d="M 280 280 L 800 280 L 800 800 L 280 800 Z" fill="none" stroke="url(#goldDark)" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="4 8" />
+
+  <!-- MAIN 3D FACETED LUXURY 5-POINT STAR -->
+  <!-- Calculated coordinates for 5-pointed star: Center (540, 520), Outer R=260, Inner R=110 -->
+  <!-- Point 1 (Top): (540, 260) -->
+  <!-- Point 2 (Top Right): (787, 440) -->
+  <!-- Point 3 (Bottom Right): (693, 730) -->
+  <!-- Point 4 (Bottom Left): (387, 730) -->
+  <!-- Point 5 (Top Left): (293, 440) -->
+  <!-- Inner valley 1 (between 1 & 2): (605, 431) -->
+  <!-- Inner valley 2 (between 2 & 3): (645, 554) -->
+  <!-- Inner valley 3 (between 3 & 4): (540, 630) -->
+  <!-- Inner valley 4 (between 4 & 5): (435, 554) -->
+  <!-- Inner valley 5 (between 5 & 1): (475, 431) -->
+  <g filter="url(#starGlow)">
+    <!-- Branch 1 (Top) -->
+    <!-- Left facet (Light) -->
+    <polygon points="540,520 540,260 475,431" fill="url(#facetHighlight)" />
+    <!-- Right facet (Shadow) -->
+    <polygon points="540,520 540,260 605,431" fill="url(#goldDark)" />
+
+    <!-- Branch 2 (Top-Right) -->
+    <!-- Top facet (Light) -->
+    <polygon points="540,520 787,440 605,431" fill="url(#goldLight)" />
+    <!-- Bottom facet (Shadow) -->
+    <polygon points="540,520 787,440 645,554" fill="url(#goldDark)" />
+
+    <!-- Branch 3 (Bottom-Right) -->
+    <!-- Right facet (Light) -->
+    <polygon points="540,520 693,730 645,554" fill="url(#goldLight)" />
+    <!-- Left facet (Shadow) -->
+    <polygon points="540,520 693,730 540,630" fill="url(#goldDark)" />
+
+    <!-- Branch 4 (Bottom-Left) -->
+    <!-- Right facet (Light) -->
+    <polygon points="540,520 387,730 540,630" fill="url(#goldLight)" />
+    <!-- Left facet (Shadow) -->
+    <polygon points="540,520 387,730 435,554" fill="url(#goldDark)" />
+
+    <!-- Branch 5 (Top-Left) -->
+    <!-- Bottom facet (Light) -->
+    <polygon points="540,520 293,440 435,554" fill="url(#goldLight)" />
+    <!-- Top facet (Shadow) -->
+    <polygon points="540,520 293,440 475,431" fill="url(#goldDark)" />
+  </g>
+
+  <!-- Central Prismatic Micro-Gem -->
+  <circle cx="540" cy="520" r="28" fill="#081126" stroke="url(#goldLight)" stroke-width="4" />
+  <circle cx="540" cy="520" r="16" fill="url(#goldLight)" />
+  <circle cx="536" cy="516" r="5" fill="#FFFFFF" />
+
+  <!-- Luminous Optical Flare Glints -->
+  <g fill="#FFFDEB">
+    <!-- Top Point Flare -->
+    <path d="M 540 260 Q 540 230 545 230 Q 540 230 540 200 Q 540 230 535 230 Q 540 230 540 260 Z" opacity="0.95" />
+    <path d="M 540 260 Q 570 260 570 265 Q 570 260 600 260 Q 570 260 570 255 Q 570 260 540 260 Z" opacity="0.95" />
+    <circle cx="540" cy="260" r="9" fill="#FFFFFF" />
+
+    <!-- Center Glint -->
+    <path d="M 540 520 Q 540 480 544 480 Q 540 480 540 440 Q 540 480 536 480 Q 540 480 540 520 Z" opacity="0.75" />
+    <path d="M 540 520 Q 580 520 580 524 Q 580 520 620 520 Q 580 520 580 516 Q 580 520 540 520 Z" opacity="0.75" />
+  </g>
+</svg>

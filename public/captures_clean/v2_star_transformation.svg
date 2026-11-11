@@ -1,0 +1,102 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814"/>
+      <stop offset="50%" stop-color="#080D20"/>
+      <stop offset="100%" stop-color="#0B132B"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F6C94D"/>
+      <stop offset="100%" stop-color="#FFDE7A"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064E3B"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="cardDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#1F2937"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Fond 9:16 -->
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+
+  <!-- En-tête de marque -->
+  <g transform="translate(0, 180)">
+    <rect x="290" y="0" width="500" height="48" rx="24" fill="#1E293B" stroke="#F6C94D" stroke-width="2"/>
+    <text x="540" y="32" fill="#F6C94D" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" text-anchor="middle" letter-spacing="2">MÉTHODE STAR &bull; EXEMPLE RÉEL</text>
+    
+    <text x="540" y="110" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="900" text-anchor="middle">TRANSFORMATION CONCRÈTE</text>
+    <text x="540" y="155" fill="#94A3B8" font-family="Arial, Helvetica, sans-serif" font-size="26" text-anchor="middle">Valorisation sans inventer aucun fait</text>
+  </g>
+
+  <!-- ENCADRÉ 1 : AVANT (GÉNÉRIQUE) -->
+  <g transform="translate(90, 420)" filter="url(#shadow)">
+    <rect width="900" height="340" rx="24" fill="url(#cardDark)" stroke="#EF4444" stroke-width="3"/>
+    
+    <!-- Badge AVANT -->
+    <rect x="40" y="30" width="160" height="38" rx="19" fill="#7F1D1D"/>
+    <text x="120" y="56" fill="#FCA5A5" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">AVANT</text>
+    <text x="220" y="56" fill="#94A3B8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold">Description classique et générique</text>
+
+    <!-- Intitulé de poste -->
+    <text x="40" y="115" fill="#E2E8F0" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="bold">Chargé de projet marketing</text>
+    <text x="40" y="155" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="22">Entreprise Tech &bull; 2022 - 2024</text>
+
+    <!-- Texte avant -->
+    <rect x="40" y="185" width="820" height="115" rx="12" fill="#0F172A"/>
+    <text x="65" y="225" fill="#CBD5E1" font-family="Arial, Helvetica, sans-serif" font-size="24">&bull; Gestion des réseaux sociaux et création de contenus.</text>
+    <text x="65" y="265" fill="#CBD5E1" font-family="Arial, Helvetica, sans-serif" font-size="24">&bull; Suivi des réunions et coordination des prestataires.</text>
+    
+    <text x="830" y="70" fill="#EF4444" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="bold" text-anchor="end">&cross;</text>
+  </g>
+
+  <!-- TRANSITION CENTRALE FLÈCHE JNB ALIGN -->
+  <g transform="translate(540, 830)">
+    <circle cx="0" cy="0" r="48" fill="#F6C94D" filter="url(#shadow)"/>
+    <path d="M-14 -16 L14 0 L-14 16 Z" fill="#080D20" transform="rotate(90)"/>
+    <rect x="-240" y="65" width="480" height="44" rx="22" fill="#0F172A" stroke="#F6C94D" stroke-width="2"/>
+    <text x="0" y="94" fill="#F6C94D" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">RESTRUCTURATION JNB ALIGN</text>
+  </g>
+
+  <!-- ENCADRÉ 2 : APRÈS (MÉTHODE STAR & CHIFFRÉ) -->
+  <g transform="translate(90, 990)" filter="url(#shadow)">
+    <rect width="900" height="520" rx="24" fill="url(#emeraldGrad)" stroke="#37CDA3" stroke-width="4"/>
+    
+    <!-- Badge APRÈS -->
+    <rect x="40" y="32" width="160" height="42" rx="21" fill="#065F46"/>
+    <text x="120" y="61" fill="#A7F3D0" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" text-anchor="middle">APRÈS (STAR)</text>
+    <text x="220" y="61" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold">Responsabilités, actions et résultats réels</text>
+
+    <!-- Intitulé optimisé -->
+    <text x="40" y="125" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="900">Responsable de projets &amp; Acquisition</text>
+    <text x="40" y="165" fill="#A7F3D0" font-family="Arial, Helvetica, sans-serif" font-size="22">Mots-clés de l'offre intégrés fidèlement</text>
+
+    <!-- Découpage STAR -->
+    <rect x="40" y="195" width="820" height="280" rx="16" fill="#032E24"/>
+
+    <!-- Situation & Tâche -->
+    <text x="65" y="240" fill="#34D399" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold">SITUATION &amp; TÂCHE :</text>
+    <text x="65" y="272" fill="#E2E8F0" font-family="Arial, Helvetica, sans-serif" font-size="23">Pilotage de 12 campagnes multi-canaux (LinkedIn, Meta, SEA).</text>
+
+    <!-- Action -->
+    <text x="65" y="325" fill="#34D399" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold">ACTIONS MENÉES :</text>
+    <text x="65" y="357" fill="#E2E8F0" font-family="Arial, Helvetica, sans-serif" font-size="23">Refonte de la ligne éditoriale et coordination de 4 créatifs.</text>
+
+    <!-- Résultat chiffré -->
+    <text x="65" y="410" fill="#FDE047" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900">RÉSULTATS CHIFFRÉS :</text>
+    <text x="65" y="445" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="bold">+45 % d'engagement &bull; 3 500 leads qualifiés générés</text>
+    
+    <text x="830" y="70" fill="#34D399" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="bold" text-anchor="end">&check;</text>
+  </g>
+
+  <!-- Pli inférieur réassurance -->
+  <g transform="translate(540, 1580)">
+    <rect x="-350" y="0" width="700" height="56" rx="28" fill="#0D1530" stroke="#F6C94D" stroke-width="2"/>
+    <text x="0" y="36" fill="#F6C94D" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="bold" text-anchor="middle">FAITS STRICTEMENT PRÉSERVÉS &bull; ZÉRO INVENTIONS</text>
+  </g>
+</svg>

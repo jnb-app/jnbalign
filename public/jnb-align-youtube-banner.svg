@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1440" width="2560" height="1440" fill="none">
+  <defs>
+    <!-- Background Gradient (Deep Space Navy with Golden Ambient Core) -->
+    <radialGradient id="bannerBgGlow" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#16254F" />
+      <stop offset="28%" stop-color="#0E1838" />
+      <stop offset="65%" stop-color="#060B18" />
+      <stop offset="100%" stop-color="#03060E" />
+    </radialGradient>
+
+    <!-- Golden Radial Flare at Center -->
+    <radialGradient id="goldFlare" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.32" />
+      <stop offset="45%" stop-color="#D97706" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Imperial Gold Gradient for Titles & Accents -->
+    <linearGradient id="imperialGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="20%" stop-color="#FDE68A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="85%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+
+    <!-- Cyan Laser Ray Gradient -->
+    <linearGradient id="cyanRay" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#93C5FD" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Emerald Precision Gradient -->
+    <linearGradient id="emeraldBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <!-- Ambient Glow Filter -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="strongGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16" result="blurHigh" />
+      <feComposite in="SourceGraphic" in2="blurHigh" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Solid Background (2560 x 1440) -->
+  <rect width="2560" height="1440" fill="url(#bannerBgGlow)" />
+
+  <!-- Subtle Constellation / Technical Grid Lines across canvas -->
+  <g opacity="0.15">
+    <line x1="0" y1="720" x2="2560" y2="720" stroke="#38BDF8" stroke-width="1.2" stroke-dasharray="12 12" />
+    <line x1="1280" y1="0" x2="1280" y2="1440" stroke="url(#imperialGold)" stroke-width="1.2" stroke-dasharray="12 12" />
+    <circle cx="1280" cy="720" r="620" stroke="url(#imperialGold)" stroke-width="1.5" stroke-dasharray="10 20" />
+    <circle cx="1280" cy="720" r="950" stroke="#38BDF8" stroke-width="1" stroke-dasharray="8 24" />
+    <circle cx="1280" cy="720" r="1300" stroke="url(#imperialGold)" stroke-width="1.2" stroke-opacity="0.4" />
+  </g>
+
+  <!-- Large Golden Ambient Flare in the Center -->
+  <circle cx="1280" cy="720" r="540" fill="url(#goldFlare)" />
+
+  <!-- Left & Right Background Ambient Horizon Accents -->
+  <path d="M 120 720 L 480 720" stroke="url(#cyanRay)" stroke-width="3" stroke-dasharray="8 6" opacity="0.4" filter="url(#softGlow)" />
+  <circle cx="120" cy="720" r="6" fill="#38BDF8" opacity="0.5" />
+  <path d="M 2080 720 L 2440 720" stroke="url(#imperialGold)" stroke-width="3" stroke-dasharray="8 6" opacity="0.4" filter="url(#softGlow)" />
+  <circle cx="2440" cy="720" r="6" fill="#F59E0B" opacity="0.5" />
+
+  <!-- ============================================================== -->
+  <!-- CENTRAL SAFE AREA CONTENT (Strictly bounded inside Y 508 - 932) -->
+  <!-- ============================================================== -->
+
+  <!-- 1. The Central Iconic Optical Prism Compass Emblem -->
+  <!-- Centered at X = 1280, Y = 610, Radius ~75px -->
+  <g transform="translate(1280, 595)">
+    <!-- Outer Astrolabe Rings -->
+    <circle cx="0" cy="0" r="68" stroke="url(#imperialGold)" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.75" />
+    <circle cx="0" cy="0" r="58" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.45" />
+
+    <!-- 12 Compass Degree Ticks -->
+    <line x1="0" y1="-68" x2="0" y2="-56" stroke="url(#imperialGold)" stroke-width="2.5" />
+    <line x1="68" y1="0" x2="56" y2="0" stroke="url(#imperialGold)" stroke-width="2.5" />
+    <line x1="0" y1="68" x2="0" y2="56" stroke="url(#imperialGold)" stroke-width="2.5" />
+    <line x1="-68" y1="0" x2="-56" y2="0" stroke="url(#imperialGold)" stroke-width="2.5" />
+
+    <!-- Optical Prism (Equilateral Triangle in Center) -->
+    <polygon points="0,-36 34,24 -34,24" fill="none" stroke="url(#imperialGold)" stroke-width="3.2" stroke-linejoin="round" filter="url(#softGlow)" />
+    <!-- Crystalline Facets -->
+    <polygon points="0,-36 34,24 0,6" fill="url(#imperialGold)" fill-opacity="0.25" />
+    <polygon points="0,-36 -34,24 0,6" fill="#38BDF8" fill-opacity="0.2" />
+
+    <!-- Incident Beam from Left -->
+    <line x1="-60" y1="0" x2="-18" y2="0" stroke="url(#cyanRay)" stroke-width="3" stroke-dasharray="4 2" filter="url(#softGlow)" />
+    <!-- Refracted Gold & Emerald Dispersion Rays to Right -->
+    <line x1="16" y1="-5" x2="62" y2="-28" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round" filter="url(#softGlow)" />
+    <line x1="20" y1="5" x2="64" y2="10" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" filter="url(#softGlow)" />
+    <line x1="16" y1="14" x2="60" y2="34" stroke="#34D399" stroke-width="2.2" stroke-linecap="round" filter="url(#softGlow)" />
+
+    <!-- Magnetic Needle (Gold North / Navy South) -->
+    <g transform="rotate(28)">
+      <polygon points="0,-48 4,0 0,-3 -4,0" fill="url(#imperialGold)" filter="url(#strongGlow)" />
+      <polygon points="0,48 4,0 0,3 -4,0" fill="#0A1128" stroke="url(#imperialGold)" stroke-width="0.8" />
+      <circle cx="0" cy="0" r="4.5" fill="#060B18" stroke="url(#imperialGold)" stroke-width="2" />
+      <circle cx="0" cy="0" r="1.5" fill="#FFFBEB" />
+    </g>
+  </g>
+
+  <!-- 2. Brand Name: "JNB ALIGN" -->
+  <text x="1280" y="700" 
+        fill="url(#imperialGold)" 
+        font-family="system-ui, -apple-system, 'Plus Jakarta Sans', sans-serif" 
+        font-size="52" 
+        font-weight="900" 
+        letter-spacing="9" 
+        text-anchor="middle" 
+        filter="url(#softGlow)">
+    JNB ALIGN
+  </text>
+
+  <!-- 3. Primary Slogan -->
+  <text x="1280" y="746" 
+        fill="#FFFFFF" 
+        font-family="system-ui, -apple-system, 'Inter', sans-serif" 
+        font-size="24" 
+        font-weight="600" 
+        letter-spacing="0.8" 
+        text-anchor="middle">
+    L'alignement parfait entre votre parcours et l'offre idéale.
+  </text>
+
+  <!-- 4. Secondary Sub-Headline / Product Pillars -->
+  <text x="1280" y="784" 
+        fill="#FBBF24" 
+        font-family="system-ui, -apple-system, 'Inter', sans-serif" 
+        font-size="18" 
+        font-weight="700" 
+        letter-spacing="2" 
+        text-anchor="middle">
+    CV CERTIFIÉ ATS &amp; LETTRE STRATÉGIQUE
+  </text>
+
+  <!-- 5. Feature Badges Pill Row (Strictly inside safe area, Y ~ 825) -->
+  <g transform="translate(1280, 824)">
+    <!-- Pill 1: Score ATS 95%+ -->
+    <g transform="translate(-390, 0)">
+      <rect x="-85" y="-15" width="170" height="30" rx="15" fill="#0A1128" fill-opacity="0.8" stroke="url(#imperialGold)" stroke-width="1.2" />
+      <circle cx="-62" cy="0" r="4" fill="#F59E0B" />
+      <text x="-50" y="5" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700">Score ATS 95%+</text>
+    </g>
+
+    <!-- Pill 2: Zéro Hallucination -->
+    <g transform="translate(-130, 0)">
+      <rect x="-95" y="-15" width="190" height="30" rx="15" fill="#0A1128" fill-opacity="0.8" stroke="#10B981" stroke-width="1.2" />
+      <circle cx="-72" cy="0" r="4" fill="#10B981" />
+      <text x="-60" y="5" fill="#6EE7B7" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700">100% Vrais Faits STAR</text>
+    </g>
+
+    <!-- Pill 3: Import par Lien URL -->
+    <g transform="translate(140, 0)">
+      <rect x="-95" y="-15" width="190" height="30" rx="15" fill="#0A1128" fill-opacity="0.8" stroke="#38BDF8" stroke-width="1.2" />
+      <circle cx="-72" cy="0" r="4" fill="#38BDF8" />
+      <text x="-60" y="5" fill="#BAE6FD" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700">Import d'Offre par URL</text>
+    </g>
+
+    <!-- Pill 4: Bilingue FR / EN -->
+    <g transform="translate(390, 0)">
+      <rect x="-85" y="-15" width="170" height="30" rx="15" fill="#0A1128" fill-opacity="0.8" stroke="url(#imperialGold)" stroke-width="1.2" />
+      <circle cx="-62" cy="0" r="4" fill="#FBBF24" />
+      <text x="-50" y="5" fill="#FEF08A" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700">Bilingue FR &amp; EN</text>
+    </g>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- DESKTOP LATERAL WINGS (Visible only on PC / Desktops & TV)      -->
+  <!-- ============================================================== -->
+  <!-- Left Wing Callout (X = 380, Y = 720) -->
+  <g transform="translate(420, 720)" opacity="0.85">
+    <text x="0" y="-10" fill="#94A3B8" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" letter-spacing="2" text-anchor="middle">COMPATIBLE PARSEURS ATS</text>
+    <text x="0" y="16" fill="#FDE68A" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" letter-spacing="1" text-anchor="middle">Workday • Taleo • Greenhouse • Lever</text>
+  </g>
+
+  <!-- Right Wing Callout (X = 2140, Y = 720) -->
+  <g transform="translate(2140, 720)" opacity="0.85">
+    <text x="0" y="-10" fill="#94A3B8" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" letter-spacing="2" text-anchor="middle">LETTRE DE MOTIVATION</text>
+    <text x="0" y="16" fill="#38BDF8" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" letter-spacing="1" text-anchor="middle">Structure d'Or « Vous / Moi / Nous »</text>
+  </g>
+</svg>

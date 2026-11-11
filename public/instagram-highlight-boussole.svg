@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <!-- Background Radial Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#14244D" />
+      <stop offset="45%" stop-color="#0A142D" />
+      <stop offset="85%" stop-color="#050A17" />
+      <stop offset="100%" stop-color="#02050D" />
+    </radialGradient>
+
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#D4AF37" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Luxury Gold Linear Gradients -->
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3C4" />
+      <stop offset="25%" stop-color="#FDE68A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="75%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#9A7B1C" />
+    </linearGradient>
+
+    <linearGradient id="goldDark" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#78590F" />
+      <stop offset="40%" stop-color="#AA820A" />
+      <stop offset="70%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+
+    <linearGradient id="needleNorth" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="40%" stop-color="#FDE68A" />
+      <stop offset="80%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+
+    <linearGradient id="needleSouth" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadowGold" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#F59E0B" flood-opacity="0.3" />
+    </filter>
+    <filter id="outerRingShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#D4AF37" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1080" height="1080" fill="url(#bgGlow)" />
+
+  <!-- Center Ambient Glow -->
+  <circle cx="540" cy="540" r="420" fill="url(#coreGlow)" />
+
+  <!-- Instagram Circular Frame Guide Area (diameter 760px) -->
+  <!-- Outer Decorative Ring -->
+  <circle cx="540" cy="540" r="390" fill="none" stroke="url(#goldLight)" stroke-width="3" stroke-opacity="0.4" stroke-dasharray="6 6" />
+  <circle cx="540" cy="540" r="360" fill="none" stroke="url(#goldLight)" stroke-width="5" filter="url(#outerRingShadow)" />
+  <circle cx="540" cy="540" r="340" fill="none" stroke="url(#goldDark)" stroke-width="1.5" stroke-opacity="0.6" />
+
+  <!-- Compass Graduations (Ticks) -->
+  <g stroke="url(#goldLight)" stroke-linecap="round" opacity="0.75">
+    <!-- Major 90-deg ticks -->
+    <line x1="540" y1="205" x2="540" y2="235" stroke-width="4" />
+    <line x1="540" y1="845" x2="540" y2="875" stroke-width="4" />
+    <line x1="205" y1="540" x2="235" y2="540" stroke-width="4" />
+    <line x1="845" y1="540" x2="875" y2="540" stroke-width="4" />
+
+    <!-- 45-deg ticks -->
+    <line x1="303" y1="303" x2="324" y2="324" stroke-width="3" />
+    <line x1="777" y1="303" x2="756" y2="324" stroke-width="3" />
+    <line x1="303" y1="777" x2="324" y2="756" stroke-width="3" />
+    <line x1="777" y1="777" x2="756" y2="756" stroke-width="3" />
+
+    <!-- 30-deg subtle ticks -->
+    <line x1="390" y1="230" x2="400" y2="247" stroke-width="2" opacity="0.5" />
+    <line x1="690" y1="230" x2="680" y2="247" stroke-width="2" opacity="0.5" />
+    <line x1="390" y1="850" x2="400" y2="833" stroke-width="2" opacity="0.5" />
+    <line x1="690" y1="850" x2="680" y2="833" stroke-width="2" opacity="0.5" />
+    <line x1="230" y1="390" x2="247" y2="400" stroke-width="2" opacity="0.5" />
+    <line x1="230" y1="690" x2="247" y2="680" stroke-width="2" opacity="0.5" />
+    <line x1="850" y1="390" x2="833" y2="400" stroke-width="2" opacity="0.5" />
+    <line x1="850" y1="690" x2="833" y2="680" stroke-width="2" opacity="0.5" />
+  </g>
+
+  <!-- Cardinal Letters (Luxury Serif) -->
+  <g font-family="Cinzel, 'Times New Roman', Georgia, serif" font-size="28" font-weight="bold" fill="url(#goldLight)" text-anchor="middle" letter-spacing="2">
+    <text x="540" y="275">N</text>
+    <text x="815" y="549">E</text>
+    <text x="540" y="820">S</text>
+    <text x="265" y="549">W</text>
+  </g>
+
+  <!-- 8-Point Compass Star Facets -->
+  <g filter="url(#shadowGold)">
+    <!-- North Point (Light side) -->
+    <polygon points="540,540 540,300 520,540" fill="url(#needleNorth)" />
+    <!-- North Point (Shadow side) -->
+    <polygon points="540,540 540,300 560,540" fill="url(#goldDark)" />
+
+    <!-- South Point (Light side) -->
+    <polygon points="540,540 540,780 560,540" fill="url(#needleNorth)" />
+    <!-- South Point (Shadow side) -->
+    <polygon points="540,540 540,780 520,540" fill="url(#goldDark)" />
+
+    <!-- East Point (Light side) -->
+    <polygon points="540,540 780,540 540,520" fill="url(#needleNorth)" />
+    <!-- East Point (Shadow side) -->
+    <polygon points="540,540 780,540 540,560" fill="url(#goldDark)" />
+
+    <!-- West Point (Light side) -->
+    <polygon points="540,540 300,540 540,560" fill="url(#needleNorth)" />
+    <!-- West Point (Shadow side) -->
+    <polygon points="540,540 300,540 540,520" fill="url(#goldDark)" />
+
+    <!-- North-East Secondary -->
+    <polygon points="540,540 700,380 540,530" fill="url(#goldLight)" opacity="0.85" />
+    <polygon points="540,540 700,380 550,540" fill="url(#goldDark)" opacity="0.85" />
+
+    <!-- South-East Secondary -->
+    <polygon points="540,540 700,700 550,540" fill="url(#goldLight)" opacity="0.85" />
+    <polygon points="540,540 700,700 540,550" fill="url(#goldDark)" opacity="0.85" />
+
+    <!-- South-West Secondary -->
+    <polygon points="540,540 380,700 540,550" fill="url(#goldLight)" opacity="0.85" />
+    <polygon points="540,540 380,700 530,540" fill="url(#goldDark)" opacity="0.85" />
+
+    <!-- North-West Secondary -->
+    <polygon points="540,540 380,380 530,540" fill="url(#goldLight)" opacity="0.85" />
+    <polygon points="540,540 380,380 540,530" fill="url(#goldDark)" opacity="0.85" />
+  </g>
+
+  <!-- Central Optical Astrolabe Hub & Golden Prism Ring -->
+  <circle cx="540" cy="540" r="76" fill="#081126" stroke="url(#goldLight)" stroke-width="6" filter="url(#shadowGold)" />
+  <circle cx="540" cy="540" r="54" fill="none" stroke="url(#goldDark)" stroke-width="3" />
+
+  <!-- Dynamic Needle (Tilted toward North-East / Target Alignment) -->
+  <g transform="rotate(38 540 540)">
+    <!-- North Arrow Tip -->
+    <polygon points="540,540 528,540 540,320" fill="url(#needleNorth)" />
+    <polygon points="540,540 552,540 540,320" fill="url(#goldDark)" />
+    <!-- South Arrow Counter-Balance -->
+    <polygon points="540,540 550,540 540,680" fill="url(#needleSouth)" />
+    <polygon points="540,540 530,540 540,680" fill="#1E293B" />
+  </g>
+
+  <!-- Jewel / Gemstone Center Node -->
+  <circle cx="540" cy="540" r="22" fill="url(#needleNorth)" />
+  <circle cx="540" cy="540" r="14" fill="#060C1B" stroke="url(#goldLight)" stroke-width="3" />
+  <circle cx="536" cy="536" r="4" fill="#FFFFFF" />
+
+  <!-- Sparkle Glints -->
+  <g fill="#FFFDEB" opacity="0.9">
+    <path d="M 700 380 Q 700 365 705 365 Q 700 365 700 350 Q 700 365 695 365 Q 700 365 700 380 Z" />
+    <path d="M 540 215 Q 540 205 544 205 Q 540 205 540 195 Q 540 205 536 205 Q 540 205 540 215 Z" />
+  </g>
+</svg>

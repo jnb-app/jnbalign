@@ -1,0 +1,31 @@
+{
+  "totalVisits": 2,
+  "uniqueVisitors": 1,
+  "totalAnalyses": 0,
+  "totalUrlExtractions": 0,
+  "totalDownloads": 0,
+  "devices": {
+    "mobile": 0,
+    "desktop": 1
+  },
+  "languages": {
+    "fr": 1,
+    "en": 0
+  },
+  "dailyStats": {
+    "2026-11-01": {
+      "visits": 1,
+      "analyses": 0,
+      "downloads": 0,
+      "urls": 0
+    },
+    "2026-11-05": {
+      "visits": 1,
+      "analyses": 0,
+      "downloads": 0,
+      "urls": 0
+    }
+  },
+  "firstSeen": "2026-11-01T16:04:02.367Z",
+  "lastActive": "2026-11-05T18:12:34.419Z"
+}

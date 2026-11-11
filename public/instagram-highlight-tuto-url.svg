@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <!-- Background Radial Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#14244D" />
+      <stop offset="45%" stop-color="#0A142D" />
+      <stop offset="85%" stop-color="#050A17" />
+      <stop offset="100%" stop-color="#02050D" />
+    </radialGradient>
+
+    <radialGradient id="coreGlowCyan" cx="50%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.3" />
+      <stop offset="45%" stop-color="#F59E0B" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#050A17" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Luxury Gold Linear Gradients -->
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF0" />
+      <stop offset="25%" stop-color="#FDE68A" />
+      <stop offset="55%" stop-color="#F59E0B" />
+      <stop offset="85%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#9A7B1C" />
+    </linearGradient>
+
+    <linearGradient id="goldDark" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#78590F" />
+      <stop offset="35%" stop-color="#AA820A" />
+      <stop offset="70%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+
+    <!-- Optical Laser Data Beam Gradient -->
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="70%" stop-color="#FDE68A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="linkGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#F59E0B" flood-opacity="0.35" />
+    </filter>
+    <filter id="laserGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="outerRingShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#D4AF37" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1080" height="1080" fill="url(#bgGlow)" />
+
+  <!-- Center Ambient Radiant Glow -->
+  <circle cx="540" cy="540" r="440" fill="url(#coreGlowCyan)" />
+
+  <!-- Outer Decorative Rings for Instagram Story Highlights -->
+  <circle cx="540" cy="540" r="390" fill="none" stroke="url(#goldLight)" stroke-width="3" stroke-opacity="0.4" stroke-dasharray="6 6" />
+  <circle cx="540" cy="540" r="360" fill="none" stroke="url(#goldLight)" stroke-width="5" filter="url(#outerRingShadow)" />
+  <circle cx="540" cy="540" r="340" fill="none" stroke="url(#goldDark)" stroke-width="1.5" stroke-opacity="0.6" />
+
+  <!-- URL Pulse Orbit Nodes (representing web ingestion from URL) -->
+  <g stroke="url(#goldLight)" stroke-linecap="round" opacity="0.6">
+    <circle cx="540" cy="540" r="280" fill="none" stroke="url(#goldDark)" stroke-width="2" stroke-dasharray="12 12" />
+    <circle cx="540" cy="540" r="210" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.4" />
+  </g>
+
+  <!-- Data Pulse Dots along the trajectory -->
+  <circle cx="540" cy="260" r="8" fill="#38BDF8" filter="url(#laserGlow)" />
+  <circle cx="820" cy="540" r="8" fill="#F59E0B" filter="url(#laserGlow)" />
+  <circle cx="540" cy="820" r="8" fill="#38BDF8" filter="url(#laserGlow)" />
+  <circle cx="260" cy="540" r="8" fill="#F59E0B" filter="url(#laserGlow)" />
+
+  <!-- 3D LUXURY INTERLOCKING HYPERLINK (45 DEGREE ANGLE) -->
+  <g transform="rotate(-45 540 540)" filter="url(#linkGlow)">
+    <!-- LEFT LINK LOOP -->
+    <path
+      d="M 430 460 L 350 460 C 300 460 260 500 260 550 C 260 600 300 640 350 640 L 430 640 C 480 640 520 600 520 550 L 520 530"
+      fill="none"
+      stroke="url(#goldLight)"
+      stroke-width="56"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <!-- Left Loop Inner Inset (Metallic Depth) -->
+    <path
+      d="M 430 460 L 350 460 C 300 460 260 500 260 550 C 260 600 300 640 350 640 L 430 640 C 480 640 520 600 520 550 L 520 530"
+      fill="none"
+      stroke="#78590F"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      opacity="0.5"
+    />
+
+    <!-- RIGHT LINK LOOP -->
+    <path
+      d="M 650 620 L 730 620 C 780 620 820 580 820 530 C 820 480 780 440 730 440 L 650 440 C 600 440 560 480 560 530 L 560 550"
+      fill="none"
+      stroke="url(#goldLight)"
+      stroke-width="56"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <!-- Right Loop Inner Inset (Metallic Depth) -->
+    <path
+      d="M 650 620 L 730 620 C 780 620 820 580 820 530 C 820 480 780 440 730 440 L 650 440 C 600 440 560 480 560 530 L 560 550"
+      fill="none"
+      stroke="#78590F"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      opacity="0.5"
+    />
+
+    <!-- Connecting Bridge Bar in Center -->
+    <line x1="430" y1="540" x2="650" y2="540" stroke="url(#goldLight)" stroke-width="56" stroke-linecap="round" />
+    <line x1="440" y1="540" x2="640" y2="540" stroke="#FFFDEB" stroke-width="16" stroke-linecap="round" />
+  </g>
+
+  <!-- Optical Laser Trajectory (Ingestion Speed Beam) -->
+  <g filter="url(#laserGlow)">
+    <line x1="320" y1="760" x2="760" y2="320" stroke="url(#laserBeam)" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+    <!-- Dynamic Flash at Connection Joint -->
+    <circle cx="540" cy="540" r="14" fill="#FFFFFF" />
+    <circle cx="540" cy="540" r="28" fill="#38BDF8" opacity="0.5" />
+    <circle cx="540" cy="540" r="48" fill="#F59E0B" opacity="0.25" />
+  </g>
+
+  <!-- 15s Fast Ingestion Speed Badge in Sub-Arc -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">
+    <!-- Mini pill tag at bottom -->
+    <rect x="440" y="720" width="200" height="42" rx="21" fill="#081126" stroke="url(#goldLight)" stroke-width="2" />
+    <text x="540" y="747" font-size="16" font-weight="bold" fill="url(#goldLight)" letter-spacing="2">
+      ⚡ 15 SECONDES
+    </text>
+  </g>
+
+  <!-- Sparkle Glints -->
+  <g fill="#FFFDEB" opacity="0.95">
+    <path d="M 680 380 Q 680 360 685 360 Q 680 360 680 340 Q 680 360 675 360 Q 680 360 680 380 Z" />
+    <circle cx="680" cy="360" r="4" fill="#FFFFFF" />
+  </g>
+</svg>

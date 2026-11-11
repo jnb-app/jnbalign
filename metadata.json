@@ -1,0 +1,8 @@
+{
+  "name": "Optimiseur CV & LM",
+  "description": "Analyse d'écart sémantique IA, préservation stricte des expériences réelles sans invention, mise en page optimisée pour le parsing ATS et lettre de motivation stratégique.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

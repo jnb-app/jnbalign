@@ -1,0 +1,50 @@
+[
+  {
+    "id": "seg1_raison",
+    "text": "Ton CV est peut-être la raison pour laquelle tu ne décroches pas d'entretien.",
+    "file": "/app/applet/public/audio/com_segments/seg1_raison.mp3",
+    "duration": 3.816
+  },
+  {
+    "id": "seg2_mais",
+    "text": "Mais avec JNB Align :",
+    "file": "/app/applet/public/audio/com_segments/seg2_mais.mp3",
+    "duration": 2.328
+  },
+  {
+    "id": "seg3_optimisez",
+    "text": "Optimisez votre CV pour les ATS.",
+    "file": "/app/applet/public/audio/com_segments/seg3_optimisez.mp3",
+    "duration": 3.264
+  },
+  {
+    "id": "seg4_valorisez",
+    "text": "Valorisez vos compétences et vos expériences.",
+    "file": "/app/applet/public/audio/com_segments/seg4_valorisez.mp3",
+    "duration": 3.384
+  },
+  {
+    "id": "seg5_creez",
+    "text": "Créez une lettre de motivation stratégique.",
+    "file": "/app/applet/public/audio/com_segments/seg5_creez.mp3",
+    "duration": 3.576
+  },
+  {
+    "id": "seg6_telechargez",
+    "text": "Téléchargez vos documents gratuitement.",
+    "file": "/app/applet/public/audio/com_segments/seg6_telechargez.mp3",
+    "duration": 2.664
+  },
+  {
+    "id": "seg7_ne_laisse_plus",
+    "text": "Ne laisse plus ton CV décider de ton avenir.",
+    "file": "/app/applet/public/audio/com_segments/seg7_ne_laisse_plus.mp3",
+    "duration": 3.024
+  },
+  {
+    "id": "seg8_cta",
+    "text": "Teste JNB Align gratuitement dès maintenant.",
+    "file": "/app/applet/public/audio/com_segments/seg8_cta.mp3",
+    "duration": 3.864
+  }
+]
