@@ -164,56 +164,82 @@ async function callGeminiWithFallback<T>(
   throw lastError;
 }
 
-// Validateur strict du nom du candidat : rejette formellement les diplômes, formations, intitulés de postes et rubriques
+// Validateur strict du nom du candidat : rejette formellement les diplômes, formations, intitulés de postes, technologies et rubriques
 export function isInvalidCandidateName(name: string | undefined | null): boolean {
   if (!name || typeof name !== "string") return true;
   const clean = name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  if (clean.length < 3 || clean.length > 45) return true;
+  if (clean.length < 3 || clean.length > 50) return true;
 
-  // 1. Termes de diplômes, filières, cursus et statuts d'étudiants (ex: "Master Miage", "Licence Pro", "Bac+5")
-  const degreeTerms = [
-    "master", "miage", "licence", "bachelor", "doctorat", "phd", "msc", "bsc", "mba",
-    "bts", "dut", "deust", "deug", "bac", "baccalaureat", "mastere", "universite",
-    "ecole", "faculte", "iut", "cursus", "diplome", "diplomes", "alternance", "alternant",
-    "alternante", "stage", "stagiaire", "apprentissage", "apprenti", "apprentie",
-    "etudiant", "etudiante", "eleve", "ingenieur", "ingenierie", "prepa", "certification"
-  ];
-  if (degreeTerms.some(term => clean === term || clean.startsWith(term + " ") || clean.endsWith(" " + term) || clean.includes(" " + term + " "))) {
-    return true;
-  }
+  // Liste exhaustive de tokens qui NE PEUVENT JAMAIS composer le nom d'une personne physique
+  const forbiddenTokens = new Set([
+    // Métiers, Rôles & Fonctions
+    "product", "owner", "ownership", "manager", "management", "lead", "leader", "leadership",
+    "director", "directeur", "directrice", "consultant", "consultante", "consulting",
+    "developer", "developpeur", "developpeuse", "engineer", "ingenieur", "ingenieure", "engineering",
+    "architect", "architecte", "architecture", "analyst", "analyste", "analysis",
+    "scrum", "agile", "coach", "coaching", "master", "officer", "specialist", "specialiste",
+    "expert", "confirme", "confirmee", "senior", "junior", "middle", "office", "back", "front",
+    "fullstack", "stack", "chef", "responsable", "charge", "chargee", "assistant", "assistante",
+    "coordinateur", "coordinatrice", "technicien", "technicienne", "stagiaire", "alternant",
+    "alternante", "etudiant", "etudiante", "eleve", "freelance", "independant", "cadre",
+    "associe", "partner", "founder", "fondateur", "fondatrice", "president", "ceo", "cto", "cpo", "coo", "cmo", "vp", "head",
+    "po", "pm", "dev", "qa",
 
-  // 2. Termes de postes / fonctions professionnelles (ex: "Product Owner", "Chef de Projet", "Développeur")
-  const jobRoleTerms = [
-    "product owner", "product manager", "scrum master", "chef de projet", "project manager",
-    "developpeur", "developer", "architecte", "architect", "tech lead", "lead dev",
-    "lead developer", "consultant", "consultante", "business analyst", "data analyst",
-    "data scientist", "devops", "directeur", "directrice", "responsable", "manager",
-    "coordinateur", "coordinatrice", "commercial", "charge de", "chargee de"
-  ];
-  if (jobRoleTerms.some(role => clean === role || clean.startsWith(role + " ") || clean.endsWith(" " + role) || clean.includes(" " + role + " "))) {
-    return true;
-  }
+    // Technologies, Outils & Méthodologies
+    "salesforce", "sap", "oracle", "aws", "azure", "gcp", "cloud", "jira", "confluence",
+    "docker", "kubernetes", "python", "java", "javascript", "typescript", "react", "angular",
+    "vue", "node", "sql", "nosql", "linux", "devops", "git", "github", "gitlab", "crm", "erp",
+    "excel", "powerpoint", "word", "tableau", "figma", "trello", "slack",
+    "kanban", "safe", "lean", "itil",
 
-  // 3. Rubriques génériques de CV
-  const genericCvTerms = [
+    // Diplômes, Filières & Formations
+    "miage", "licence", "bachelor", "doctorat", "phd", "msc", "bsc", "mba", "bts", "dut",
+    "deust", "deug", "bac", "baccalaureat", "mastere", "universite", "ecole", "faculte",
+    "iut", "cursus", "diplome", "diplomes", "formation", "formations", "certif", "certification",
+    "prepa", "stage", "alternance", "apprentissage", "contrat", "professionnalisation",
+
+    // Rubriques de CV & Textes génériques
     "coordonnees", "contact", "contacts", "information", "informations", "profil", "profile",
-    "curriculum", "curriculum vitae", "resume", "summary", "candidat", "candidate",
-    "presentation", "a propos", "experiences", "experience", "formation", "formations",
-    "competences", "competence", "skills", "langues", "projets", "centres d interet",
-    "loisirs", "hobbies", "titre", "page"
-  ];
-  if (genericCvTerms.some(kw => clean === kw || clean.startsWith(kw + " ") || clean.endsWith(" " + kw))) {
-    return true;
+    "curriculum", "vitae", "resume", "summary", "presentation", "projets", "projet", "project",
+    "realisation", "realisations", "competence", "competences", "skills", "experience",
+    "experiences", "langue", "langues", "interet", "hobbies", "loisirs", "divers",
+    "candidat", "candidate", "candidature", "poste", "recrutement", "recherche", "emploi",
+    "disponible", "disponibilite", "permis", "titre"
+  ]);
+
+  const words = clean.split(/[^a-z0-9]+/).filter(Boolean);
+  if (words.length === 0) return true;
+
+  for (const w of words) {
+    if (forbiddenTokens.has(w)) {
+      return true;
+    }
   }
 
   return false;
+}
+
+// Rétablir les lettres espacées individuellement (ex: "J O S I A N   N K U L I   B E L A N G A" sur Canva/Photoshop)
+export function collapseCanvaLetterSpacing(str: string): string {
+  if (!str) return str;
+  const multiSpaceWords = str.split(/\s{2,}/).map(w => w.trim()).filter(Boolean);
+  if (multiSpaceWords.length >= 2 && multiSpaceWords.some(w => /^(?:[A-Za-zÀ-ÿ]\s+)+[A-Za-zÀ-ÿ]$/.test(w))) {
+    return multiSpaceWords.map(w => {
+      if (/^(?:[A-Za-zÀ-ÿ]\s+)+[A-Za-zÀ-ÿ]$/.test(w)) {
+        return w.replace(/\s+/g, "");
+      }
+      return w;
+    }).join(" ");
+  }
+  return str;
 }
 
 // Extraction robuste et infaillible du nom et prénom du candidat (Exclut formellement les en-têtes comme "Coordonnées", "Master Miage", etc.)
 function extractCandidateFullName(cvText: string): string {
   if (!cvText) return "Candidat";
 
-  const lines = cvText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const rawLines = cvText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const lines = rawLines.map(collapseCanvaLetterSpacing);
 
   // 1. Détection d'un email pour corréler les fragments de nom (ex: josian.nkuli / nkuli)
   const emailMatch = cvText.match(/([a-zA-Z0-9._-]+)@([a-zA-Z0-9._-]+)\.[a-zA-Z0-9._-]+/);
@@ -438,7 +464,10 @@ function sanitizeDocumentText(rawText: string): string {
     return match;
   });
 
-  // 4. Nettoyer les en-têtes/pieds de page répétitifs
+  // 4. Réparer les titres Canva / InDesign où les lettres sont espacées (ex: "J O S I A N   N K U L I   B E L A N G A")
+  text = text.split("\n").map(collapseCanvaLetterSpacing).join("\n");
+
+  // 5. Nettoyer les en-têtes/pieds de page répétitifs
   text = text
     .replace(/--\s*\d+\s+of\s+\d+\s*--/gi, "")
     .replace(/\bpage\s+\d+\s*(?:sur|\/|of)\s*\d+\b/gi, "")
@@ -1932,7 +1961,8 @@ function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr', cvRawT
   if (cl.header.subjectLine) {
     cl.header.subjectLine = cl.header.subjectLine
       .replace(/\bcoordonn[ée]+es?\b/gi, candidateFullName)
-      .replace(/\bMaster\s+Miage\b/gi, candidateFullName);
+      .replace(/\bMaster\s+Miage\b/gi, candidateFullName)
+      .replace(/\bProduct\s+ownership\s+Salesforce\b/gi, candidateFullName);
     const subjectCandidateSegment = cl.header.subjectLine.split("-").pop()?.trim();
     if (subjectCandidateSegment && isInvalidCandidateName(subjectCandidateSegment)) {
       cl.header.subjectLine = isEn
@@ -2824,7 +2854,7 @@ EXPECTED JSON OUTPUT (Strict JSON, 100% in Executive English):
 2. ATS-OPTIMIZED CV (optimizedCv):
    - Strict hierarchical structure for ATS parsers and human recruiters.
    - personalInfo: { fullName, professionalTitle, email, phone, location, linkedin, portfolioUrl }
-     ⚠️ CRITICAL CANDIDATE NAME RULE: 'fullName' MUST be the real human candidate's First and Last Name (e.g. Jean Dupont). NEVER output a degree/education name (e.g. 'Master Miage', 'Licence Pro', 'Bachelor of Science', 'MSc'), a job title ('Product Owner', 'Software Engineer'), or a generic heading ('Coordonnées', 'Candidate') as fullName. If the CV begins with a degree header, look for the candidate's actual human name in the text or professional email.
+     ⚠️ CRITICAL CANDIDATE NAME RULE: 'fullName' MUST be the real human candidate's First and Last Name (e.g. Jean Dupont). NEVER output a degree/education name (e.g. 'Master Miage', 'Licence Pro', 'Bachelor of Science', 'MSc'), a job title or specialty ('Product ownership Salesforce', 'Product Owner', 'Software Engineer'), or a generic heading ('Coordonnées', 'Candidate') as fullName. If the CV begins with a degree or title header, extract the candidate's actual human name from the text or professional email.
    - professionalSummary: high-impact 3-4 sentence paragraph highlighting core value proposition aligned with target role in English.
    - skillsCategories: array of { categoryName, skills: string[] }
      (e.g., "Core Competencies & Key Skills", "Technical Tools & Infrastructure", "Methodologies & Project Leadership", "Interpersonal & Executive Communication").
@@ -2910,9 +2940,8 @@ OBJECTIFS ET SORTIE ATTENDUE (au format JSON strict, 100% en français) :
    - Doit respecter une hiérarchie sémantique parfaite, adaptée aux parseurs ATS et aux recruteurs humains.
    - personalInfo : { fullName, professionalTitle, email, phone, location, linkedin, portfolioUrl }
      ⚠️ RÈGLE CRITIQUE D'EXTRACTION DU NOM DU CANDIDAT (fullName) :
-     'fullName' DOIT IMPÉRATIVEMENT être le véritable prénom et nom de famille d'une personne physique (ex: Jean Dupont, Marie Curie, etc.).
-     STRICTEMENT INTERDIT : Ne JAMAIS mettre un intitulé de diplôme ou d'études (ex: 'Master Miage', 'Licence Pro', 'Bac+5', 'Ingénieur Informatique'), ni un intitulé de poste (ex: 'Product Owner', 'Chef de Projet', 'Développeur'), ni un mot de rubrique (ex: 'Coordonnées', 'Profil', 'Candidat') dans fullName.
-     Si le CV commence par un diplôme ou un titre en gros caractères, cherche le vrai prénom et nom de famille du candidat dans le CV ou déduis-le depuis son adresse email professionnelle (ex: prenom.nom@email.com).
+     STRICTEMENT INTERDIT : Ne JAMAIS mettre un intitulé de diplôme (ex: 'Master Miage', 'Licence Pro', 'Bac+5'), ni un intitulé de poste, spécialité ou rôle (ex: 'Product ownership Salesforce', 'Product Owner', 'Chef de Projet', 'Développeur', 'Scrum Master'), ni un mot de rubrique (ex: 'Coordonnées', 'Profil', 'Candidat') dans fullName.
+     Si le CV mentionne 'Product ownership Salesforce' ou un intitulé de poste similaire, il s'agit du 'professionalTitle' et ABSOLUMENT PAS du nom du candidat. Le nom du candidat est le véritable prénom et nom de famille de la personne physique (ex: Josian Nkuli Belanga), extrait du haut du CV ou de son adresse email professionnelle.
    - professionalSummary : paragraphe percutant en français de 3 à 4 phrases résumant la proposition de valeur du candidat spécifiquement alignée avec l'intitulé et les priorités du poste.
    - skillsCategories : tableau d'objets { categoryName, skills: string[] } (ex: "Compétences Techniques & Outils", "Méthodologies & Gestion de Projet", "Compétences Relationnelles & Métier").
    - experiences : tableau d'expériences professionnelles (chronologie inversée) :
