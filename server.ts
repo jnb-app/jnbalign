@@ -164,72 +164,106 @@ async function callGeminiWithFallback<T>(
   throw lastError;
 }
 
-// Extraction robuste et infaillible du nom et prénom du candidat (Exclut formellement les en-têtes comme "Coordonnées")
+// Validateur strict du nom du candidat : rejette formellement les diplômes, formations, intitulés de postes et rubriques
+export function isInvalidCandidateName(name: string | undefined | null): boolean {
+  if (!name || typeof name !== "string") return true;
+  const clean = name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (clean.length < 3 || clean.length > 45) return true;
+
+  // 1. Termes de diplômes, filières, cursus et statuts d'étudiants (ex: "Master Miage", "Licence Pro", "Bac+5")
+  const degreeTerms = [
+    "master", "miage", "licence", "bachelor", "doctorat", "phd", "msc", "bsc", "mba",
+    "bts", "dut", "deust", "deug", "bac", "baccalaureat", "mastere", "universite",
+    "ecole", "faculte", "iut", "cursus", "diplome", "diplomes", "alternance", "alternant",
+    "alternante", "stage", "stagiaire", "apprentissage", "apprenti", "apprentie",
+    "etudiant", "etudiante", "eleve", "ingenieur", "ingenierie", "prepa", "certification"
+  ];
+  if (degreeTerms.some(term => clean === term || clean.startsWith(term + " ") || clean.endsWith(" " + term) || clean.includes(" " + term + " "))) {
+    return true;
+  }
+
+  // 2. Termes de postes / fonctions professionnelles (ex: "Product Owner", "Chef de Projet", "Développeur")
+  const jobRoleTerms = [
+    "product owner", "product manager", "scrum master", "chef de projet", "project manager",
+    "developpeur", "developer", "architecte", "architect", "tech lead", "lead dev",
+    "lead developer", "consultant", "consultante", "business analyst", "data analyst",
+    "data scientist", "devops", "directeur", "directrice", "responsable", "manager",
+    "coordinateur", "coordinatrice", "commercial", "charge de", "chargee de"
+  ];
+  if (jobRoleTerms.some(role => clean === role || clean.startsWith(role + " ") || clean.endsWith(" " + role) || clean.includes(" " + role + " "))) {
+    return true;
+  }
+
+  // 3. Rubriques génériques de CV
+  const genericCvTerms = [
+    "coordonnees", "contact", "contacts", "information", "informations", "profil", "profile",
+    "curriculum", "curriculum vitae", "resume", "summary", "candidat", "candidate",
+    "presentation", "a propos", "experiences", "experience", "formation", "formations",
+    "competences", "competence", "skills", "langues", "projets", "centres d interet",
+    "loisirs", "hobbies", "titre", "page"
+  ];
+  if (genericCvTerms.some(kw => clean === kw || clean.startsWith(kw + " ") || clean.endsWith(" " + kw))) {
+    return true;
+  }
+
+  return false;
+}
+
+// Extraction robuste et infaillible du nom et prénom du candidat (Exclut formellement les en-têtes comme "Coordonnées", "Master Miage", etc.)
 function extractCandidateFullName(cvText: string): string {
   if (!cvText) return "Candidat";
 
   const lines = cvText.split("\n").map((l) => l.trim()).filter(Boolean);
-
-  // Mots-clés de sections / rubriques à exclure ABSOLUMENT pour ne jamais prendre "Coordonnées" pour le nom
-  const nonNameKeywords = new Set([
-    "coordonnées", "coordonnees", "contact", "contacts", "informations", "informations personnelles",
-    "personal details", "personal info", "contact info", "contact information", "état civil", "etat civil",
-    "curriculum vitae", "curriculum", "cv", "resume", "résumé", "profil", "profile", "summary",
-    "professional summary", "profil professionnel", "à propos", "a propos", "about", "about me",
-    "expérience", "experiences", "expériences", "experience", "work experience", "parcours",
-    "formation", "formations", "education", "diplôme", "diplomes", "diplômes", "studies",
-    "compétences", "competences", "skills", "hard skills", "soft skills", "atouts", "expertise",
-    "langues", "languages", "centres d'intérêt", "centres d interet", "interets", "intérêts",
-    "hobbies", "loisirs", "certifications", "projets", "projects", "references", "références",
-    "titre", "poste", "adresse", "téléphone", "telephone", "phone", "email", "mail", "linkedin",
-    "page", "candidat", "candidate"
-  ]);
 
   // 1. Détection d'un email pour corréler les fragments de nom (ex: josian.nkuli / nkuli)
   const emailMatch = cvText.match(/([a-zA-Z0-9._-]+)@([a-zA-Z0-9._-]+)\.[a-zA-Z0-9._-]+/);
   const emailPrefix = emailMatch ? emailMatch[1].toLowerCase() : "";
   const emailParts = emailPrefix.split(/[._-]/).filter((p) => p.length >= 3);
 
-  const candidatePool = lines.slice(0, 30);
+  // Si l'email a la structure prenom.nom@... on peut construire un nom de secours fiable
+  let nameFromEmail: string | null = null;
+  if (emailParts.length >= 2) {
+    const candidateParts = emailParts.filter(p => !/^(contact|info|recrutement|job|admin|mail|test|cv|post|user|service)\b/i.test(p));
+    if (candidateParts.length >= 2) {
+      nameFromEmail = candidateParts
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+        .join(" ");
+    }
+  }
 
-  // Priorité 1 : ligne contenant au moins un fragment significatif de l'email du candidat
+  const candidatePool = lines.slice(0, 35);
+
+  // Priorité 1 : ligne contenant au moins un fragment significatif de l'email du candidat ET non rejetée
   if (emailParts.length > 0) {
     for (const rawLine of candidatePool) {
       const line = rawLine.replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim();
+      if (isInvalidCandidateName(line)) continue;
+      if (line.includes("@") || /\d/.test(line) || line.length > 40 || line.length < 4) continue;
+      if (line.includes("http") || line.includes("linkedin")) continue;
+
       const lower = line.toLowerCase();
-      if (
-        nonNameKeywords.has(lower) ||
-        lower.includes("@") ||
-        /\d/.test(lower) ||
-        line.length > 40 ||
-        line.length < 4
-      ) {
-        continue;
-      }
       const matchesEmailPart = emailParts.some((part) => lower.includes(part));
-      if (matchesEmailPart && !lower.includes("http") && !lower.includes("linkedin")) {
+      if (matchesEmailPart) {
         const words = line.split(/\s+/).filter(Boolean);
-        if (words.length >= 2 && words.length <= 5) {
+        if (words.length >= 2 && words.length <= 5 && !words.some(w => isInvalidCandidateName(w))) {
           return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
         }
       }
     }
   }
 
-  // Priorité 2 : 2 à 4 mots capitalisés consécutifs (ex: "Josian Nkuli Belanga" ou "JOSIAN NKULI BELANGA")
+  // Priorité 2 : 2 à 4 mots capitalisés consécutifs (exclut formellement tout diplôme comme "Master Miage" ou titre de poste)
   for (const rawLine of candidatePool) {
     const line = rawLine.replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim();
-    const lower = line.toLowerCase();
-
-    if (nonNameKeywords.has(lower)) continue;
-    if (Array.from(nonNameKeywords).some((kw) => lower === kw || lower.startsWith(kw + " ") || lower.startsWith(kw + ":"))) continue;
-    if (lower.includes("@") || lower.includes("http") || lower.includes("www.") || lower.includes(".com") || lower.includes(".fr")) continue;
+    if (isInvalidCandidateName(line)) continue;
+    if (line.includes("@") || line.includes("http") || line.includes("www.") || line.includes(".com") || line.includes(".fr")) continue;
     if (/\d/.test(line)) continue;
     if (line.includes(":") || line.includes(";") || line.includes("/") || line.includes("|") || line.includes(",")) continue;
     if (line.length < 4 || line.length > 38) continue;
 
     const words = line.split(/\s+/).filter(Boolean);
     if (words.length >= 2 && words.length <= 4) {
+      if (words.some(w => isInvalidCandidateName(w))) continue;
       const isAllUpperOrTitle = words.every((w) => /^[A-ZÀ-Ÿ]/.test(w));
       if (isAllUpperOrTitle) {
         return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
@@ -237,13 +271,20 @@ function extractCandidateFullName(cvText: string): string {
     }
   }
 
-  // Priorité 3 : première ligne propre et non-rubrique
+  // Priorité 3 : première ligne propre et non-rubrique, non-diplôme
   for (const rawLine of candidatePool) {
     const line = rawLine.replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim();
-    const lower = line.toLowerCase();
-    if (nonNameKeywords.has(lower) || Array.from(nonNameKeywords).some((kw) => lower.startsWith(kw))) continue;
-    if (lower.includes("@") || /\d/.test(line) || line.length > 35 || line.length < 3) continue;
-    return line;
+    if (isInvalidCandidateName(line)) continue;
+    if (line.includes("@") || /\d/.test(line) || line.length > 35 || line.length < 4) continue;
+    const words = line.split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 4 && !words.some(w => isInvalidCandidateName(w))) {
+      return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+    }
+  }
+
+  // Priorité 4 : Nom déduit de l'adresse email (ex: josian.nkuli@... -> Josian Nkuli)
+  if (nameFromEmail && !isInvalidCandidateName(nameFromEmail)) {
+    return nameFromEmail;
   }
 
   return "Josian Nkuli Belanga";
@@ -1813,12 +1854,12 @@ function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr', cvRawT
     location: isEn ? "London / Remote" : "France",
   };
 
-  // Règle absolue anti-"Coordonnées" : si le modèle ou le fallback a produit "Coordonnées" ou une valeur vide
+  // Règle absolue anti-diplôme, anti-poste et anti-rubrique pour fullName :
   if (
     !cv.personalInfo.fullName ||
-    /^(coordonn[ée]+es?|candidat|candidate|contact|profil|curriculum|cv|summary)$/i.test(cv.personalInfo.fullName.trim())
+    isInvalidCandidateName(cv.personalInfo.fullName)
   ) {
-    cv.personalInfo.fullName = realCandidateName;
+    cv.personalInfo.fullName = !isInvalidCandidateName(realCandidateName) ? realCandidateName : (isEn ? "Candidate" : "Candidat");
   }
 
   // Normalisation téléphonique (garantit 10 chiffres pour numéros français)
@@ -1889,7 +1930,15 @@ function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr', cvRawT
 
   cl.header.candidateName = candidateFullName;
   if (cl.header.subjectLine) {
-    cl.header.subjectLine = cl.header.subjectLine.replace(/\bcoordonn[ée]+es?\b/gi, candidateFullName);
+    cl.header.subjectLine = cl.header.subjectLine
+      .replace(/\bcoordonn[ée]+es?\b/gi, candidateFullName)
+      .replace(/\bMaster\s+Miage\b/gi, candidateFullName);
+    const subjectCandidateSegment = cl.header.subjectLine.split("-").pop()?.trim();
+    if (subjectCandidateSegment && isInvalidCandidateName(subjectCandidateSegment)) {
+      cl.header.subjectLine = isEn
+        ? `Application for ${sg.jobOverview?.title || "Role"} - ${candidateFullName}`
+        : `Candidature au poste de ${sg.jobOverview?.title || "Poste"} - ${candidateFullName}`;
+    }
   }
 
   cl.header.date = todayFormatted;
@@ -2775,6 +2824,7 @@ EXPECTED JSON OUTPUT (Strict JSON, 100% in Executive English):
 2. ATS-OPTIMIZED CV (optimizedCv):
    - Strict hierarchical structure for ATS parsers and human recruiters.
    - personalInfo: { fullName, professionalTitle, email, phone, location, linkedin, portfolioUrl }
+     ⚠️ CRITICAL CANDIDATE NAME RULE: 'fullName' MUST be the real human candidate's First and Last Name (e.g. Jean Dupont). NEVER output a degree/education name (e.g. 'Master Miage', 'Licence Pro', 'Bachelor of Science', 'MSc'), a job title ('Product Owner', 'Software Engineer'), or a generic heading ('Coordonnées', 'Candidate') as fullName. If the CV begins with a degree header, look for the candidate's actual human name in the text or professional email.
    - professionalSummary: high-impact 3-4 sentence paragraph highlighting core value proposition aligned with target role in English.
    - skillsCategories: array of { categoryName, skills: string[] }
      (e.g., "Core Competencies & Key Skills", "Technical Tools & Infrastructure", "Methodologies & Project Leadership", "Interpersonal & Executive Communication").
@@ -2859,6 +2909,10 @@ OBJECTIFS ET SORTIE ATTENDUE (au format JSON strict, 100% en français) :
 2. LE CV REFORMULÉ ET STRUCTURÉ ATS (optimizedCv) :
    - Doit respecter une hiérarchie sémantique parfaite, adaptée aux parseurs ATS et aux recruteurs humains.
    - personalInfo : { fullName, professionalTitle, email, phone, location, linkedin, portfolioUrl }
+     ⚠️ RÈGLE CRITIQUE D'EXTRACTION DU NOM DU CANDIDAT (fullName) :
+     'fullName' DOIT IMPÉRATIVEMENT être le véritable prénom et nom de famille d'une personne physique (ex: Jean Dupont, Marie Curie, etc.).
+     STRICTEMENT INTERDIT : Ne JAMAIS mettre un intitulé de diplôme ou d'études (ex: 'Master Miage', 'Licence Pro', 'Bac+5', 'Ingénieur Informatique'), ni un intitulé de poste (ex: 'Product Owner', 'Chef de Projet', 'Développeur'), ni un mot de rubrique (ex: 'Coordonnées', 'Profil', 'Candidat') dans fullName.
+     Si le CV commence par un diplôme ou un titre en gros caractères, cherche le vrai prénom et nom de famille du candidat dans le CV ou déduis-le depuis son adresse email professionnelle (ex: prenom.nom@email.com).
    - professionalSummary : paragraphe percutant en français de 3 à 4 phrases résumant la proposition de valeur du candidat spécifiquement alignée avec l'intitulé et les priorités du poste.
    - skillsCategories : tableau d'objets { categoryName, skills: string[] } (ex: "Compétences Techniques & Outils", "Méthodologies & Gestion de Projet", "Compétences Relationnelles & Métier").
    - experiences : tableau d'expériences professionnelles (chronologie inversée) :
@@ -2881,6 +2935,7 @@ OBJECTIFS ET SORTIE ATTENDUE (au format JSON strict, 100% en français) :
 3. LETTRE DE MOTIVATION PERSONNALISÉE (coverLetter) :
    - Rédigée entièrement en français selon le style "Vous / Moi / Nous".
    - header : { candidateName, candidateEmail, candidatePhone, recipientNameOrTitle, companyName, date, subjectLine }
+     ⚠️ 'candidateName' DOIT être le vrai prénom et nom de la personne (identique à fullName), JAMAIS un diplôme ('Master Miage') ni un poste.
    - La date du header DOIT OBLIGATOIREMENT être la date du jour de création du document : "${todayFormattedDateFr}".
    - paragraphs :
      - vous : Paragraphe d'accroche montrant une connaissance aiguë de l'entreprise, de son contexte et des défis précis du poste identifiés dans l'offre.
