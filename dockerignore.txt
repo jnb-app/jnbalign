@@ -1,8 +1,0 @@
-node_modules
-dist
-server.mjs
-public/assets/aistudio
-.git
-.github
-*.log
-.DS_Store
