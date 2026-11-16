@@ -336,7 +336,7 @@ export const SemanticGapView: React.FC<SemanticGapViewProps> = ({
             </p>
           </div>
         </div>
-        <KeywordsTagCloud keywordsAnalysis={keywordsAnalysis} />
+        <KeywordsTagCloud keywordsAnalysis={keywordsAnalysis} languageMode={analysis?.languageMode} />
       </div>
 
       {/* Compliance Audit & Recommendations */}
