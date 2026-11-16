@@ -6,9 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
-# Copy project files & build frontend
+# Copy project files & build frontend + pre-compile backend server.mjs
 COPY . .
-RUN npm run build
+RUN npm run build && npx esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.mjs
 
 # Runner stage
 FROM node:22-alpine AS runner
@@ -18,14 +18,13 @@ ENV NODE_ENV=production
 ENV PORT=8080
 
 COPY package*.json ./
-RUN npm install --omit=dev --legacy-peer-deps && npm install -g tsx
+RUN npm install --omit=dev --legacy-peer-deps
 
-# Copy built frontend assets, public files and server
+# Copy built frontend assets, public files, and compiled server
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/server.ts ./server.ts
-COPY --from=builder /app/src ./src
+COPY --from=builder /app/server.mjs ./server.mjs
 
 EXPOSE 8080
 
-CMD ["tsx", "server.ts"]
+CMD ["node", "server.mjs"]
