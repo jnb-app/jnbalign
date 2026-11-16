@@ -569,15 +569,11 @@ export function sanitizeJobRoleTitle(rawTitle?: string): string {
       .join(" ");
   }
 
-<<<<<<< HEAD
   cleaned = cleaned
     .trim()
     .replace(/(^|\/\s*)([a-zà-ÿ])/g, (_, sep, ch) => `${sep}${ch.toUpperCase()}`);
 
   return cleaned;
-=======
-  return cleaned.trim();
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
 }
 
 function stripJobAdNoiseInline(text: string): string {
@@ -1852,14 +1848,11 @@ function extractJobFocusContext(
       score: countHits(/\b(?:banque|bancaire|fintech|leasing|factoring|cr[ée]dit|[ée]pargne|assureur|patrimoine\s+financier|bnp|soci[ée]t[ée]\s+g[ée]n[ée]rale|axa|allianz)\b/gi) * 3.5,
     },
     {
-<<<<<<< HEAD
       labelFr: "Finance, Audit & Contrôle de Gestion",
       labelEn: "Finance, Audit & Controlling",
       score: countHits(/\b(?:contr[oô]le\s+de\s+gestion|contr[oô]leu(?:r|se)\s+financier|analyste\s+financier|tr[ée]sorerie|cl[oô]ture\s+comptable|normes\s+ifrs|ifrs|audit\s+financier|reporting\s+financier|budg[ée]taire)\b/gi) * 3.5,
     },
     {
-=======
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
       labelFr: "Automobile & Mobilité",
       labelEn: "Automotive & Mobility",
       score: countHits(/\b(?:secteur\s+automobile|automobile|constructeur\s+auto|concession|v[ée]hicules?|a[ée]ronautique|ferroviaire|mobilit[ée]\s+(?:urbaine|durable|[ée]lectrique))\b/gi) * 3.5,
@@ -3423,11 +3416,7 @@ export function parseAuthenticExperiencesFromCv(
     return true;
   };
 
-<<<<<<< HEAD
   const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|stagiaire|intern)\b/i;
-=======
-  const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|stagiaire|intern)\b/i;
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
 
   for (let i = 0; i < expLines.length; i++) {
     const line = expLines[i];
@@ -3638,7 +3627,6 @@ export function parseAuthenticExperiencesFromCv(
             .map((l) => l.replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim())
             .join(" ");
         } else {
-<<<<<<< HEAD
           const rawRoleLine = expLines[anchor.roleLineIdx].replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim();
           if (!hasPipe && anchor.companyLineIdx === null && rawRoleLine.includes("|")) {
             const rParts = rawRoleLine.split("|").map((p) => p.replace(/^[#*–—•:\s]+|[#*–—•:\s]+$/g, "").trim()).filter(Boolean);
@@ -3679,9 +3667,6 @@ export function parseAuthenticExperiencesFromCv(
           } else {
             role = rawRoleLine;
           }
-=======
-          role = expLines[anchor.roleLineIdx].replace(/^[#*–—•:|\s]+|[#*–—•:|\s]+$/g, "").trim();
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
         }
       }
       if (anchor.companyLineIdx !== null) {
@@ -3709,11 +3694,7 @@ export function parseAuthenticExperiencesFromCv(
         .map((p, idx) => (idx === datePartIdx && dateMatch ? p.replace(dateMatch[0], "").trim() : p))
         .filter((p) => p.length > 1);
 
-<<<<<<< HEAD
       const pipeRoleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|programmeur|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+projet|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|stagiaire|intern|vendeur|serveur)\b/i;
-=======
-      const pipeRoleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|programmeur|manager|lead|owner|analyst|analyste|consultant|consultante|director|directeur|directrice|chef\s+de\s+projet|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|stagiaire|intern|vendeur|serveur)\b/i;
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
 
       if (cleanParts.length >= 2) {
         const p0 = cleanParts[0];
@@ -4773,17 +4754,10 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     let inlineInstitution = "";
     let honorsOrDetails = "";
 
-<<<<<<< HEAD
     // Format monoligne avec tirets ou pipes (ex: "Master Management stratégique – Université de Montpellier"
     // ou "Master Grande École Finance | Université de Paris")
     if (/\s+(?:[–—-]|\|)\s+/.test(deg)) {
       const segs = deg.split(/\s+(?:[–—-]|\|)\s+/).map((s) => s.trim()).filter(Boolean);
-=======
-    // Format monoligne avec tirets (ex: "Master Management stratégique – Spécialisation distribution – Université de Montpellier"
-    // ou "Diplôme du Programme Grande École – Grade de Master (Bac+5) – Montpellier Business School, spécialisation Supply Chain")
-    if (/\s+[–—-]\s+/.test(deg)) {
-      const segs = deg.split(/\s+[–—-]\s+/).map((s) => s.trim()).filter(Boolean);
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
       const nonInstSegs: string[] = [];
       for (const seg of segs) {
         if (!inlineInstitution && instCueRegex.test(seg) && !degreeCueRegex.test(seg)) {
@@ -6114,12 +6088,9 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
         authLinkedin.length > cv.personalInfo.linkedin.trim().length)
     ) {
       cv.personalInfo.linkedin = authLinkedin;
-<<<<<<< HEAD
     } else if (!authLinkedin && !/linkedin\.com\//i.test(cvRawText) && cv.personalInfo?.linkedin) {
       // Interdiction formelle d'injecter ou conserver une URL LinkedIn absente du CV source
       delete cv.personalInfo.linkedin;
-=======
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
     }
   }
 
@@ -6353,7 +6324,6 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     );
   }
 
-<<<<<<< HEAD
   // 2. Si le résumé professionnel est minimaliste (< 130 car.) ou contient des mentions/domaines étrangers absents du CV source, le reconstruire strictement depuis le CV réel
   const leakedForeignTerms = ["salesforce", "miage", "scrum", "kanban", "josian", "nkuli"];
   const hasForeignLeakInSummary =
@@ -6365,10 +6335,6 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     });
 
   if (!cv.professionalSummary || cv.professionalSummary.trim().length < 130 || hasForeignLeakInSummary) {
-=======
-  // 2. Si le résumé professionnel est minimaliste (< 130 car.), l'étoffer avec l'adaptation du résumé authentique
-  if (!cv.professionalSummary || cv.professionalSummary.trim().length < 130) {
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
     const rawSum = extractRawSummaryFromCv(cvRawText);
     cv.professionalSummary = buildAdaptedProfessionalSummary(
       rawSum,
@@ -7990,11 +7956,7 @@ OBJECTIFS ET SORTIE ATTENDUE (au format JSON strict, 100% en français) :
      ⚠️ 'professionalTitle' DOIT contenir UNIQUEMENT l'intitulé pur du poste en casse naturelle (ex: "Product Owner Salesforce", SANS "H/F", SANS "CDD/CDI", SANS tout en MAJUSCULES).
      ⚠️ RÈGLE CRITIQUE D'EXTRACTION DU NOM DU CANDIDAT (fullName) :
      STRICTEMENT INTERDIT : Ne JAMAIS mettre un intitulé de diplôme (ex: 'Master Miage', 'Licence Pro', 'Bac+5'), ni un intitulé de poste, spécialité ou rôle (ex: 'Product ownership Salesforce', 'Product Owner', 'Chef de Projet', 'Développeur', 'Scrum Master'), ni un mot de rubrique (ex: 'Coordonnées', 'Profil', 'Candidat') dans fullName.
-<<<<<<< HEAD
      Si le CV mentionne 'Product ownership Salesforce' ou un intitulé de poste similaire, il s'agit du 'professionalTitle' et ABSOLUMENT PAS du nom du candidat. Le nom du candidat est le véritable prénom et nom de famille de la personne physique (ex: 'Marie DUPONT', 'Thomas BERNARD', 'Camille LAURENT'), extrait du haut du CV ou de son adresse email professionnelle.
-=======
-     Si le CV mentionne 'Product ownership Salesforce' ou un intitulé de poste similaire, il s'agit du 'professionalTitle' et ABSOLUMENT PAS du nom du candidat. Le nom du candidat est le véritable prénom et nom de famille de la personne physique (ex: 'Marie DUPONT', 'Thomas BERNARD', 'Josian NKULI BELANGA'), extrait du haut du CV ou de son adresse email professionnelle.
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
    - professionalSummary : paragraphe dense, structuré et personnalisé de 3 à 4 phrases complètes ADAPTANT fidèlement le résumé/profil du CV source (années d'expérience réelles, expertises clés, outils et secteur) aux enjeux et exigences prioritaires de L'OFFRE CIBLE (citer l'intitulé pur du poste en casse naturelle, SANS "H/F", SANS "CDD/CDI" et JAMAIS tout en MAJUSCULES), tout en mettant en valeur 1 à 2 atouts distinctifs (ex. périmètre international, polyvalence multi-ERP, projets transverses, résultats mesurables) qui différencient ce profil des autres candidats. Si tu cites un diplôme, reprends STRICTEMENT l'intitulé et la spécialité réels du CV source (NE JAMAIS écrire qu'il a un Master dans le domaine de l'offre si son diplôme réel porte sur une autre spécialité). STRICTEMENT INTERDIT DE RENDRE UN RÉSUMÉ MINIMALISTE D'UNE SEULE LIGNE ou générique. STRICTEMENT INTERDIT d'écrire que le candidat a réalisé des missions « au sein de [Entreprise Cible] » : l'entreprise cible est celle qui recrute !
    - skillsCategories : tableau d'objets { categoryName, skills: string[] } classant EN PRIORITÉ les compétences et outils exigés par L'OFFRE CIBLE qui sont avérés depuis le CV source, préservant la rubrique complète des outils/systèmes du CV, ET incluant une catégorie dédiée (ex: "Atouts Différenciants & Valeur Ajoutée") pour les compétences complémentaires authentiques qui apportent un avantage concurrentiel au candidat.
    - experiences : tableau d'expériences professionnelles stratégiquement sélectionnées (chronologie inversée) :
@@ -8017,11 +7979,7 @@ OBJECTIFS ET SORTIE ATTENDUE (au format JSON strict, 100% en français) :
          matchedKeywordsInRole: string[]
        }
    - education : tableau d'objets { institution, degree, field, graduationDate, honorsOrDetails }
-<<<<<<< HEAD
      ⚠️ L'établissement et le diplôme DOIVENT correspondre scrupuleusement au CV source (ex: 'Université Paris 1 Panthéon-Sorbonne - Master Finance', 'INSA Lyon - Ingénieur', 'Université Paris-Saclay - Master').
-=======
-     ⚠️ L'établissement et le diplôme DOIVENT correspondre scrupuleusement au CV source (ex: 'Université Paris 1 Panthéon-Sorbonne - Master Finance', 'INSA Lyon - Ingénieur', 'Université Grenoble Alpes - Master 2 MIAGE').
->>>>>>> 8ac0c259c43a908ec1418f9625b1eb5a1ec60350
    - certifications : tableau d'objets { name, issuer, year } (si mentionnées dans le CV)
    - languages : tableau d'objets { language, proficiency }
 
@@ -8529,6 +8487,11 @@ if (process.env.NODE_ENV !== "production") {
     res.sendFile(path.resolve(__dirname, "dist", "index.html"));
   });
 }
+
+httpServer.on("error", (err) => {
+  console.error(`[Server] Impossible de démarrer sur le port ${PORT} :`, err);
+  process.exit(1);
+});
 
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Serveur Optimiseur CV & LM démarré sur le port ${PORT}`);
