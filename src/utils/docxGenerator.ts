@@ -8,6 +8,7 @@ import {
   BorderStyle,
 } from 'docx';
 import { OptimizedCv, CoverLetter } from '../types/ats';
+import { cleanCompanyName } from './coverLetterSanitizer';
 
 /**
  * Generates an ATS-compliant single-column Word (.docx) document from an OptimizedCv.
@@ -307,13 +308,25 @@ export async function generateCvDocxBlob(cv: OptimizedCv): Promise<Blob> {
     );
 
     cv.certifications.forEach((c) => {
+      const text =
+        typeof c === 'string'
+          ? c
+          : (() => {
+              const name = (c?.name || '').trim();
+              const issuer = (c?.issuer || '').trim();
+              const year = (c?.year || '').trim();
+              if (!name) return '';
+              const meta = [issuer, year].filter(Boolean).join(', ');
+              return meta ? `${name} (${meta})` : name;
+            })();
+      if (!text) return;
       children.push(
         new Paragraph({
           bullet: { level: 0 },
           spacing: { after: 60 },
           children: [
             new TextRun({
-              text: `${c.name} - ${c.issuer} (${c.year || ''})`,
+              text,
               size: 20,
               color: '1E293B',
               font: 'Arial',
@@ -454,7 +467,7 @@ export async function generateCoverLetterDocxBlob(coverLetter: CoverLetter): Pro
       spacing: { after: 60 },
       children: [
         new TextRun({
-          text: header.companyName || '',
+          text: cleanCompanyName(header.companyName) || '',
           size: 20,
           font: 'Arial',
         }),
@@ -477,7 +490,12 @@ export async function generateCoverLetterDocxBlob(coverLetter: CoverLetter): Pro
       spacing: { after: 200 },
       children: [
         new TextRun({
-          text: isEn ? `Subject: ${header.subjectLine}` : `Objet : ${header.subjectLine}`,
+          text: (() => {
+            const s = (header.subjectLine || '').trim();
+            if (!s) return isEn ? 'Subject: Application' : 'Objet : Candidature';
+            if (isEn) return /^(?:subject|re)\s*:/i.test(s) ? s : `Subject: ${s}`;
+            return /^objet\s*:/i.test(s) ? s : `Objet : ${s}`;
+          })(),
           bold: true,
           size: 21,
           color: '0F172A',

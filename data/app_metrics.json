@@ -1,7 +1,7 @@
 {
   "totalVisits": 2,
   "uniqueVisitors": 1,
-  "totalAnalyses": 0,
+  "totalAnalyses": 215,
   "totalUrlExtractions": 0,
   "totalDownloads": 0,
   "devices": {
@@ -9,8 +9,8 @@
     "desktop": 1
   },
   "languages": {
-    "fr": 1,
-    "en": 0
+    "fr": 188,
+    "en": 28
   },
   "dailyStats": {
     "2026-11-01": {
@@ -24,8 +24,38 @@
       "analyses": 0,
       "downloads": 0,
       "urls": 0
+    },
+    "2026-11-12": {
+      "visits": 0,
+      "analyses": 8,
+      "downloads": 0,
+      "urls": 0
+    },
+    "2026-11-13": {
+      "visits": 0,
+      "analyses": 70,
+      "downloads": 0,
+      "urls": 0
+    },
+    "2026-11-14": {
+      "visits": 0,
+      "analyses": 6,
+      "downloads": 0,
+      "urls": 0
+    },
+    "2026-11-15": {
+      "visits": 0,
+      "analyses": 54,
+      "downloads": 0,
+      "urls": 0
+    },
+    "2026-11-16": {
+      "visits": 0,
+      "analyses": 77,
+      "downloads": 0,
+      "urls": 0
     }
   },
   "firstSeen": "2026-11-01T16:04:02.367Z",
-  "lastActive": "2026-11-05T18:12:34.419Z"
+  "lastActive": "2026-11-16T21:33:56.495Z"
 }

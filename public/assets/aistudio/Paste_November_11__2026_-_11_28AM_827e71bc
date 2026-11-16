@@ -1,0 +1,1142 @@
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Bui
+...
+[Logs truncated due to log size limitations. For full logs, see https://console.cloud.google.com/logs/viewer?advancedFilter=resource.type%3D%22build%22+AND+resource.labels.build_id%3D%227ee48c07-bf74-4afa-acfa-cd4e7afc1faa%22+AND+resource.labels.build_trigger_id%3D%22fe49b6d3-ccf3-4563-a9f1-29d45221da27%22&project=gen-lang-client-0432992429.]
+...
+ld": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "7ee48c07-bf74-4afa-acfa-cd4e7afc1faa" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            9f40ece3d9870f290164b75fb0224ed0f697c722 -> FETCH_HEAD
+HEAD is now at 9f40ece Delete Dockerfile.txt
+GitCommit:
+9f40ece3d9870f290164b75fb0224ed0f697c722
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Verifying Checksum
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in f00fc2e72d53
+Step #0 - "Build": Removing intermediate container f00fc2e72d53
+Step #0 - "Build":  ---> c1c86faeb92c
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 1abf2c336ec8
+Step #0 - "Build": Step 4/18 : RUN npm install
+Step #0 - "Build":  ---> Running in a4173c1bdb59
+Step #0 - "Build": �[91mnpm error code ERESOLVE
+Step #0 - "Build": �[0m�[91mnpm error ERESOLVE could not resolve
+Step #0 - "Build": npm error
+Step #0 - "Build": �[0m�[91mnpm error While resolving: vite@8.3.8
+Step #0 - "Build": npm error Found: esbuild@0.25.12
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   dev esbuild@"^0.25.0" from the root project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Could not resolve dependency:
+Step #0 - "Build": npm error peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error node_modules/vite
+Step #0 - "Build": npm error   vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error   peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error   node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error     @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error   1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Conflicting peer dependency: esbuild@0.28.2
+Step #0 - "Build": npm error node_modules/esbuild
+Step #0 - "Build": npm error   peerOptional esbuild@"^0.27.0 || ^0.28.0" from vite@8.3.8
+Step #0 - "Build": npm error   node_modules/vite
+Step #0 - "Build": npm error     vite@"^8.3.0" from the root project
+Step #0 - "Build": npm error     peer vite@"^5.2.0 || ^6 || ^7 || ^8" from @tailwindcss/vite@4.3.5
+Step #0 - "Build": npm error     node_modules/@tailwindcss/vite
+Step #0 - "Build": npm error       @tailwindcss/vite@"^4.3.3" from the root project
+Step #0 - "Build": npm error     1 more (@vitejs/plugin-react)
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Fix the upstream dependency conflict, or retry
+Step #0 - "Build": npm error this command with --force or --legacy-peer-deps
+Step #0 - "Build": npm error to accept an incorrect (and potentially broken) dependency resolution.
+Step #0 - "Build": �[0m�[91mnpm error
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error For a full report see:
+Step #0 - "Build": npm error /root/.npm/_logs/2026-11-11T10_25_55_432Z-eresolve-report.txt
+Step #0 - "Build": �[0m�[91mnpm notice
+Step #0 - "Build": npm notice New major version of npm available! 10.9.9 -> 12.2.2
+Step #0 - "Build": npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+Step #0 - "Build": npm notice To update run: npm install -g npm@12.2.2
+Step #0 - "Build": npm notice
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_25_55_432Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm install' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m

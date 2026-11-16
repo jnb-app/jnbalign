@@ -1,0 +1,1170 @@
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step 
+...
+[Logs truncated due to log size limitations. For full logs, see https://console.cloud.google.com/logs/viewer?advancedFilter=resource.type%3D%22build%22+AND+resource.labels.build_id%3D%22d75cd35a-2ba2-4d68-a0f7-a285b4e8e227%22+AND+resource.labels.build_trigger_id%3D%22fe49b6d3-ccf3-4563-a9f1-29d45221da27%22&project=gen-lang-client-0432992429.]
+...
+l-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m
+
+
+starting build "d75cd35a-2ba2-4d68-a0f7-a285b4e8e227" using release legacy
+
+FETCHSOURCE
+From https://github.com/jnb-app/jnbalign
+ * branch            3ec5b2afd81003d1a6747558f398a64e5a7e0482 -> FETCH_HEAD
+HEAD is now at 3ec5b2a Create Dockerfile
+GitCommit:
+3ec5b2afd81003d1a6747558f398a64e5a7e0482
+BUILD
+Starting Step #0 - "Build"
+Step #0 - "Build": Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0 - "Build": Sending build context to Docker daemon  126.5MB
+
+Step #0 - "Build": Step 1/18 : FROM node:22-alpine AS builder
+Step #0 - "Build": 22-alpine: Pulling from library/node
+Step #0 - "Build": 881fc932939e: Pulling fs layer
+Step #0 - "Build": 2a9491572f6e: Pulling fs layer
+Step #0 - "Build": df11f9b3da94: Pulling fs layer
+Step #0 - "Build": 071409a40254: Pulling fs layer
+Step #0 - "Build": 071409a40254: Download complete
+Step #0 - "Build": df11f9b3da94: Verifying Checksum
+Step #0 - "Build": df11f9b3da94: Download complete
+Step #0 - "Build": 881fc932939e: Verifying Checksum
+Step #0 - "Build": 881fc932939e: Download complete
+Step #0 - "Build": 881fc932939e: Pull complete
+Step #0 - "Build": 2a9491572f6e: Verifying Checksum
+Step #0 - "Build": 2a9491572f6e: Download complete
+Step #0 - "Build": 2a9491572f6e: Pull complete
+Step #0 - "Build": df11f9b3da94: Pull complete
+Step #0 - "Build": 071409a40254: Pull complete
+Step #0 - "Build": Digest: sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202
+Step #0 - "Build": Status: Downloaded newer image for node:22-alpine
+Step #0 - "Build":  ---> 66bc7408b588
+Step #0 - "Build": Step 2/18 : WORKDIR /app
+Step #0 - "Build":  ---> Running in b4428a5ec2fd
+Step #0 - "Build": Removing intermediate container b4428a5ec2fd
+Step #0 - "Build":  ---> 4e1dc9d39352
+Step #0 - "Build": Step 3/18 : COPY package*.json ./
+Step #0 - "Build":  ---> 07bbfb5277b8
+Step #0 - "Build": Step 4/18 : RUN npm ci
+Step #0 - "Build":  ---> Running in 6b3b3b86f825
+Step #0 - "Build": �[91mnpm error code EUSAGE
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error The `npm ci` command can only install with an existing package-lock.json or
+Step #0 - "Build": npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+Step #0 - "Build": npm error later to generate a package-lock.json file, then try again.
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Clean install a project
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Usage:
+Step #0 - "Build": npm error npm ci
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Options:
+Step #0 - "Build": npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+Step #0 - "Build": npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+Step #0 - "Build": npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+Step #0 - "Build": npm error [--no-bin-links] [--no-fund] [--dry-run]
+Step #0 - "Build": npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+Step #0 - "Build": npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error aliases: clean-install, ic, install-clean, isntall-clean
+Step #0 - "Build": npm error
+Step #0 - "Build": npm error Run "npm help ci" for more info
+Step #0 - "Build": �[0m�[91mnpm error A complete log of this run can be found in: /root/.npm/_logs/2026-11-11T10_17_24_403Z-debug-0.log
+Step #0 - "Build": The command '/bin/sh -c npm ci' returned a non-zero code: 1
+Finished Step #0 - "Build"
+ERROR
+ERROR: build step 0 "gcr.io/cloud-builders/docker" failed: step exited with non-zero status: 1
+Step #0 - "Build": �[0m

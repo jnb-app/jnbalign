@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { KeywordsAnalysis } from '../types/ats';
 import { Check, Plus, AlertCircle, Sparkles, Copy, CheckCheck, Info, X, Zap, MessageSquare, Target } from 'lucide-react';
+import { localizeSkillForLanguage } from '../utils/competencyHelper';
 
 interface KeywordsTagCloudProps {
   keywordsAnalysis: KeywordsAnalysis;
+  languageMode?: 'fr' | 'en';
 }
 
 type KeywordFilter = 'all' | 'matched' | 'integrated' | 'critical' | 'missing';
 
 export const KeywordsTagCloud: React.FC<KeywordsTagCloudProps> = ({
   keywordsAnalysis,
+  languageMode = 'fr',
 }) => {
   const [filter, setFilter] = useState<KeywordFilter>('all');
   const [search, setSearch] = useState<string>('');
@@ -122,15 +125,18 @@ export const KeywordsTagCloud: React.FC<KeywordsTagCloudProps> = ({
   const allItems: TagItem[] = [];
   const addedNames = new Set<string>();
 
+  const isEn = languageMode === 'en';
+
   const pushItem = (kw: string, type: 'matched' | 'integrated' | 'critical' | 'missing', label: string, description: string) => {
-    if (!isClientValidCompetency(kw)) return;
-    const lower = kw.toLowerCase();
+    const localized = localizeSkillForLanguage(kw, isEn);
+    if (!isClientValidCompetency(localized)) return;
+    const lower = localized.toLowerCase();
     if (addedNames.has(lower)) return;
     addedNames.add(lower);
 
-    const advice = buildCoachingAdvice(kw, type);
+    const advice = buildCoachingAdvice(localized, type);
     allItems.push({
-      name: kw,
+      name: localized,
       type,
       label,
       description,
@@ -261,8 +267,18 @@ export const KeywordsTagCloud: React.FC<KeywordsTagCloudProps> = ({
         </div>
         <div className="flex items-center justify-between text-[11px] text-slate-400 light:text-slate-500">
           <span>Seuil critique ATS : 70% requis pour passer les parseurs</span>
-          <span className="text-emerald-400 light:text-emerald-600 font-semibold">
-            {coverageRate >= 80 ? '✓ Profil hautement qualifié' : '✓ Seuil atteint'}
+          <span
+            className={`font-semibold ${
+              coverageRate >= 70
+                ? 'text-emerald-400 light:text-emerald-600'
+                : 'text-amber-400 light:text-amber-700'
+            }`}
+          >
+            {coverageRate >= 80
+              ? '✓ Profil hautement qualifié'
+              : coverageRate >= 70
+              ? '✓ Seuil atteint (≥ 70%)'
+              : '⚡ Écart lexical à valoriser en passerelle STAR'}
           </span>
         </div>
       </div>

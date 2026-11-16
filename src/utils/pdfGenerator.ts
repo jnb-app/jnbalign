@@ -26,7 +26,7 @@ function renderWrappedLabeledLine(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
 
-  const shouldBreakLabel = labelWidth > 45;
+  const shouldBreakLabel = labelWidth > contentWidth * 0.68;
 
   if (shouldBreakLabel) {
     checkPageBreak(lineHeight * 2);
@@ -60,6 +60,9 @@ function renderWrappedLabeledLine(
       } else {
         if (currentLine) {
           lines.push(currentLine);
+          isFirst = false;
+        } else if (isFirst && doc.getTextWidth(w) <= contentWidth) {
+          lines.push('');
           isFirst = false;
         }
         if (doc.getTextWidth(w) > (isFirst ? firstLineWidth : contentWidth)) {

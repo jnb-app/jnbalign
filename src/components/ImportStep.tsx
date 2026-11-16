@@ -55,6 +55,7 @@ interface ImportStepProps {
   loadingPhase: string;
   onLaunchPipeline: () => void;
   onLoadPreset: (preset: SamplePreset) => void;
+  onClearResult?: () => void;
   onReset?: () => void;
 }
 
@@ -84,6 +85,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
   isLoading,
   onLaunchPipeline,
   onLoadPreset,
+  onClearResult,
   onReset,
 }) => {
   const [cvIsDragging, setCvIsDragging] = useState<boolean>(false);
@@ -155,6 +157,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
     setCvFileName(file.name);
     setCvText('');
     setCvBase64(null);
+    onClearResult?.();
 
     if (file.type === 'text/plain') {
       const text = await file.text();
@@ -213,6 +216,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
     setJobBase64(null);
     setTargetRoleTitle('');
     setCandidateNotes('');
+    onClearResult?.();
 
     if (file.type === 'text/plain') {
       const text = await file.text();
@@ -273,6 +277,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
     setCvFileName(null);
     setCvBase64(null);
     setCvText('');
+    onClearResult?.();
     if (cvFileInputRef.current) cvFileInputRef.current.value = '';
   };
 
@@ -282,17 +287,49 @@ export const ImportStep: React.FC<ImportStepProps> = ({
     setJobText('');
     setTargetRoleTitle('');
     setCandidateNotes('');
+    onClearResult?.();
     if (jobFileInputRef.current) jobFileInputRef.current.value = '';
   };
 
   // Détection dynamique et transparente du poste et de l'entreprise cible
   const detectedRole = useMemo(() => {
     if (!jobText) return '';
-    const m = jobText.match(/(?:Poste|Rôle|Intitulé|Titre|Recherche|Recrutement)\s*:\s*([^\n]+)/i);
-    if (m && m[1]) return m[1].replace(/^[#*-\s]+/, '').trim().slice(0, 60);
+    const cleanRoleInline = (raw: string) =>
+      raw
+        .replace(/^[#*-\s]+/, '')
+        .replace(/^(?:Offres?(?:\s+d['’]?\s*emploi)?|Emploi|Recrutement|Poste(?:\s+à\s+pourvoir)?)\s*(?:[:\-–—|]\s*|\s+)/i, '')
+        .replace(/\s*[\(\[]\s*(?:H\s*\/\s*F|F\s*\/\s*H|M\s*\/\s*F|CDD|CDI|Stage|Alternance)\s*[\)\]]/gi, '')
+        .replace(/\s+(?:H\s*\/\s*F|F\s*\/\s*H|CDD|CDI)\b/gi, '')
+        .replace(/\s*[-–—|•·]\s*(?:Rec(?:rut[a-zÀ-ÿ]*)?|HelloWork|RegionsJob|Cadremploi|Meteojob|Indeed|LinkedIn|Glassdoor|Apec)\b.*$/i, '')
+        .replace(/\s+(?:Paris|Lyon|Marseille|Toulouse|Nantes|Bordeaux|Lille)(?:\s+\d{1,2}(?:er|e|ème)?)?(?:\s*\(\s*\d{2,5}\s*\))?.*$/i, '')
+        .replace(/\s*\(\s*\d{2,5}\s*\).*$/i, '')
+        .trim()
+        .slice(0, 65);
+
+    const isNoiseRole = (s: string) =>
+      !s ||
+      s.length > 85 ||
+      s.split(/\s+/).length > 11 ||
+      /\b(?:process(?:us)?\s+de\s+recrutement|te\s+contactera|tu\s+rencontreras|entretien\s+(?:rh|technique)|nos\s+avantages|pris\s+en\s+charge)\b/i.test(s) ||
+      /^(?:confirm[ée](?:\s*\/\s*expert)?|expert|senior|junior|d[ée]butant)$/i.test(s);
+
+    const m = jobText.match(/^\s*(?:Poste(?:\s+à\s+pourvoir)?|Rôle|Intitulé(?:\s+du\s+poste)?|Titre|Job\s+Title|Role|Position)\s*:\s*([^\n]{3,90})/im);
+    if (m && m[1]) {
+      const cand = cleanRoleInline(m[1]);
+      if (!isNoiseRole(cand)) return cand;
+    }
     const firstLine = jobText.split('\n').map((l) => l.trim()).filter(Boolean)[0] || '';
-    if (firstLine.length > 3 && firstLine.length < 55 && !firstLine.toLowerCase().includes('descriptif') && !firstLine.toLowerCase().includes('offre d')) {
-      return firstLine.replace(/^[#*-\s]+/, '').trim();
+    if (firstLine.length > 3 && firstLine.length < 85 && !firstLine.toLowerCase().includes('descriptif')) {
+      const cand = cleanRoleInline(firstLine);
+      if (!isNoiseRole(cand)) return cand;
+    }
+    const shortLines = jobText.split('\n').map((l) => l.trim()).filter((l) => l.length >= 4 && l.length <= 75).slice(0, 15);
+    const roleHintRe = /\b(?:product\s+(?:manager|owner)|proxy\s+(?:po|product\s+owner)|chef\s+de\s+projet|architecte|d[ée]veloppeur|ing[ée]nieur|consultant|business\s+analyst|scrum\s+master|devops|data\s+(?:analyst|engineer|scientist))\b/i;
+    for (const sl of shortLines) {
+      if (roleHintRe.test(sl)) {
+        const cand = cleanRoleInline(sl);
+        if (!isNoiseRole(cand)) return cand;
+      }
     }
     return '';
   }, [jobText]);
@@ -300,15 +337,80 @@ export const ImportStep: React.FC<ImportStepProps> = ({
   const detectedCompany = useMemo(() => {
     if (!jobText) return '';
     let found = '';
-    const firstLine = jobText.split('\n').map((l) => l.trim()).filter(Boolean)[0] || '';
-    const compMatch = firstLine.match(/^([A-Za-z0-9\s.-]+)\s*[-–:]\s*(?:Offre|Recherche|Poste|Recrute)/i);
-    if (compMatch && compMatch[1]) {
-      found = cleanCompanyName(compMatch[1].trim());
+    const nonCompRe = /^(?:H\/F|F\/H|M\/F|M\/W|CDI|CDD|Stage|Alternance|Freelance|Full[\s-]?Time|Part[\s-]?Time|Permanent|Contract|Temporary|Interim|Intérim|Paris|Lyon|Marseille|Toulouse|Bordeaux|Nantes|Lille|Nice|Strasbourg|Rennes|Grenoble|Montpellier|Rouen|Toulon|Dijon|Île-de-France|Ile-de-France|La\s+Défense|France|Europe|London|Londres|Manchester|Birmingham|Edinburgh|Dublin|UK|United\s+Kingdom|New\s+York|San\s+Francisco|Boston|Austin|Chicago|Seattle|Los\s+Angeles|USA|US|Canada|Toronto|Montr[ée]al|Brussels|Bruxelles|Geneva|Gen[èe]ve|Lausanne|Zurich|Luxembourg|Berlin|Munich|Frankfurt|Amsterdam|Madrid|Barcelona|Milan|Rome|Lisbon|Remote|Hybride?|Hybrid|On[\s-]?site|Pr[ée]sentiel|T[ée]l[ée]travail|HelloWork|Indeed|LinkedIn|Jooble|Apec|Cadremploi|Welcome\s+to\s+the\s+Jungle|Glassdoor|Monster|Missions?|Profil|Description|Contexte|R[ée]sum[ée]|Avantages?|Process(?:us)?)$/i;
+
+    const explicitMatch = jobText.match(/^\s*(?:Entreprise|Soci[ée]t[ée]|Company|Employeur|Employer|Recruteur|Hiring\s+Company|Client|Groupe|Organisation|Organization|[ÉE]tablissement|Marque|Brand|Maison|Enseigne|Filiale|Entit[ée])\s*[:=]\s*([^\n]{2,90})/im);
+    if (explicitMatch && explicitMatch[1]) {
+      found = cleanCompanyName(explicitMatch[1].trim());
     }
     if (!found) {
-      const atMatch = jobText.match(/chez\s+([A-Za-z0-9\s.-]+)/i);
-      if (atMatch && atMatch[1]) {
-        found = cleanCompanyName(atMatch[1].split(/[\n,.]/)[0].trim());
+      const multilineMatch = jobText.match(/^\s*(?:Entreprise|Soci[ée]t[ée]|Company|Employeur|Marque|Maison|Enseigne)\s*\n+\s*([A-ZÀ-Ÿ0-9][^\n]{1,55})$/im)?.[1]?.trim();
+      if (multilineMatch && !nonCompRe.test(multilineMatch)) {
+        found = cleanCompanyName(multilineMatch);
+      }
+    }
+    if (!found) {
+      const gluedMatch = jobText.match(/(?:^|\n)\s*([A-ZÀ-Ÿ0-9][A-ZÀ-Ÿ0-9&'.\-]{1,24})(?=(?:Chez|Bienvenue|Rejoignez|À\s+propos)\s+[A-ZÀ-Ÿ])/);
+      if (gluedMatch && gluedMatch[1]) {
+        found = cleanCompanyName(gluedMatch[1].trim());
+      }
+    }
+    const jobLines = jobText.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!found) {
+      const firstLine = jobLines[0] || '';
+      const compMatch = firstLine.match(/^([A-Za-z0-9À-ÿ\s&'.-]+)\s*[-–:|]\s*(?:Offre|Recherche|Poste|Recrute|Job Opportunity|Hiring|Career|Position)/i);
+      if (compMatch && compMatch[1]) {
+        found = cleanCompanyName(compMatch[1].trim());
+      }
+    }
+    if (!found) {
+      for (let li = 0; li < Math.min(jobLines.length, 5); li++) {
+        const jl = jobLines[li];
+        const bulletLeftMatch = jl.match(/^([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ()]{1,40}?)\s*[•·]\s*(?:[A-ZÀ-Ÿ0-9(].+)$/);
+        if (bulletLeftMatch?.[1]) {
+          const leftCand = bulletLeftMatch[1].trim();
+          if (!nonCompRe.test(leftCand) && !/\b(?:planner|manager|responsable|chef\s+de|charg[ée]|ing[ée]nieur|consultant|analyst|d[ée]veloppeur|assistant|directeur|coordinateur|coordinatrice|cdi|cdd|stage|alternance|temps\s+plein)\b/i.test(leftCand)) {
+            found = cleanCompanyName(leftCand);
+            if (found) break;
+          }
+        }
+        const rightBrandMatch = jl.match(/^.{4,65}?\s+(?:[-–|•·]|chez|at)\s+([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ()]{1,45})$/i);
+        if (rightBrandMatch?.[1]) {
+          const cand = rightBrandMatch[1].trim();
+          if (!nonCompRe.test(cand)) {
+            found = cleanCompanyName(cand);
+            if (found) break;
+          }
+        }
+        if (li >= 1 && li <= 3 && jl.length >= 2 && jl.length <= 45 && /^[A-ZÀ-Ÿ0-9]/.test(jl) && jl.split(/\s+/).length <= 5) {
+          const nextLine = jobLines[li + 1] || '';
+          const looksLikeLocOrContractNext = /\(\d{2,5}\)|\b\d{5}\b|\b(?:CDI|CDD|Stage|Alternance|Temps\s+plein|Full[\s-]?time|Paris|Saint-Ouen|Lyon|Marseille|Toulouse|Bordeaux|Lille|Nantes|France|Île-de-France|Ile-de-France|La\s+Défense|Télétravail|Hybride|Remote|★|avis)\b/i.test(nextLine);
+          const looksLikeUiOrRoleOrLocSelf =
+            nonCompRe.test(jl) ||
+            /^\d|€|\$|★|\b(?:planner|manager|responsable|chef\s+de|charg[ée]|ing[ée]nieur|consultant|analyst|d[ée]veloppeur|assistant|directeur|coordinateur|coordinatrice|pr[ée]visionniste|approvisionneur|temps\s+plein|full[\s-]?time|part[\s-]?time|postuler|sauvegarder|enregistrer|partager|signaler|publi[ée]|il\s+y\s+a|salaire|lieu\s+de\s+travail|type\s+de\s+contrat|[àa]\s+propos|d[ée]tails?\s+du\s+poste|description\s+du\s+poste)\b/i.test(jl) ||
+            /\(\d{2,5}\)|\b\d{5}\b/.test(jl);
+          if (looksLikeLocOrContractNext && !looksLikeUiOrRoleOrLocSelf) {
+            found = cleanCompanyName(jl);
+            if (found) break;
+          }
+        }
+      }
+    }
+    if (!found) {
+      const narrativePatterns = [
+        /(?:[ÀA]\s+propos\s+de(?:\s+la\s+(?:marque|maison|soci[ée]t[ée])|\s+l['’](?:entreprise|enseigne)|\s+du\s+groupe)?|Pr[ée]sentation\s+de(?:\s+la\s+(?:marque|maison|soci[ée]t[ée])|\s+l['’]entreprise)?|Bienvenue\s+chez|Rejoignez(?:\s+les\s+[ée]quipes(?:\s+de)?)?|Rejoindre|Int[ée]grez|Au\s+sein\s+de(?:\s+la\s+(?:soci[ée]t[ée]|marque|maison)|\s+l['’](?:entreprise|enseigne)|\s+du\s+groupe|\s+des\s+[ée]quipes)?|Pour\s+(?:la\s+(?:soci[ée]t[ée]|marque|maison)|le\s+groupe|l['’](?:entreprise|enseigne))|D[ée]couvrez(?:\s+la\s+(?:marque|maison|soci[ée]t[ée]))?|Le\s+groupe|La\s+soci[ée]t[ée]|La\s+marque|La\s+maison|L['’]entreprise|L['’]enseigne|The\s+brand|About(?:\s+the\s+(?:company|brand))?|Join|\bchez)\s+["«']?([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ()]{1,45})["»']?/gi,
+        /(?:^|\n|[.!?]\s+)([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ]{1,35}?),\s+(?:maison|marque|entreprise|soci[ée]t[ée]|groupe|enseigne|leader|acteur|sp[ée]cialiste)\b/gi,
+        /(?:^|\n|[.!?]\s+)([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ]{1,35}?)\s+(?:recrute|recherche|est\s+une?\s+(?:entreprise|soci[ée]t[ée]|marque|maison|groupe|leader|acteur)|is\s+hiring|is\s+looking\s+for)\b/gim,
+        /\b(?:marque|maison|enseigne)\s+["«']?([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\-]{1,35})["»']?/gi,
+      ];
+      for (const regex of narrativePatterns) {
+        for (const m of jobText.matchAll(regex)) {
+          const rawSeg = (m[1] || '').split(/[\n,.!?]/)[0].trim();
+          if (!rawSeg || !/^[A-ZÀ-Ÿ0-9"«']/.test(rawSeg) || nonCompRe.test(rawSeg)) continue;
+          found = cleanCompanyName(rawSeg);
+          if (found) break;
+        }
+        if (found) break;
       }
     }
     return found;
@@ -450,7 +552,10 @@ export const ImportStep: React.FC<ImportStepProps> = ({
       setJobFileName(null);
       setJobBase64(null);
 
-      if (data.detectedRole && (!targetRoleTitle || targetRoleTitle.trim().length === 0)) {
+      if (
+        data.detectedRole &&
+        (!targetRoleTitle || targetRoleTitle.trim().length === 0 || (urlExtractedMeta?.detectedRole && targetRoleTitle.trim() === urlExtractedMeta.detectedRole.trim()))
+      ) {
         setTargetRoleTitle(data.detectedRole);
       }
 

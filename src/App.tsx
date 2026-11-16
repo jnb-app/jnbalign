@@ -251,6 +251,16 @@ export default function App() {
 
   // Sauvegarde automatique continue du brouillon (Anti-perte au rechargement F5)
   useEffect(() => {
+    const hasAnyDraftContent = Boolean(
+      (cvText && cvText.trim().length > 0) ||
+      (jobText && jobText.trim().length > 0) ||
+      result ||
+      (targetRoleTitle && targetRoleTitle.trim().length > 0)
+    );
+    if (!hasAnyDraftContent) {
+      clearActiveDraft();
+      return;
+    }
     saveActiveDraft({
       cvText,
       cvFileName,
@@ -309,6 +319,7 @@ export default function App() {
 
     setTargetRoleTitle(preset.roleTarget);
     setCandidateNotes(`Ciblage prioritaire pour le poste chez ${preset.companyTarget}`);
+    setResult(null);
     setError(null);
   };
 
@@ -355,6 +366,7 @@ export default function App() {
     }
 
     setIsLoading(true);
+    setResult(null);
     setError(null);
     setLoadingPhase("Extraction et calibrage sémantique des documents...");
 
@@ -768,6 +780,7 @@ export default function App() {
               loadingPhase={loadingPhase}
               onLaunchPipeline={handleLaunchPipeline}
               onLoadPreset={handleLoadPreset}
+              onClearResult={() => setResult(null)}
               onReset={handleReset}
             />
           )}

@@ -146,7 +146,16 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
     if (cv.certifications && cv.certifications.length > 0) {
       out += `CERTIFICATIONS\n`;
       cv.certifications.forEach((c) => {
-        out += `• ${c.name} - ${c.issuer} (${c.year || ''})\n`;
+        if (typeof c === 'string') {
+          out += `• ${c}\n`;
+        } else {
+          const name = (c?.name || '').trim();
+          const issuer = (c?.issuer || '').trim();
+          const year = (c?.year || '').trim();
+          if (!name) return;
+          const meta = [issuer, year].filter(Boolean).join(', ');
+          out += `• ${name}${meta ? ` (${meta})` : ''}\n`;
+        }
       });
       out += `\n`;
     }
@@ -530,9 +539,9 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
             </h2>
             <div className={`space-y-1.5 ${fontStyles.body}`}>
               {cv.skillsCategories.map((category, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                  <span className="font-bold text-slate-900 shrink-0">
-                    {category.categoryName} :
+                <div key={idx} className="leading-relaxed">
+                  <span className="font-bold text-slate-900">
+                    {category.categoryName} :{' '}
                   </span>
                   <span className="text-slate-800">
                     {category.skills.join(', ')}
@@ -686,7 +695,18 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
                   <div className="flex items-baseline gap-2">
                     <span className="font-bold text-slate-900 shrink-0">{isEn ? 'Certifications:' : 'Certifications :'}</span>
                     <span className="text-slate-800">
-                      {cv.certifications.map((c) => `${c.name} (${c.issuer} ${c.year || ''})`).join(', ')}
+                      {cv.certifications
+                        .map((c) => {
+                          if (typeof c === 'string') return c;
+                          const name = (c?.name || '').trim();
+                          const issuer = (c?.issuer || '').trim();
+                          const year = (c?.year || '').trim();
+                          if (!name) return '';
+                          const meta = [issuer, year].filter(Boolean).join(' ');
+                          return meta ? `${name} (${meta})` : name;
+                        })
+                        .filter(Boolean)
+                        .join(', ')}
                     </span>
                   </div>
                 )}

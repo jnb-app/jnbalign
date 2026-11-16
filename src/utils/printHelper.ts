@@ -1,6 +1,7 @@
 import { OptimizedCv, CoverLetter } from '../types/ats';
 import { downloadCvPdf, downloadCoverLetterPdf } from './pdfGenerator';
-import { sanitizeClosingFormula, cleanRecipientTitle, cleanCompanyName } from './coverLetterSanitizer';
+import { sanitizeClosingFormula, sanitizeCoverLetter, cleanRecipientTitle, cleanCompanyName } from './coverLetterSanitizer';
+import { isEnglishText } from './languageDetector';
 
 /**
  * Lance l'impression du document actif (CV ou Lettre de motivation).
@@ -37,6 +38,17 @@ export function printDocument(
       return { success: true };
     }
 
+    const isCvEn =
+      cv.languageMode === 'en' ||
+      isEnglishText(
+        `${cv.professionalSummary || ''} ${(cv.experiences || []).map((e) => (e.bullets || []).join(' ')).join(' ')}`
+      );
+    const isClEn =
+      coverLetter.languageMode === 'en' ||
+      isEnglishText(
+        `${coverLetter.header?.subjectLine || ''} ${coverLetter.paragraphs?.vous || ''} ${coverLetter.paragraphs?.moi || ''}`
+      );
+
     let documentHtml = '';
     const cleanSignOff = sanitizeClosingFormula(coverLetter.signOff, coverLetter.header.candidateName);
 
@@ -57,7 +69,7 @@ export function printDocument(
           ${cv.professionalSummary ? `
             <div style="margin-bottom: 14px; page-break-inside: avoid;">
               <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                Profil Professionnel
+                ${isCvEn ? 'Professional Summary' : 'Profil Professionnel'}
               </h2>
               <p style="font-size: 11px; color: #334155; margin: 0; text-align: justify; line-height: 1.45;">
                 ${cv.professionalSummary}
@@ -67,7 +79,7 @@ export function printDocument(
 
           <div style="margin-bottom: 14px;">
             <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; page-break-inside: avoid; page-break-after: avoid;">
-              Expériences Professionnelles
+              ${isCvEn ? 'Professional Experience' : 'Expériences Professionnelles'}
             </h2>
             ${cv.experiences.map((exp) => `
               <div style="margin-bottom: 12px; page-break-inside: avoid;">
@@ -87,7 +99,7 @@ export function printDocument(
 
           <div style="margin-bottom: 14px;">
             <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; page-break-inside: avoid; page-break-after: avoid;">
-              Formation
+              ${isCvEn ? 'Education' : 'Formation'}
             </h2>
             ${cv.education.map((edu) => `
               <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; page-break-inside: avoid;">
@@ -103,11 +115,11 @@ export function printDocument(
 
           <div style="margin-bottom: 14px;">
             <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; page-break-inside: avoid; page-break-after: avoid;">
-              Compétences Clés & Outils
+              ${isCvEn ? 'Core Competencies & Key Skills' : 'Compétences Clés & Outils'}
             </h2>
             ${cv.skillsCategories.map((c) => `
               <div style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.4; page-break-inside: avoid;">
-                <strong style="color: #0f172a;">${c.categoryName || 'Compétences'} :</strong> <span style="color: #334155;">${c.skills.join(', ')}</span>
+                <strong style="color: #0f172a;">${c.categoryName || (isCvEn ? 'Skills' : 'Compétences')} :</strong> <span style="color: #334155;">${c.skills.join(', ')}</span>
               </div>
             `).join('')}
           </div>
@@ -115,16 +127,16 @@ export function printDocument(
           ${(cv.languages?.length || cv.certifications?.length) ? `
             <div style="margin-bottom: 10px;">
               <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; page-break-inside: avoid; page-break-after: avoid;">
-                Langues & Certifications
+                ${isCvEn ? 'Languages & Certifications' : 'Langues & Certifications'}
               </h2>
               ${cv.languages?.length ? `
                 <div style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.4; page-break-inside: avoid;">
-                  <strong style="color: #0f172a;">Langues :</strong> <span style="color: #334155;">${cv.languages.map((l) => `${l.language} (${l.proficiency})`).join('  •  ')}</span>
+                  <strong style="color: #0f172a;">${isCvEn ? 'Languages:' : 'Langues :'}</strong> <span style="color: #334155;">${cv.languages.map((l) => `${l.language} (${l.proficiency})`).join('  •  ')}</span>
                 </div>
               ` : ''}
               ${cv.certifications?.length ? `
                 <div style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.4; page-break-inside: avoid;">
-                  <strong style="color: #0f172a;">Certifications :</strong> <span style="color: #334155;">${cv.certifications.map((c) => `${c.name}${c.issuer ? ` – ${c.issuer}` : ''}${c.year ? ` (${c.year})` : ''}`).join('  •  ')}</span>
+                  <strong style="color: #0f172a;">${isCvEn ? 'Certifications:' : 'Certifications :'}</strong> <span style="color: #334155;">${cv.certifications.map((c) => `${c.name}${c.issuer ? ` – ${c.issuer}` : ''}${c.year ? ` (${c.year})` : ''}`).join('  •  ')}</span>
                 </div>
               ` : ''}
             </div>
@@ -132,12 +144,14 @@ export function printDocument(
         </div>
       `;
     } else {
-      const cleanRecipient = cleanRecipientTitle(coverLetter.header.recipientNameOrTitle);
-      const cleanSubject = coverLetter.header.subjectLine.startsWith('Objet')
-        ? coverLetter.header.subjectLine
-        : `Objet : ${coverLetter.header.subjectLine}`;
+      const sanitizedCl = sanitizeCoverLetter(coverLetter);
+      const cleanRecipient = cleanRecipientTitle(sanitizedCl.header.recipientNameOrTitle);
+      const rawSubj = (sanitizedCl.header.subjectLine || '').trim();
+      const cleanSubject = /^(?:objet|subject|re)\s*:/i.test(rawSubj)
+        ? rawSubj
+        : `${isClEn ? 'Subject' : 'Objet'} : ${rawSubj}`;
 
-      const todayFormatted = new Date().toLocaleDateString('fr-FR', {
+      const todayFormatted = new Date().toLocaleDateString(isClEn ? 'en-US' : 'fr-FR', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -145,6 +159,8 @@ export function printDocument(
       const letterDate = (!coverLetter.header?.date || coverLetter.header.date === '22 mai 2024' || coverLetter.header.date.includes('22 mai 2024'))
         ? todayFormatted
         : coverLetter.header.date;
+
+      const salutation = isClEn ? 'Dear Hiring Team,' : 'Madame, Monsieur,';
 
       documentHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.45; padding: 0; width: 100%; box-sizing: border-box;">
@@ -154,7 +170,7 @@ export function printDocument(
               <div style="font-size: 10.5px; color: #475569; margin-top: 2px;">${[coverLetter.header.candidateEmail, coverLetter.header.candidatePhone].filter(Boolean).join('  •  ')}</div>
             </div>
             <div style="max-width: 48%; text-align: right; font-size: 10.5px; color: #334155; word-break: break-word;">
-              <div style="font-weight: 700; color: #0b1530;">À l'attention de : ${cleanRecipient}</div>
+              <div style="font-weight: 700; color: #0b1530;">${isClEn ? 'Attention:' : "À l'attention de :"} ${cleanRecipient}</div>
               ${cleanCompanyName(coverLetter.header.companyName) ? `<div style="font-weight: 600; color: #b45309; margin-top: 1px;">${cleanCompanyName(coverLetter.header.companyName)}</div>` : ''}
               <div style="color: #64748b; font-style: italic; margin-top: 1px;">Date : ${letterDate}</div>
             </div>
@@ -164,7 +180,7 @@ export function printDocument(
             ${cleanSubject}
           </div>
 
-          <p style="font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">Madame, Monsieur,</p>
+          <p style="font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">${salutation}</p>
 
           <p style="font-size: 10.5px; color: #334155; text-align: justify; margin-bottom: 10px; line-height: 1.45;">
             ${coverLetter.paragraphs.vous}
@@ -192,7 +208,7 @@ export function printDocument(
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${activeDocument === 'cv' ? 'CV Optimisé ATS' : 'Lettre de Motivation'}</title>
+          <title>${activeDocument === 'cv' ? (isCvEn ? 'ATS Optimized Resume' : 'CV Optimisé ATS') : (isClEn ? 'Cover Letter' : 'Lettre de Motivation')}</title>
           <style>
             @page { size: A4; margin: 12mm 16mm; }
             * { box-sizing: border-box; }

@@ -34,21 +34,21 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
     standard: {
       body: 'text-xs sm:text-sm print:text-[10pt] leading-relaxed',
       salutation: 'font-semibold text-slate-900 mb-2 print:mb-1.5 text-xs sm:text-sm',
-      subject: 'font-bold text-xs sm:text-sm text-slate-950 uppercase tracking-wide',
+      subject: 'font-bold text-xs sm:text-sm text-slate-950 tracking-normal',
       sender: 'text-lg font-bold text-slate-950 uppercase tracking-tight',
       meta: 'text-xs text-slate-600',
     },
     comfort: {
       body: 'text-sm sm:text-[15.5px] print:text-[11.5pt] leading-relaxed',
       salutation: 'font-semibold text-slate-900 mb-2.5 print:mb-1.5 text-sm sm:text-[15.5px]',
-      subject: 'font-bold text-sm sm:text-base text-slate-950 uppercase tracking-wide',
+      subject: 'font-bold text-sm sm:text-base text-slate-950 tracking-normal',
       sender: 'text-xl font-bold text-slate-950 uppercase tracking-tight',
       meta: 'text-xs sm:text-sm text-slate-600',
     },
     large: {
       body: 'text-base sm:text-lg print:text-[13pt] leading-loose',
       salutation: 'font-semibold text-slate-900 mb-3 print:mb-2 text-base sm:text-lg',
-      subject: 'font-bold text-base sm:text-lg text-slate-950 uppercase tracking-wide',
+      subject: 'font-bold text-base sm:text-lg text-slate-950 tracking-normal',
       sender: 'text-2xl font-bold text-slate-950 uppercase tracking-tight',
       meta: 'text-sm text-slate-600',
     },
@@ -116,10 +116,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
       ? `Attention: ${cleanRecipient}\n${header.companyName}\nDate: ${effectiveDate}\n\n`
       : `À l'attention de : ${cleanRecipient}\n${header.companyName}\nDate : ${effectiveDate}\n\n`;
     
-    let subjectText = header.subjectLine;
-    if (isEn && !subjectText.toLowerCase().startsWith('subject') && !subjectText.toLowerCase().startsWith('re:')) {
+    let subjectText = (header.subjectLine || '').trim();
+    if (isEn && !/^(?:subject|re)\s*:/i.test(subjectText)) {
       subjectText = `Subject: ${subjectText}`;
-    } else if (!isEn && !subjectText.toLowerCase().startsWith('objet')) {
+    } else if (!isEn && !/^objet\s*:/i.test(subjectText)) {
       subjectText = `Objet : ${subjectText}`;
     }
     out += `${subjectText}\n\n`;
@@ -373,7 +373,14 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
               />
             ) : (
               <div className={letterFontStyles.subject}>
-                {coverLetter.header.subjectLine}
+                {(() => {
+                  const rawSubj = (coverLetter.header.subjectLine || '').trim();
+                  if (!rawSubj) return '';
+                  if (isEn) {
+                    return /^(?:subject|re)\s*:/i.test(rawSubj) ? rawSubj : `Subject: ${rawSubj}`;
+                  }
+                  return /^objet\s*:/i.test(rawSubj) ? rawSubj : `Objet : ${rawSubj}`;
+                })()}
               </div>
             )}
           </div>
