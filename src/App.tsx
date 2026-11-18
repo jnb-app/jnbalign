@@ -556,7 +556,10 @@ export default function App() {
     out += `PROFIL PROFESSIONNEL\n${cv.professionalSummary}\n\n`;
     out += `EXPÉRIENCES PROFESSIONNELLES\n`;
     cv.experiences.forEach((exp) => {
-      out += `${exp.role} - ${exp.company} (${exp.location}) [${exp.startDate} - ${exp.endDate}]\n`;
+      const s = (exp.startDate || '').trim();
+      const e = (exp.endDate || '').trim();
+      const dateRange = s && e && s !== e ? `${s} - ${e}` : s && exp.current ? `${s} - Présent` : s || e || '';
+      out += `${exp.role} - ${exp.company} (${exp.location})${dateRange ? ` [${dateRange}]` : ''}\n`;
       exp.bullets.forEach((b) => (out += `• ${b}\n`));
       out += `\n`;
     });
