@@ -734,8 +734,16 @@ export function sanitizeCompanyName(rawName?: string): string {
     if (shortBrand.length >= 2) clean = shortBrand;
   }
 
+  // Retirer codes département/postaux en suffixe ("Clinique Atlantique (44)" -> "Clinique Atlantique")
+  clean = clean.replace(/\s*\(\d{2,5}\)\s*$/, "").trim();
+
   // Rejeter dès ce stade les syntagmes débutant par un déterminant/possessif ou préposition ("Notre marque", "Votre organisation...")
-  if (/^(?:et|ou|mais|donc|or|ni|car|de|du|des|pour|par|avec|dans|sur|sous|en|chez|un|une|ce|cette|ces|notre|nos|votre|vos|son|sa|ses|leur|leurs|a|an|our|your|their|this|that)\s+/i.test(clean)) {
+  // ainsi que les statuts de contrat ou balises d'annonce ("CDI", "CDD", "Temps plein", "H/F")
+  if (
+    /^(?:et|ou|mais|donc|or|ni|car|de|du|des|pour|par|avec|dans|sur|sous|en|chez|un|une|ce|cette|ces|notre|nos|votre|vos|son|sa|ses|leur|leurs|a|an|our|your|their|this|that)\s+/i.test(clean) ||
+    /^[a-zà-ÿ]{3,}\s+(?:de|du|des|d['’]|en|pour|sur)\s+/u.test(clean) ||
+    /^(?:cdi|cdd|stage|alternance|freelance|int[ée]rim|interim|temps\s+plein|temps\s+partiel|full[\s-]?time|part[\s-]?time|h\/f|f\/h|m\/f|m\/w)(?:\s+.*)?$/i.test(clean)
+  ) {
     return "";
   }
   if (/^(?:(?:le|la|les|the)\s+|l['’]\s*)(?:groupe|soci[ée]t[ée]|entreprise|organisation|organization|company|marque|brand|maison|enseigne|structure|filiale|entit[ée]|[ée]tablissement|cabinet|recruteur|client|poste|offre|service|direction|p[ôo]le|[ée]quipes?|teams?|monde|secteur|industrie|division)\b/i.test(clean)) {
@@ -1037,6 +1045,10 @@ const NON_COMPETENCY_BLACKLIST = new Set([
   "document", "date", "actuel", "present", "présent", "debut", "début", "fin", "statut",
   "merci", "postuler", "envoyer", "transmettre", "rejoindre", "notre equipe", "notre équipe",
   "vos missions", "votre profil", "a propos", "à propos", "nous recherchons",
+  "competence", "compétence", "competences", "compétences", "vos competences", "vos compétences",
+  "habilitation", "habilitations", "savoir-faire", "savoir faire", "atout", "atouts",
+  "qualite", "qualité", "qualites", "qualités", "prerequis", "prérequis", "certification", "certifications",
+  "skills", "core competencies", "hard skills", "soft skills", "key skills",
   // Termes grammaticaux et de recrutement (EN)
   "about", "with", "from", "your", "their", "this", "that", "these", "those", "have", "been",
   "will", "would", "could", "should", "into", "onto", "under", "over", "between", "among",
@@ -1269,6 +1281,32 @@ const TAXONOMY_SKILLS_CANONICAL: { [normalized: string]: string } = {
   "rgpd": "Conformité RGPD",
   "gdpr": "GDPR Compliance",
   "compliance": "Compliance & Conformité",
+  "conformite reglementaire": "Conformité Réglementaire",
+  "conformité réglementaire": "Conformité Réglementaire",
+  "dora": "Réglementation DORA",
+  "kyp": "Due Diligence (KYP / KYC)",
+  "kyc": "Conformité KYC / KYP",
+  "droit des contrats": "Droit des Contrats",
+  "droit des affaires": "Droit des Affaires",
+  "droit des societes": "Droit des Sociétés",
+  "droit des sociétés": "Droit des Sociétés",
+  "droit des nouvelles technologies": "Droit des Nouvelles Technologies",
+  "redaction de contrats": "Rédaction de Contrats & Avenants",
+  "rédaction de contrats": "Rédaction de Contrats & Avenants",
+  "negociation de contrats": "Négociation Contractuelle",
+  "négociation de contrats": "Négociation Contractuelle",
+  "gestion des contrats": "Gestion Contractuelle",
+  "conventions intra-groupe": "Conventions Intra-Groupe",
+  "notes juridiques": "Rédaction de Notes Juridiques",
+  "veille juridique": "Veille Juridique & Réglementaire",
+  "securite juridique": "Sécurité Juridique & Conformité",
+  "sécurité juridique": "Sécurité Juridique & Conformité",
+  "nda": "Accords de Confidentialité (NDA)",
+  "confidentialite": "Confidentialité & Accords NDA",
+  "confidentialité": "Confidentialité & Accords NDA",
+  "relations individuelles du travail": "Relations Individuelles du Travail",
+  "humanites juridiques": "Humanités Juridiques",
+  "humanités juridiques": "Humanités Juridiques",
   "droit du travail": "Droit du Travail",
   "recrutement": "Recrutement & Sourcing",
   "talent acquisition": "Talent Acquisition",
@@ -1348,8 +1386,8 @@ const TAXONOMY_SKILLS_CANONICAL: { [normalized: string]: string } = {
   "standards de maintenance": "Politique & Standards de Maintenance",
   "fiabilite industrielle": "Fiabilité Industrielle",
   "fiabilité industrielle": "Fiabilité Industrielle",
-  "fiabilite": "Fiabilité Industrielle",
-  "fiabilité": "Fiabilité Industrielle",
+  "fiabilisation des equipements": "Fiabilité Industrielle",
+  "fiabilisation": "Fiabilité Industrielle",
   "gmao": "GMAO",
   "tpm": "TPM (Total Productive Maintenance)",
   "5s": "Méthode 5S",
@@ -1403,7 +1441,8 @@ const TAXONOMY_SKILLS_CANONICAL: { [normalized: string]: string } = {
   "contentieux": "Gestion des Contentieux & Avaries",
   "contentieux commerciaux": "Contentieux Commerciaux & Transport",
   "avaries": "Expertise Avaries & Sinistres",
-  "expertise": "Expertise Technique & Investigations",
+  "expertise technique": "Expertise Technique & Investigations",
+  "expertise aires": "Expertise Avaries & Sinistres",
   "expertises sur le terrain": "Expertise Terrain & Constats",
   "suivi terrain": "Suivi Terrain & Expérimentation",
   "rapports de conclusion": "Rédaction de Rapports d'Expertise",
@@ -1435,7 +1474,24 @@ const TAXONOMY_SKILLS_CANONICAL: { [normalized: string]: string } = {
   "esprit de synthèse": "Esprit de Synthèse",
   "rigueur": "Rigueur & Précision",
   "autonomie": "Autonomie",
+  "fiabilite": "Fiabilité & Respect des Engagements",
+  "fiabilité": "Fiabilité & Respect des Engagements",
+  "respect des engagements": "Fiabilité & Respect des Engagements",
+  "respect des engagement": "Fiabilité & Respect des Engagements",
   "relations humaines": "Relations Humaines & Sens du Contact",
+  "contact humain": "Relations Humaines & Sens du Contact",
+  "relation aux citoyens": "Relation Usagers & Administration",
+  "prise de notes": "Prise de Notes Rigoureuse",
+  "prise de note": "Prise de Notes Rigoureuse",
+  "traitement de texte": "Bureautique & Traitement de Texte",
+  "eloquence": "Éloquence & Argumentation",
+  "éloquence": "Éloquence & Argumentation",
+  "creativite": "Créativité",
+  "créativité": "Créativité",
+  "curiosite": "Curiosité Intellectuelle",
+  "curiosité": "Curiosité Intellectuelle",
+  "reactivite": "Réactivité",
+  "réactivité": "Réactivité",
   "resolution de problemes": "Résolution de Problèmes",
   "résolution de problèmes": "Résolution de Problèmes",
   "gestion des priorites": "Gestion des Priorités",
@@ -1631,7 +1687,32 @@ const TAXONOMY_SKILLS_FR_TO_EN: Record<string, string> = {
   "caractérisation du stress hydrique": "Crop Water Stress Characterization",
   "protection des cultures & malherbologie": "Crop Protection & Weed Science",
   "analyse de rendement & collecte": "Yield Forecasting & Harvest Analytics",
-  "relations humaines & sens du contact": "Interpersonal & Stakeholder Relations"
+  "relations humaines & sens du contact": "Interpersonal & Stakeholder Relations",
+  "conformité réglementaire": "Regulatory Compliance",
+  "réglementation dora": "DORA Regulation",
+  "droit des contrats": "Contract Law",
+  "droit des affaires": "Corporate & Business Law",
+  "droit des sociétés": "Corporate Law",
+  "droit des nouvelles technologies": "Technology & IT Law",
+  "rédaction de contrats & avenants": "Contract & Amendment Drafting",
+  "négociation contractuelle": "Contract Negotiation",
+  "gestion contractuelle": "Contract Lifecycle Management",
+  "conventions intra-groupe": "Intercompany Agreements",
+  "rédaction de notes juridiques": "Legal Memorandum Drafting",
+  "veille juridique & réglementaire": "Legal & Regulatory Watch",
+  "sécurité juridique & conformité": "Legal Risk & Compliance",
+  "accords de confidentialité (nda)": "Non-Disclosure Agreements (NDA)",
+  "confidentialité & accords nda": "Confidentiality & NDA Management",
+  "relations individuelles du travail": "Employment & Labor Relations",
+  "humanités juridiques": "Legal Humanities",
+  "fiabilité & respect des engagements": "Reliability & Accountability",
+  "relation usagers & administration": "Public Administration & Citizen Services",
+  "prise de notes rigoureuse": "Structured Note-Taking",
+  "bureautique & traitement de texte": "Office Suite & Word Processing",
+  "éloquence & argumentation": "Advocacy & Persuasive Speaking",
+  "créativité": "Creativity",
+  "curiosité intellectuelle": "Intellectual Curiosity",
+  "réactivité": "Responsiveness"
 };
 
 const TAXONOMY_SKILLS_FR_TO_EN_NORM: Map<string, string> = new Map(
@@ -1686,7 +1767,12 @@ function translateSkillToEnglish(skill: string): string {
   return trimmed;
 }
 
-const ALLOWED_SHORT_ACRONYMS = new Set(["AI", "IT", "BI", "CI", "CD", "QA", "UI", "UX", "RH", "HR", "SI", "PR", "ERP", "CRM", "KPI", "SAP", "P&L", "SEO", "SEA", "SFD", "UML", "MCD", "ESB", "SOA", "TMA", "MOA", "UAT", "API", "5S", "TPM", "TRS", "OEE", "VBA", "PM"]);
+const ALLOWED_SHORT_ACRONYMS = new Set([
+  "AI", "IT", "BI", "CI", "CD", "QA", "UI", "UX", "RH", "HR", "SI", "PR", "ERP", "CRM", "KPI",
+  "SAP", "P&L", "SEO", "SEA", "SFD", "UML", "MCD", "ESB", "SOA", "TMA", "MOA", "UAT", "API",
+  "5S", "TPM", "TRS", "OEE", "VBA", "PM", "BIM", "CAD", "DAO", "CAO", "TVA", "DSO", "ARR",
+  "B2B", "B2C", "MCO", "ISO", "SQL", "AWS", "GCP", "PMP"
+]);
 
 // Vérifie si un mot ou une phrase est une véritable compétence professionnelle
 function isValidCompetency(raw: string): boolean {
@@ -1708,12 +1794,13 @@ function isValidCompetency(raw: string): boolean {
 
   const lower = trimmed.toLowerCase();
 
-  // Rejeter les mentions de langues parlées, niveaux CECR ou fragments de rubriques (gérés dans Langues ou Outils)
+  // Rejeter les mentions de langues parlées, tests de langue, permis ou fragments de rubriques
   if (
-    /^(?:langues?|anglais|fran[çc]ais|espagnol|allemand|italien|portugais|arabe|chinois|english|french|spanish|german|italian)(?:\s+(?:courant|professionnel|bilingue|maternel|scolaire|technique|acad[ée]mique|fluent|native|business|professional|niveau\s+ing[ée]nieur|[abc][12]\+?)|\s*,\s*[abc][12]\+?)*$/i.test(lower) ||
+    /^(?:langues?|anglais|fran[çc]ais|espagnol|allemand|italien|portugais|arabe|chinois|english|french|spanish|german|italian)(?:\b|\s*:|\s*\()/i.test(lower) ||
+    /\b(?:toeic|toefl|ielts|cambridge|voltaire|permis\s+[a-z]\b|permis\s+de\s+conduire|j'ai\s+[ée]t[ée]|premiere\)|bafa|sorbonne|universit[ée]|baccalaur[ée]at|session\s+g[ée]n[ée]rale)\b|:\s*en\s+cours/i.test(lower) ||
     /^(?:professional|business|fluent)\s+(?:english|french|spanish|german)$/i.test(lower) ||
     /^[abc][12]\+?$/i.test(lower) ||
-    /^(?:informatique|bureautique|multispectrales(?:\s*\(en\s+cours\))?|maitrise\s+du\s+pack\s+office.*|mod[ée]lisation\s+3d\s+et\s+2d|de\s+donn[ée]es|en\s+cours)$/i.test(lower)
+    /^(?:informatique|bureautique|multispectrales(?:\s*\(en\s+cours\))?|maitrise\s+du\s+pack\s+office.*|mod[ée]lisation\s+3d\s+et\s+2d|de\s+donn[ée]es|en\s+cours|efficace\s+et\s+synth[ée]tique|prise\s+de\s+note|traitement\s+de\s+texte\s*:\s*prise\s+de\s+note)$/i.test(lower)
   ) {
     return false;
   }
@@ -1741,7 +1828,7 @@ function sanitizeAndValidateKeyword(raw: any, isEn = false): string | null {
   if (!raw || typeof raw !== "string") return null;
 
   let cleaned = raw
-    .replace(/^[#*–—•:;,.\-/\s]+|[#*–—•:;,.\-/\s]+$/g, "")
+    .replace(/^(?:[#*–—•●▪▫➢➤✓✔→➔⇒:;,.\-/\s]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9])\s*)+|[#*–—•●▪▫➢➤✓✔→➔⇒:;,.\-/\s]+$/g, "")
     .replace(/[ \t]{2,}/g, " ")
     .trim();
 
@@ -1771,10 +1858,10 @@ function sanitizeAndValidateKeyword(raw: any, isEn = false): string | null {
   const formatted = words
     .map((w, idx) => {
       const wLower = w.toLowerCase();
-      if (ALLOWED_SHORT_ACRONYMS.has(w.toUpperCase())) return w.toUpperCase();
       if (idx > 0 && ["de", "du", "des", "en", "et", "le", "la", "les", "à", "a", "of", "and", "in", "for"].includes(wLower)) {
         return wLower;
       }
+      if (ALLOWED_SHORT_ACRONYMS.has(w.toUpperCase())) return w.toUpperCase();
       const elision = w.match(/^([dlsDL]['’])(.+)$/);
       if (elision) {
         const prefix = idx === 0 ? elision[1].charAt(0).toUpperCase() + elision[1].slice(1).toLowerCase() : elision[1].toLowerCase();
@@ -1850,6 +1937,9 @@ function extractSkillsAndCompetencies(jobText: string, cvText?: string, maxSkill
   if (scoredMap.has("vba excel") && scoredMap.has("excel avancé")) {
     scoredMap.delete("excel avancé");
   }
+  if (scoredMap.has("fiabilité industrielle") && scoredMap.has("fiabilité & respect des engagements")) {
+    scoredMap.delete("fiabilité & respect des engagements");
+  }
 
   // 2. Trier par score décroissant pour refléter exactement les priorités réelles de l'offre
   const sortedSkills = Array.from(scoredMap.values())
@@ -1872,13 +1962,25 @@ function extractSkillsAndCompetencies(jobText: string, cvText?: string, maxSkill
     if (skills.length >= maxSkills) break;
   }
 
-  // 3. Extraction ciblée dans les listes/sections "Compétences / Profil" de l'offre (à puces ou lignes courtes)
-  const skillSectionMatches = primaryText.match(/(?:vos\s+compétences|compétences|competences|skills|profil recherché|profil souhaite|requirements|technologies|outils|environnement|missions?)[\s:]*([^\n]+(?:\n(?:[•*-][^\n]+|[^\n]{4,55})){1,10})/gi) || [];
+  // 3. Extraction ciblée et universelle dans les listes/sections "Compétences / Profil / Prérequis" (tous métiers)
+  const skillSectionMatches = primaryText.match(/(?:vos\s+compétences|compétences(?:\s+requises|\s+attendues|\s+techniques|\s+clés)?|competences|savoir[- ]faire|profil\s+(?:recherché|souhaité)|qualit[ée]s\s+attendues|atouts|key\s+skills|core\s+competencies|skills|requirements|qualifications|what\s+you\s+bring|must\s+have|technologies|outils|environnement|missions?)[\s:]*([^\n]+(?:\n(?:[•*-][^\n]+|[^\n]{4,68})){0,12})/gi) || [];
   for (const section of skillSectionMatches) {
-    const lines = section.split("\n").slice(1).map((l) => l.replace(/^[•*–—#\s\d.-]+/, "").trim());
+    const rawLines = section.split("\n");
+    const headerRemainder = rawLines[0].replace(/^[^:]*:\s*/, "").trim();
+    const lines = [...(headerRemainder ? [headerRemainder] : []), ...rawLines.slice(1)]
+      .map((l) => l.replace(/^[•*–—#\s\d.-]+/, "").trim())
+      .filter(Boolean);
     for (const l of lines) {
-      if (l.length >= 3 && l.length <= 48 && !/[.!?]$/.test(l)) {
-        addSkill(l);
+      if (/^(?:formation|education|dipl[oô]mes?|exp[eé]riences?|langues?|certifications?|centres?\s+d['’]int[ée]r[êe]t|loisirs|permis|avantages|r[ée]mun[ée]ration|salaire|pourquoi\s+nous\s+rejoindre|[àa]\s+propos)\b/i.test(l)) {
+        break;
+      }
+      const subParts = l.includes(",") || l.includes(";") || l.includes("·")
+        ? l.split(/(?![^(]*\))[,;·]+/).map((p) => p.trim()).filter(Boolean)
+        : [l];
+      for (const p of subParts) {
+        if (p.length >= 3 && p.length <= 48 && !/[.!?]$/.test(p)) {
+          addSkill(p);
+        }
       }
     }
     if (skills.length >= maxSkills) break;
@@ -2083,9 +2185,39 @@ function extractJobFocusContext(
       score: countHits(/\b(?:agronom\w*|agro[- ]?industr\w*|agroalimentaire|agricole|exp[ée]rimentation\s+v[ée]g[ée]tale|fmcg|grande\s+consommation|alimentaire|food\s*(?:&|and)\s*beverage)\b/gi) * 3.5,
     },
     {
-      labelFr: "Santé & Sciences de la Vie",
-      labelEn: "Healthcare & Life Sciences",
-      score: countHits(/\b(?:pharma|pharmaceutique|m[ée]dical|biotech|clinique|h[oô]pital|sant[ée]\s+num[ée]rique|e-sant[ée]|dispositifs?\s+m[ée]dicaux)\b/gi) * 3.5,
+      labelFr: "Santé, Soins & Sciences de la Vie",
+      labelEn: "Healthcare, Clinical Care & Life Sciences",
+      score: countHits(/\b(?:infirmier|infirmi[eè]re|aide[- ]soignant\w*|m[ée]decin|pharmacien\w*|sage[- ]femme|kin[ée]sith[ée]rapeute|ehpad|soins\s+(?:infirmiers|aux\s+patients)|officine|pharma|pharmaceutique|m[ée]dical|biotech|clinique|h[oô]pital|sant[ée]\s+num[ée]rique|e-sant[ée]|dispositifs?\s+m[ée]dicaux)\b/gi) * 3.5,
+    },
+    {
+      labelFr: "Ressources Humaines, Recrutement & Talents",
+      labelEn: "Human Resources & Talent Acquisition",
+      score: countHits(/\b(?:ressources\s+humaines|recrutement|talent\s+acquisition|gestion\s+de\s+la\s+paie|paie|droit\s+social|relations?\s+sociales?|gpec|sirh|onboarding|formation\s+professionnelle|charge\s+de\s+recrutement)\b/gi) * 3.5,
+    },
+    {
+      labelFr: "Commercial, Vente & Développement",
+      labelEn: "Sales, Business Development & Client Relations",
+      score: countHits(/\b(?:business\s+developer|commercial|ing[ée]nieur\s+d['’]affaires|account\s+(?:executive|manager)|prospection|n[ée]gociation\s+commerciale|portefeuille\s+clients?|b2b|b2c|vente|chiffre\s+d['’]affaires|closing|crm)\b/gi) * 3.2,
+    },
+    {
+      labelFr: "Marketing, Communication & Digital",
+      labelEn: "Marketing, Brand & Digital Communications",
+      score: countHits(/\b(?:marketing|communication|community\s+manager|r[ée]seaux\s+sociaux|seo|sea|acquisition|trafic|campagnes?|brand|contenu|[ée]ditorial|[ée]v[eé]nementiel|relations?\s+presse)\b/gi) * 3.2,
+    },
+    {
+      labelFr: "BTP, Architecture & Génie Civil",
+      labelEn: "Construction, Architecture & Civil Engineering",
+      score: countHits(/\b(?:btp|g[ée]nie\s+civil|b[âa]timent|travaux\s+publics|chantier|conducteur\s+de\s+travaux|ma[îi]trise\s+d['’][oœ]uvre|architecte|[ée]conomiste\s+de\s+la\s+construction|autocad|revit|bim|gros\s+[oœ]uvre|second\s+[oœ]uvre)\b/gi) * 3.5,
+    },
+    {
+      labelFr: "Hôtellerie, Restauration & Tourisme",
+      labelEn: "Hospitality, Culinary & Tourism",
+      score: countHits(/\b(?:h[oô]tellerie|restauration|cuisine|chef\s+de\s+partie|ma[îi]tre\s+d['’]h[oô]tel|r[ée]ceptionniste|tourisme|accueil\s+client[eè]le|service\s+en\s+salle|haccp)\b/gi) * 3.5,
+    },
+    {
+      labelFr: "Éducation, Enseignement & Formation",
+      labelEn: "Education, Teaching & Training",
+      score: countHits(/\b(?:enseignement|professeur|enseignant\w*|formateur|formatrice|p[ée]dagogi\w*|[ée]ducation|scolaire|universitaire|ing[ée]nierie\s+p[ée]dagogique)\b/gi) * 3.4,
     },
     {
       labelFr: "Banque, Assurance & Services Financiers",
@@ -2093,9 +2225,14 @@ function extractJobFocusContext(
       score: countHits(/\b(?:banque|bancaire|fintech|leasing|factoring|cr[ée]dit|[ée]pargne|assureur|patrimoine\s+financier|bnp|soci[ée]t[ée]\s+g[ée]n[ée]rale|axa|allianz)\b/gi) * 3.5,
     },
     {
+      labelFr: "Droit, Affaires Juridiques & Conformité",
+      labelEn: "Legal, Corporate Affairs & Compliance",
+      score: countHits(/\b(?:juridique|juriste|avocat|droit\s+des|contrats?|avenants?|rgpd|dpo|dora|conformit[ée]|affaires\s+g[ée]n[ée]rales|nda|confidentialit[ée]|conventions?\s+intra-groupe|s[ée]curit[ée]\s+juridique|notes?\s+juridiques?|kyp|kyc)\b/gi) * 3.6,
+    },
+    {
       labelFr: "Finance, Audit & Contrôle de Gestion",
       labelEn: "Finance, Audit & Controlling",
-      score: countHits(/\b(?:contr[oô]le\s+de\s+gestion|contr[oô]leu(?:r|se)\s+financier|analyste\s+financier|tr[ée]sorerie|cl[oô]ture\s+comptable|normes\s+ifrs|ifrs|audit\s+financier|reporting\s+financier|budg[ée]taire)\b/gi) * 3.5,
+      score: countHits(/\b(?:comptable|comptabilit[ée]|contr[oô]le\s+de\s+gestion|contr[oô]leu(?:r|se)\s+financier|analyste\s+financier|tr[ée]sorerie|cl[oô]ture\s+comptable|normes\s+ifrs|ifrs|audit\s+financier|reporting\s+financier|budg[ée]taire|fiscalit[ée]|liasse\s+fiscale)\b/gi) * 3.5,
     },
     {
       labelFr: "Aéronautique, Spatial & Défense",
@@ -2130,12 +2267,12 @@ function extractJobFocusContext(
     {
       labelFr: "Supply Chain, Distribution & Opérations",
       labelEn: "Supply Chain, Distribution & Operations",
-      score: Math.min(2.6, countHits(/\b(?:supply\s+chain|demand\s+planning|supply\s+planning|approvisionnement|logistique|s&op|drp|otif)\b/gi) * 1.1),
+      score: Math.min(2.6, countHits(/\b(?:supply\s+chain|demand\s+planning|supply\s+planning|approvisionnement|logistique|transport|s&op|drp|otif)\b/gi) * 1.1),
     },
     {
-      labelFr: "Édition Logicielle, Cloud & SaaS",
-      labelEn: "Software, Cloud & SaaS",
-      score: countHits(/\b(?:saas|[ée]diteur\s+(?:de\s+)?logiciel|startup|plateforme\s+cloud|devops|kubernetes)\b/gi) * 2.5,
+      labelFr: "Systèmes d'Information, Logiciel & Cloud",
+      labelEn: "Information Systems, Software & Cloud",
+      score: countHits(/\b(?:saas|[ée]diteur\s+(?:de\s+)?logiciel|plateforme\s+cloud|devops|kubernetes|syst[eè]mes?\s+d['’]information|salesforce|product\s+owner|agile|scrum)\b/gi) * 2.5,
     },
     {
       labelFr: "Secteur Public & Modernisation SI",
@@ -2146,7 +2283,7 @@ function extractJobFocusContext(
 
   domainScores.sort((a, b) => b.score - a.score);
   const topDomain = domainScores[0];
-  let domainLabel = isEn ? "Enterprise Transformation & Digital Solutions" : "Systèmes d'Information & Transformation Digitale";
+  let domainLabel = isEn ? "Specialized Operations & Business Functions" : "Activités Opérationnelles & Métiers Spécialisés";
   if (topDomain && topDomain.score >= 2.0) {
     domainLabel = isEn ? topDomain.labelEn : topDomain.labelFr;
   }
@@ -2271,14 +2408,14 @@ function reassembleCvLines(text: string): string[] {
   for (const line of rawLines) {
     if (artifactPatterns.some((p) => p.test(line))) continue;
 
-    const isBulletStart = /^[•*–—\-]\s+/.test(line);
+    const isBulletStart = /^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9]))\s+/.test(line);
     const isSectionOrHeader =
       /^(EXPÉRIENCES|EXPERIENCES|FORMATION|EDUCATION|COMPÉTENCES|SKILLS|PROFIL|PROFILE|LANGUES|LANGUAGES)/i.test(line) ||
       /\b(19\d\d|20\d\d)\b.*(?:Présent|Present|Current|\b(19\d\d|20\d\d)\b)/i.test(line);
 
     if (cleanLines.length > 0 && !isBulletStart && !isSectionOrHeader) {
       const prev = cleanLines[cleanLines.length - 1];
-      const prevIsBullet = /^[•*–—\-]\s+/.test(prev);
+      const prevIsBullet = /^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9]))\s+/.test(prev);
       if (prevIsBullet && !prev.endsWith(".") && !prev.endsWith(":") && !prev.endsWith(";")) {
         cleanLines[cleanLines.length - 1] = `${prev} ${line}`;
         continue;
@@ -2413,10 +2550,10 @@ function ensureFrenchInfinitiveBullet(rawBullet: string): string {
 // Harmonisation STAR des puces (verbes d'action à l'infinitif en français, sans doublon ni coupure)
 function harmonizeBulletToStar(rawBullet: string, isEn: boolean): string {
   let cleaned = rawBullet
-    .replace(/^(?:[•*–—\-●▪▫➢➤✓✔]+|\d+[.)])\s*/, "")
+    .replace(/^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9])|\d+[.)])\s*/, "")
     .replace(/^(?:Contexte|Mission|Missions|Tâche|Tâches|Action|Actions|Résultat|Résultats|Objectif|Objectifs|Projet)\s*:\s+/i, "")
-    .replace(/(?:\s*[•●▪▫➢➤✓✔]){2,}/g, " ")
-    .replace(/\s+[•●▪▫➢➤✓✔]+\s*$/g, "")
+    .replace(/(?:\s*[•●▪▫➢➤✓✔→➔⇒]){2,}/g, " ")
+    .replace(/\s+[•●▪▫➢➤✓✔→➔⇒]+\s*$/g, "")
     .replace(/\)\s*-([a-zà-ÿ])/g, ") — $1")
     .replace(/\s+/g, " ")
     .trim();
@@ -2424,6 +2561,13 @@ function harmonizeBulletToStar(rawBullet: string, isEn: boolean): string {
   if (!cleaned) return "";
 
   const frVerbMap: [RegExp, string][] = [
+    [/^responsabilit[ée]s\s+et\s+rigueur\s*,\s*/i, "Exercer avec responsabilité et rigueur : "],
+    [/^responsabilit[ée]s\s*,\s*/i, "Assumer des responsabilités en "],
+    [/^fiabilit[ée]\s*,\s*/i, "Faire preuve de fiabilité, "],
+    [/^d[ée]couverte\s+du\s+monde\s+/i, "Découvrir le monde "],
+    [/^d[ée]couverte\s+(?:de\s+la|de\s+l['’]|des)\s+/i, "Découvrir "],
+    [/^utilisation\s+(?:des|de|du|d['’])\s+/i, "Exploiter les "],
+    [/^prise\s+de\s+notes?\s+rigoureuses?\b/i, "Assurer la prise de notes rigoureuse"],
     [/^pilotage\s+(op[ée]rationnel(?:le)?|strat[ée]gique|technique|fonctionnel(?:le)?|financier|industriel(?:le)?|quotidien(?:ne)?|mensuel(?:le)?|hebdomadaire|global(?:e)?)\s+/i, "Assurer le pilotage $1 "],
     [/^pilotage\s*,?\s*/i, "Piloter "],
     [/^[ée]laboration\s+et\s+suivi\s+des\s+/i, "Élaborer et suivre les "],
@@ -2889,8 +3033,8 @@ export function parseCvSections(cvText: string): CvSections {
     .normalize("NFC")
     .split("\n")
     .map(collapseCanvaLetterSpacing)
-    .map((l) => l.trim())
-    .filter((l) => l && !/^[•●▪▫➢➤✓✔·*\-–—\s]+$/.test(l));
+    .map((l) => l.trim().replace(/^(?:[o○◦](?=\s+[A-ZÀ-Ÿ0-9])|[→➔⇒➢➤])\s+/, "• "))
+    .filter((l) => l && !/^[•●▪▫➢➤✓✔·*\-–—→➔⇒\s]+$/.test(l));
 
   function isStrictSectionHeader(line: string): keyof CvSections | null {
     const clean = line.replace(/^[#*–—•:|\s\d.]+|[#*–—•:|\s.]+$/g, "").trim();
@@ -2898,23 +3042,23 @@ export function parseCvSections(cvText: string): CvSections {
 
     // Contact
     if (/^(?:coordonn[ée]es|contact|informations?\s+personnelles?)$/i.test(clean)) return "CONTACT";
-    // Compétences & Outils / Systèmes (y compris "Informatique", "Bureautique", "COMPÉTENCES SUPPLY CHAIN", "PRODUCT MANAGEMENT", "EXPERTISE FONCTIONNELLE")
+    // Compétences & Outils / Systèmes / Habilitations (tous formats FR & EN)
     if (
       !/[,:;()]/.test(clean) &&
-      /^(?:principales?\s+comp[eé]tences?|autres?\s+comp[eé]tences?|comp[eé]tences?(?:\s+[A-Za-zÀ-ÿ&/-]+){0,3}|informatique|bureautique|it\s+skills?|digital\s+skills?|software|product\s+management|expertise(?:\s+(?:fonctionnelle|technique|m[ée]tier|sectorielle|digitale|produit)){0,2}|savoir[- ]faire|domaines?\s+(?:d['’]expertise|de\s+comp[eé]tences?)|skills(?:\s+[A-Za-z&/-]+){0,2}|core\s+competencies|technologies|logiciels?(?:\s+(?:et|&)\s+(?:outils?|syst[eè]mes?))?|outils?(?:\s+(?:et|&)\s+(?:logiciels?|m[ée]thodes?|syst[eè]mes?|technologies?))?|syst[eè]mes?(?:\s+(?:et|&)\s+outils?)?|tools?(?:\s+(?:&|and)\s+(?:systems?|technologies?|platforms?))?|stack\s+technique|tech\s+stack)$/i.test(clean)
+      /^(?:principales?\s+comp[eé]tences?|autres?\s+comp[eé]tences?|(?:habilitations?|certifications?|outils?)\s*(?:et|&)\s*comp[eé]tences?|comp[eé]tences?(?:\s*(?:et|&)\s*(?:habilitations?|qualit[ée]s?|atouts?|savoir[- ]faire)|\s+[A-Za-zÀ-ÿ&/-]+){0,3}|informatique|bureautique|it\s+skills?|digital\s+skills?|software|product\s+management|expertise(?:\s+(?:fonctionnelle|technique|m[ée]tier|sectorielle|digitale|produit)){0,2}|savoir[- ]faire|atouts?(?:\s+professionnels?)?|qualit[ée]s?\s+professionnelles?|domaines?\s+(?:d['’]expertise|de\s+comp[eé]tences?)|(?:key\s+|technical\s+)?skills(?:\s+[A-Za-z&/-]+){0,2}|core\s+competencies|strengths|technologies|logiciels?(?:\s+(?:et|&)\s+(?:outils?|syst[eè]mes?))?|outils?(?:\s+(?:et|&)\s+(?:logiciels?|m[ée]thodes?|syst[eè]mes?|technologies?))?|syst[eè]mes?(?:\s+(?:et|&)\s+outils?)?|tools?(?:\s+(?:&|and)\s+(?:systems?|technologies?|platforms?))?|stack\s+technique|tech\s+stack)$/i.test(clean)
     ) {
       return "SKILLS";
     }
-    // Langues (y compris "Langues et qualités", "Langues & Atouts", "Langues et centres d'intérêt")
-    if (/^(?:languages?|langues?(?:\s+(?:et|&)\s+(?:qualit[ée]s?|atouts?|certifications?|comp[eé]tences?|loisirs|centres?\s+d['’]int[ée]r[êe]t))?)$/i.test(clean)) return "LANGUAGES";
-    // Certifications
-    if (/^(?:certifications?|certificats?|accreditations?)$/i.test(clean)) return "CERTIFICATIONS";
-    // Résumé / Profil (Rejet strict de "Experience Cloud" ou "Transformation")
-    if (/^(?:r[eé]sum[eé]|profil(?:\s+professionnel)?|synth[eé]se|[aà]\s+propos(?:\s+de\s+moi)?|summary|about(?:\s+me)?|objectif(?:\s+professionnel)?)$/i.test(clean)) return "SUMMARY";
-    // Expérience (y compris "Expériences précédentes", "Autres expériences", "Expériences associatives", ou en-tête collé)
-    if (/^(?:exp[eé]riences?(?:\s+(?:professionnelles?|pr[ée]c[ée]dentes?|ant[ée]rieures?|associatives?|extra-professionnelles?))?|autres?\s+exp[eé]riences?|vie\s+associative|engagements?\s+associatifs?|work\s+experience|professional\s+experience|previous\s+experience|employment\s+history|parcours(?:\s+professionnel)?)(?:\s+(?:comp[eé]tences?|skills))?$/i.test(clean)) return "EXPERIENCE";
+    // Langues
+    if (/^(?:languages?|langues?(?:\s+(?:vivantes?|[ée]trang[eè]res?|parl[ée]es?|et\s+(?:qualit[ée]s?|atouts?|certifications?|comp[eé]tences?|loisirs|centres?\s+d['’]int[ée]r[êe]t)|&\s+(?:qualit[ée]s?|atouts?|certifications?|comp[eé]tences?|loisirs|centres?\s+d['’]int[ée]r[êe]t)))?)$/i.test(clean)) return "LANGUAGES";
+    // Certifications & Habilitations
+    if (/^(?:certifications?(?:\s+(?:et|&)\s+(?:habilitations?|permis))?|certificats?|habilitations?|accreditations?|licenses?\s*(?:&|and)\s*certifications?|credentials)$/i.test(clean)) return "CERTIFICATIONS";
+    // Résumé / Profil / Présentation
+    if (/^(?:r[eé]sum[eé]|profil(?:\s+professionnel)?|mon\s+profil|pr[ée]sentation|qui\s+suis[- ]je\s*\??|accroche|synth[eé]se|[aà]\s+propos(?:\s+de\s+moi)?|(?:executive\s+)?summary|about(?:\s+me)?|(?:career\s+)?objectif(?:\s+professionnel)?|(?:career\s+)?objective|introduction|bio)$/i.test(clean)) return "SUMMARY";
+    // Expérience
+    if (/^(?:exp[eé]riences?(?:\s+(?:professionnelles?|pr[ée]c[ée]dentes?|ant[ée]rieures?|significatives?|marquantes?|r[ée]centes?|diverses?|associatives?|extra-professionnelles?))?|autres?\s+exp[eé]riences?|stages?\s*(?:et|&)\s*exp[eé]riences?|missions?(?:\s+(?:principales?|professionnelles?))?|emplois?|vie\s+associative|engagements?\s+associatifs?|(?:work|professional|previous|career)\s+(?:experience|history)|employment(?:\s+history)?|internships?|parcours(?:\s+professionnel)?)(?:\s+(?:comp[eé]tences?|skills))?$/i.test(clean)) return "EXPERIENCE";
     // Formation (Éducation)
-    if (/^(?:formations?(?:\s+professionnelles?|\s+acad[eé]miques?)?|education(?:\s*(?:&|and)\s*training)?|dipl[oô]mes?|cursus(?:\s+universitaire)?|parcours\s+acad[eé]mique|[ée]tudes)$/i.test(clean)) return "FORMATION";
+    if (/^(?:formations?(?:\s+(?:professionnelles?|acad[eé]miques?|initiales?|continues?))?|education(?:\s*(?:&|and)\s*training)?|dipl[oô]mes?|cursus(?:\s+universitaire)?|parcours\s+(?:acad[eé]mique|de\s+formation)|scolarit[ée]|academic\s+background|qualifications|studies|[ée]tudes)$/i.test(clean)) return "FORMATION";
     // Rubriques complémentaires (y compris "Secteur", "Centres d'intérêts", "Réalisations")
     if (/^(?:secteurs?(?:\s+d['’]activit[ée])?|industries?|r[ée]alisations?(?:\s+(?:majeures?|cl[eé]s?|principales?))?|principales?\s+r[ée]alisations?|key\s+achievements?|qualit[ée]s?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]ts?|int[ée]r[êe]ts?|loisirs?|hobbies?|divers|informations?\s+compl[ée]mentaires?|r[ée]f[ée]rences?|permis(?:\s+de\s+conduire)?|b[eé]n[ée]volat)$/i.test(clean)) return "OTHER";
 
@@ -2952,6 +3096,22 @@ export function parseCvSections(cvText: string): CvSections {
         sections.EXPERIENCE.push("Expériences associatives :");
       }
       continue;
+    }
+
+    // Routage des lignes mono-bloc "Langues : Français, Anglais..." ou "Savoir-faire : ..." placées après Formation ou en bas de CV
+    if (currentSection !== "EXPERIENCE") {
+      const inlineLangM = line.match(/^(?:[•*–—\-]\s*)?(?:langues?(?:\s+vivantes?|\s+[ée]trang[eè]res?)?|languages?)\s*:\s*(.+)$/i);
+      if (inlineLangM?.[1]) {
+        currentSection = "LANGUAGES";
+        sections.LANGUAGES.push(inlineLangM[1].trim());
+        continue;
+      }
+      const inlineSkillM = line.match(/^(?:[•*–—\-]\s*)?(?:comp[ée]tences?(?:\s+(?:techniques?|cl[ée]s?|m[ée]tier|informatiques?))?|savoir[- ]faire|outils?(?:\s*(?:&|et)\s*(?:savoir[- ]faire|logiciels?|m[ée]thodes?|syst[eè]mes?))?|logiciels?|technologies|skills?|technical\s+skills?|tools?)\s*:\s*(.+)$/i);
+      if (inlineSkillM?.[1]) {
+        currentSection = "SKILLS";
+        sections.SKILLS.push(inlineSkillM[1].trim());
+        continue;
+      }
     }
 
     // Détection des titres Canva/PDF répartis sur 2 lignes (ex: "PRODUCT\nMANAGEMENT", "EXPERTISE\nFONCTIONNELLE", "COMPÉTENCES\nTECHNIQUES")
@@ -3143,12 +3303,27 @@ export function extractDifferentiatingCvSkills(
   // 2. Compléter si besoin par les items concis de la section COMPÉTENCES / SKILLS (hors rubrique Outils & Systèmes)
   const sections = parseCvSections(cvText);
   const toolsSet = new Set(extractAuthenticToolsAndSystemsFromCv(cvText, "", isEn).map(normKey));
-  const joinedSkills = (sections.SKILLS || []).join("\n");
+  const rawSkillLines = sections.SKILLS || [];
+  const mergedSkillLines: string[] = [];
+  for (const rawSk of rawSkillLines) {
+    const cleanSk = rawSk.trim();
+    if (!cleanSk) continue;
+    const startsWithBulOrCap = /^(?:[•●▪▫➢➤✓✔*\-–—]\s+|[A-ZÀ-Ÿ])/.test(cleanSk);
+    if (mergedSkillLines.length > 0 && !startsWithBulOrCap && /^[a-zà-ÿ]/.test(cleanSk)) {
+      mergedSkillLines[mergedSkillLines.length - 1] = `${mergedSkillLines[mergedSkillLines.length - 1]} ${cleanSk}`;
+    } else {
+      mergedSkillLines.push(cleanSk);
+    }
+  }
+  const joinedSkills = mergedSkillLines.join("\n");
   const splitSkills = joinedSkills.split(/[·•|;\n]+/).map((s: string) => s.trim()).filter(Boolean);
   for (const item of splitSkills) {
-    if (item.length < 4 || item.length > 42 || item.split(/\s+/).length > 5) continue;
-    if (toolsSet.has(normKey(item))) continue;
-    const valid = sanitizeAndValidateKeyword(item, isEn);
+    const normalizedItem = /^traitement\s+de\s+texte\s*:/i.test(item)
+      ? (isEn ? "Office Suite & Word Processing" : "Bureautique & Traitement de Texte")
+      : item;
+    if (normalizedItem.length < 4 || normalizedItem.length > 48 || normalizedItem.split(/\s+/).length > 6) continue;
+    if (toolsSet.has(normKey(normalizedItem))) continue;
+    const valid = sanitizeAndValidateKeyword(normalizedItem, isEn);
     if (valid) {
       pushCandidate(valid);
       if (candidates.length >= maxItems) break;
@@ -3388,7 +3563,12 @@ export function buildAdaptedProfessionalSummary(
   }
   const degreeMatch = authenticDegreeLabel;
   const topEduYear = parseInt((topEdu?.graduationDate || "").match(/\b(20\d\d)\b/)?.[1] || "0", 10);
-  const isStudentOrRecentGrad = /\b(?:[ée]l[eè]ve[\s-]+ing[ée]nieur|contrat\s+de\s+professionnalisation|stage\s+assistant|fin\s+d['’][ée]tude)\b/i.test(cvText) || topEduYear >= 2025;
+  const topEduInProgress = /\b(?:en\s+cours|in\s+progress)\b/i.test(topEdu?.graduationDate || "");
+  const isStudentOrRecentGrad =
+    /\b(?:[ée]l[eè]ve[\s-]+ing[ée]nieur|[ée]tudiante?(?:\s+en)?|candidature\s+(?:de|d['’])\s*stage|contrat\s+de\s+professionnalisation|stage\s+assistant|fin\s+d['’][ée]tude|\blicence\b|\bL[123]\b|\bM[12]\b)\b/i.test(cvText) ||
+    topEduYear >= 2025 ||
+    topEduInProgress;
+  const isEngineeringStudent = /\b(?:ing[ée]nieur|[ée]l[eè]ve[\s-]+ing[ée]nieur|agro|polytech|insa|centrale|mines)\b/i.test(cvText);
 
   // Utiliser EXCLUSIVEMENT les compétences réellement avérées dans le CV (matchedKeywords)
   const verifiedCoreSkills = matchedKeywords
@@ -3429,17 +3609,24 @@ export function buildAdaptedProfessionalSummary(
   const cvLower = cvText.toLowerCase();
   const roleLower = (roleTitle || "").toLowerCase();
   const isAgronomyOrSurveyCv = /\b(?:agronom\w*|agro[- ]?industr\w*|exp[ée]rimentation\s+v[ée]g[ée]tale|stress\s+hydrique|rendement\s+du\s+bl[ée]|unilasalle|agrial|physiologie\s+v[ée]g[ée]tale)\b/i.test(cvLower) || /\b(?:agronom\w*|agroalimentaire|avaries|contentieux\s+commerciaux|contr[oô]le\s+qualit[ée])\b/i.test(roleLower);
-  const isMaintenanceHintEarly = /\b(?:maintenance|fiabilit[ée]|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm)\b/i.test(`${roleLower} ${cvLower}`);
+  const isMaintenanceHintEarly = /\b(?:maintenance|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm|mtbf|mttr|trs|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(`${roleLower} ${cvLower}`);
+  const isLegalProfile = /\b(?:droit\b|juridique|juriste|avocat|contrats?|conformit[ée]|affaires\s+g[ée]n[ée]rales|rgpd|dpo|dora|nda)\b/i.test(`${roleLower} ${cvLower}`);
 
   const defaultFocusListFr = isAgronomyOrSurveyCv
     ? "expérimentation agronomique, suivi terrain, contrôle qualité et analyse de données"
     : isMaintenanceHintEarly
     ? "méthodes maintenance, fiabilité industrielle et amélioration continue"
+    : isLegalProfile
+    ? (isStudentOrRecentGrad && !/\bcontrats?\b/i.test(cvLower)
+        ? "droit, analyse juridique, rédaction rigoureuse et éloquence"
+        : "droit des contrats, analyse juridique, rédaction rigoureuse et conformité")
     : "cadrage fonctionnel, pilotage de solutions et coordination des parties prenantes";
   const defaultFocusListEn = isAgronomyOrSurveyCv
     ? "field agronomy, experimental protocols, quality compliance, and data analysis"
     : isMaintenanceHintEarly
     ? "maintenance engineering, industrial reliability, and continuous improvement"
+    : isLegalProfile
+    ? "contract law, legal analysis, structured drafting, and regulatory compliance"
     : "functional analysis, stakeholder alignment, and application delivery";
 
   const focusListText = verifiedCoreSkills.length > 0
@@ -3456,22 +3643,26 @@ export function buildAdaptedProfessionalSummary(
     ? cleanMissions[1].charAt(0).toLowerCase() + cleanMissions[1].slice(1).replace(/\.$/, "")
     : "";
 
-  const isPoProfile = /\b(?:product\s*owner|po\b|proxy\s*po|product\s*manager|chef\s+de\s+produit)\b/i.test(roleLower);
+  const isPoProfile = /\b(?:product\s*owner|po\b|proxy\s*po|product\s+manager|chef\s+de\s+produit)\b/i.test(roleLower);
   const isArchProfile = /\b(?:architect\w*|urbanis\w*)\b/i.test(roleLower);
   const isProjectAppProfile = /\b(?:chef\s+de\s+projet|project\s+manager|applicatif|tma|moa|amoa)\b/i.test(roleLower);
 
   const isDevopsProfile = /\b(?:devops|sre|cloud|infra(?:structure)?|plateforme|platform\s+engineer|sysadmin|kubernetes)\b/i.test(roleLower);
 
-  const isFeminineCv = /\b(?:professionnelle|charg[ée]e|coordinatrice|approvisionneuse|directrice|responsable|acheteuse|consultante|analyste|pr[ée]visionniste|ing[ée]nieure|d[ée]veloppeuse|pr[êe]te|habitu[ée]e)\b/i.test(cvText || "");
+  const isFeminineCv = /\b(?:professionnelle|charg[ée]e|coordinatrice|approvisionneuse|directrice|responsable|acheteuse|consultante|analyste|pr[ée]visionniste|ing[ée]nieure|d[ée]veloppeuse|pr[êe]te|habitu[ée]e|[ée]tudiante|curieuse|motiv[ée]e|rigoureuse|animatrice|preneuse|candidate|dipl[oô]m[ée]e|organis[ée]e)\b/i.test(cvText || "");
   const expPhraseFr = yearsMatch
     ? `${isFeminineCv ? "Forte" : "Fort"} de ${yearsMatch.toLowerCase().includes("exp") ? yearsMatch : `${yearsMatch} d'expérience`}`
-    : isStudentOrRecentGrad
+    : isStudentOrRecentGrad && isEngineeringStudent
     ? (isFeminineCv ? "Jeune ingénieure" : "Jeune ingénieur")
+    : isStudentOrRecentGrad
+    ? (isFeminineCv ? "Étudiante" : "Étudiant")
     : (isFeminineCv ? "Professionnelle expérimentée" : "Professionnel expérimenté");
   const expPhraseEn = yearsMatch
     ? `Accomplished professional with ${yearsMatch.toLowerCase().includes("exp") ? yearsMatch : `${yearsMatch} of experience`}`
-    : isStudentOrRecentGrad
+    : isStudentOrRecentGrad && isEngineeringStudent
     ? "Recent engineering graduate"
+    : isStudentOrRecentGrad
+    ? (degreeMatch ? `Student pursuing a ${degreeMatch}` : "University student")
     : "Accomplished professional with a proven track record";
 
   const buildDegreePhraseFr = (deg: string): string => {
@@ -3479,10 +3670,15 @@ export function buildAdaptedProfessionalSummary(
     if (/^Classes?\s+Pr[ée]paratoires?/i.test(deg)) {
       return `, ${isFeminineCv ? "issue" : "issu"} des ${deg}`;
     }
+    const instNote = topEdu?.institution && !/Établissement|Enseignement secondaire/i.test(topEdu.institution) ? ` (${topEdu.institution})` : "";
+    if (topEduInProgress || (isStudentOrRecentGrad && !isEngineeringStudent && /^Étudiant/i.test(expPhraseFr))) {
+      const cleanInProg = deg.replace(/\s*[–—-]\s*/g, " de ").trim();
+      return ` en ${cleanInProg}${instNote}`;
+    }
     const titlePart = isFeminineCv ? "diplômée" : "diplômé";
     if (/^Ing[ée]nieur\b/i.test(deg) && isStudentOrRecentGrad) {
       const cleanSpec = deg.replace(/^Ing[ée]nieure?\s*(?:[–\-:]|en)?\s*/i, "").trim();
-      return ` de formation ${cleanSpec || deg}${topEdu?.institution && !/Établissement/i.test(topEdu.institution) ? ` (${topEdu.institution})` : ""}`;
+      return ` de formation ${cleanSpec || deg}${instNote}`;
     }
     if (/^Dipl[oô]me\s+(?:du|de\s+l['’]|des)\s+/i.test(deg)) {
       const stripped = deg.replace(/^Dipl[oô]me\s+/i, "");
@@ -3492,7 +3688,7 @@ export function buildAdaptedProfessionalSummary(
     return `, ${titlePart} d'un${useFemArticle ? "e" : ""} ${deg}`;
   };
   const degreePhraseFr = buildDegreePhraseFr(degreeMatch);
-  const degreePhraseEn = degreeMatch ? ` holding a ${degreeMatch}` : "";
+  const degreePhraseEn = degreeMatch && !expPhraseEn.includes(degreeMatch) ? ` holding a ${degreeMatch}` : "";
 
   // Détecter de façon universelle la spécialité et les outils réellement présents dans le CV du candidat
   const allowCadTools = /\b(?:maintenance|fiabilit|m[ée]canique|cao|catia|conception\s+m[ée]canique|dessinateur|industriel)\b/i.test(roleLower);
@@ -3543,24 +3739,26 @@ export function buildAdaptedProfessionalSummary(
     return scorePlat(b) - scorePlat(a);
   });
 
-  const platformSentenceFr = sortedPlatforms.length > 0
-    ? `, maîtrisant des outils analytiques et techniques de référence (${sortedPlatforms.slice(0, 3).join(", ")})`
+  const specializedPlatforms = sortedPlatforms.filter((p) => !/^(?:Pack Office)$/i.test(p));
+  const platformSentenceFr = specializedPlatforms.length > 0
+    ? `, maîtrisant des outils analytiques et techniques de référence (${specializedPlatforms.slice(0, 3).join(", ")})`
     : "";
-  const platformSentenceEn = sortedPlatforms.length > 0
-    ? ` across enterprise platforms (${sortedPlatforms.slice(0, 3).join(", ")})`
+  const platformSentenceEn = specializedPlatforms.length > 0
+    ? ` across enterprise platforms (${specializedPlatforms.slice(0, 3).join(", ")})`
     : "";
 
-  const isMaintenanceRole = /\b(?:maintenance|fiabilit[ée]|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|tpm|smed|mtbf|mttr|trs|oee|industrialisation|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique|moyens?\s+de\s+production|parc\s+machines?)\b/i.test(roleLower);
-  const maintenanceCvHits = (cvLower.match(/\b(?:maintenance|fiabilit[ée]|m[ée]thode[s]?\s*(?:de\s+)?maintenance|gmao|sap\s*pm|plant\s+maintenance|tpm|smed|mtbf|mttr|trs|criticité|pi[eè]ces\s+d[ée]tach[ée]es|moyens?\s+de\s+production|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique)\b/gi) || []).length;
+  const isMaintenanceRole = /\b(?:maintenance|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|tpm|smed|mtbf|mttr|trs|oee|industrialisation|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique|moyens?\s+de\s+production|parc\s+machines?)\b/i.test(roleLower);
+  const maintenanceCvHits = (cvLower.match(/\b(?:maintenance|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thode[s]?\s*(?:de\s+)?maintenance|gmao|sap\s*pm|plant\s+maintenance|tpm|smed|mtbf|mttr|trs|criticité|pi[eè]ces\s+d[ée]tach[ée]es|moyens?\s+de\s+production|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique)\b/gi) || []).length;
   const isMaintenanceIndustrialProfile = isMaintenanceRole || (maintenanceCvHits >= 2 && !/\b(?:supply\s*chain|demand\s*plan|supply\s*plan|pr[ée]vision\s+des\s+ventes)\b/i.test(roleLower));
 
   const supplyChainRoleHit = /\b(?:supply\s*chain|demand\s*plan|supply\s*plan|approvisionn|pr[ée]visionniste|logistique|planificateur|ordonnancement|procurement)\b/i.test(roleLower);
   const supplyChainCvHits = (cvLower.match(/\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|pr[ée]vision\s+des\s+ventes|gestion\s+des\s+stocks|otif|cpfr|logistique|pr[ée]visionniste|sell-in|sell-out|drp)\b/gi) || []).length;
   const isSupplyChainProfile = (supplyChainRoleHit && supplyChainCvHits >= 1) || (!isMaintenanceIndustrialProfile && supplyChainCvHits >= 2);
   const isAgronomyProfile = !isMaintenanceIndustrialProfile && !isSupplyChainProfile && isAgronomyOrSurveyCv;
-  const isFinanceProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && /\b(?:audit\s+financier|contr[oô]le\s+de\s+gestion|comptabilit[ée]|ifrs|tr[ée]sorerie|consolidation\s+financi[eè]re|analyste\s+financier)\b/i.test(cvLower);
-  const isHrProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && /\b(?:ressources?\s+humaines?|talent\s+acquisition|recrutement|sirh|paie|gestion\s+des\s+talents)\b/i.test(cvLower);
-  const isDigitalMktProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && /\b(?:marketing\s+digital|growth\s+hacking|acquisition\s+client|seo|sea|google\s+ads|traffic\s+manager|brand\s+manager)\b/i.test(cvLower);
+  const isLegalDomainProfile = !isMaintenanceIndustrialProfile && !isSupplyChainProfile && !isAgronomyProfile && isLegalProfile;
+  const isFinanceProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && !isLegalDomainProfile && /\b(?:audit\s+financier|contr[oô]le\s+de\s+gestion|comptabilit[ée]|ifrs|tr[ée]sorerie|consolidation\s+financi[eè]re|analyste\s+financier)\b/i.test(cvLower);
+  const isHrProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && !isLegalDomainProfile && /\b(?:ressources?\s+humaines?|talent\s+acquisition|recrutement|sirh|paie|gestion\s+des\s+talents)\b/i.test(cvLower);
+  const isDigitalMktProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && !isAgronomyProfile && !isLegalDomainProfile && /\b(?:marketing\s+digital|growth\s+hacking|acquisition\s+client|seo|sea|google\s+ads|traffic\s+manager|brand\s+manager)\b/i.test(cvLower);
 
   const hasCvSop = /\bs\s*&\s*op\b/i.test(combinedSource);
   const hasCvForecast = /\b(?:pr[ée]vision\s+des\s+ventes|forecast(?:\s+accuracy)?|demand\s+planning)\b/i.test(combinedSource);
@@ -3570,52 +3768,80 @@ export function buildAdaptedProfessionalSummary(
   const hasCvLeanTools = /\b(?:tpm|5s|smed|kanban|lean)\b/i.test(combinedSource);
   const hasCvGmao = /\b(?:gmao|plant\s+maintenance|sap\s*pm)\b/i.test(combinedSource);
 
-  // Domaine d'expertise réel du candidat (inféré du CV sans faux positif sur "équipes marketing", "Supply Chain" isolé ni sur l'intitulé cible)
+  const isHealthProfile = /\b(?:infirmier|infirmi[eè]re|aide[- ]soignant|m[ée]decin|pharmacien|sage[- ]femme|kin[ée]sith[ée]rapeute|soins\s+infirmiers|clinique|h[oô]pital|ehpad)\b/i.test(`${roleLower} ${cvLower}`);
+  const isSalesProfile = /\b(?:commercial|business\s+developer|account\s+(?:executive|manager)|vente|prospection|n[ée]gociation\s+commerciale|conseiller\s+client[eè]le)\b/i.test(`${roleLower} ${cvLower}`);
+  const isConstructionProfile = /\b(?:btp|g[ée]nie\s+civil|conducteur\s+de\s+travaux|chantier|architecte|bim|revit|autocad)\b/i.test(`${roleLower} ${cvLower}`);
+
+  // Domaine d'expertise réel du candidat (inféré du CV sans faux positif)
   const cvFieldFr = /\bdevops|kubernetes|terraform|aws|sre\b/i.test(cvLower)
     ? "dans l'ingénierie Cloud, DevOps et l'automatisation d'infrastructures"
     : isMaintenanceIndustrialProfile
     ? "en méthodes maintenance, fiabilité industrielle et gestion des moyens de production"
     : isAgronomyProfile
     ? "en agronomie terrain, expérimentation végétale, analyse de données et évaluation de la qualité"
+    : isLegalDomainProfile
+    ? "en droit, analyse juridique et rigueur rédactionnelle"
     : isSupplyChainProfile
     ? (hasCvSop || hasCvForecast
         ? "en Supply Chain, prévision des ventes (S&OP) et pilotage des approvisionnements"
         : "en Supply Chain, planification opérationnelle et pilotage des approvisionnements")
     : /\bing[ée]nierie\s+informatique|\bsyst[èe]mes?\s+d['’]information|\bmiage\b|\bsalesforce\b|\bproduct\s+owner\b/i.test(cvLower)
     ? "dans le pilotage de systèmes d'information et de produits digitaux"
+    : isHealthProfile
+    ? "dans les soins, l'accompagnement des patients et la rigueur clinique"
+    : isSalesProfile
+    ? "en développement commercial, relation client et négociation"
+    : isConstructionProfile
+    ? "en gestion de projets techniques, études et conduite d'opérations"
     : isDigitalMktProfile
     ? "en stratégie digitale et acquisition"
     : isFinanceProfile
-    ? "en gestion financière et pilotage de performance"
+    ? "en gestion financière, comptabilité et pilotage de performance"
     : isHrProfile
     ? "en ressources humaines et pilotage des talents"
-    : "dans le pilotage opérationnel et l'excellence d'exécution";
+    : verifiedCoreSkills.length >= 2
+    ? `en ${joinNaturalList(verifiedCoreSkills.slice(0, 2), false)}`
+    : "dans mon domaine d'activité et l'exécution opérationnelle";
   const cvFieldEn = /\bdevops|kubernetes|terraform|aws|sre\b/i.test(cvLower)
     ? "in Cloud engineering, DevOps automation, and platform reliability"
     : isMaintenanceIndustrialProfile
     ? "in maintenance engineering, industrial reliability, and production asset performance"
     : isAgronomyProfile
     ? "in field agronomy, experimental protocols, statistical data analysis, and quality assessment"
+    : isLegalDomainProfile
+    ? "in law, legal research, and structured compliance analysis"
     : isSupplyChainProfile
     ? (hasCvSop || hasCvForecast
         ? "in Supply Chain planning, demand forecasting (S&OP), and inventory optimization"
         : "in Supply Chain operations, procurement planning, and service-level execution")
     : /\binformation\s+systems|\bmiage\b|software|salesforce|product\s+owner|ing[ée]nierie\b/i.test(cvLower)
     ? "in information systems and digital product delivery"
+    : isHealthProfile
+    ? "in clinical care, patient support, and healthcare coordination"
+    : isSalesProfile
+    ? "in business development, client relations, and commercial negotiation"
+    : isConstructionProfile
+    ? "in civil engineering, site coordination, and technical project delivery"
     : isDigitalMktProfile
     ? "in digital marketing strategy and customer acquisition"
     : isFinanceProfile
-    ? "in financial management and performance controlling"
-    : "in strategic project execution and operational excellence";
+    ? "in financial management, accounting, and performance controlling"
+    : verifiedCoreSkills.length >= 2
+    ? `in ${joinNaturalList(verifiedCoreSkills.slice(0, 2), true)}`
+    : "in specialized operations and execution excellence";
 
   if (isEn) {
-    let angleEn = "operational optimization, KPI governance, and cross-functional execution";
+    let angleEn = verifiedCoreSkills.length >= 2
+      ? `${joinNaturalList(verifiedCoreSkills.slice(0, 3), true)}, and rigorous execution`
+      : "operational rigor, quality standards, and cross-functional collaboration";
     if (isDevopsProfile) {
       angleEn = "cloud infrastructure automation, Kubernetes orchestration, CI/CD reliability, and platform security";
     } else if (isMaintenanceIndustrialProfile) {
       angleEn = `equipment reliability${hasCvMaintKpi ? " (MTBF, MTTR, OEE)" : ""}, ${hasCvGmao ? "CMMS deployment, " : ""}preventive maintenance standards, and continuous industrial improvement${hasCvLeanTools ? " (TPM, 5S, SMED)" : ""}`;
     } else if (isAgronomyProfile) {
       angleEn = "field investigation, scientific protocol validation, quality compliance analysis, and technical reporting";
+    } else if (isLegalDomainProfile) {
+      angleEn = "legal research, contract analysis, regulatory compliance, and structured administrative coordination";
     } else if (isSupplyChainProfile) {
       const scAnglesEn = [
         hasCvForecast ? "sales forecasting accuracy" : "",
@@ -3649,13 +3875,19 @@ export function buildAdaptedProfessionalSummary(
     return `${s1} ${s2} ${s3}`;
   }
 
-  let angleFr = "l'optimisation des processus opérationnels, le pilotage par les KPI et la coordination transverse";
+  let angleFr = verifiedCoreSkills.length >= 2
+    ? `${joinNaturalList(verifiedCoreSkills.slice(0, 3), false)} et la qualité d'exécution`
+    : "la rigueur professionnelle, le sens du service et la coordination efficace des activités";
   if (isDevopsProfile) {
     angleFr = "l'automatisation Cloud (IaC), l'orchestration de conteneurs, l'industrialisation CI/CD et la résilience en production";
   } else if (isMaintenanceIndustrialProfile) {
     angleFr = `la fiabilisation des équipements${hasCvMaintKpi ? " (MTBF, MTTR, TRS)" : ""}, ${hasCvGmao ? "le déploiement GMAO, " : ""}la standardisation des plans de maintenance et l'amélioration continue${hasCvLeanTools ? " (TPM, 5S, SMED)" : ""}`;
   } else if (isAgronomyProfile) {
     angleFr = "l'expertise terrain, la validation de protocoles scientifiques, le contrôle qualité et la rédaction de rapports d'analyse";
+  } else if (isLegalDomainProfile) {
+    angleFr = isStudentOrRecentGrad && !/\b(?:contrats?|conformit[ée]|veille\s+juridique)\b/i.test(cvLower)
+      ? "l'analyse juridique, l'argumentation structurée, l'éloquence et la rigueur rédactionnelle"
+      : "l'analyse contractuelle, la veille juridique, la sécurisation de la conformité et la rigueur rédactionnelle";
   } else if (isSupplyChainProfile) {
     const scAnglesFr = [
       hasCvForecast ? "la fiabilité des prévisions de ventes (Forecast Accuracy)" : "",
@@ -3679,14 +3911,23 @@ export function buildAdaptedProfessionalSummary(
   }
 
   const canClaimOfferMissions = matchedKeywords.length >= 2;
-  const fieldConnectorFr = degreePhraseFr && !/^ de formation /i.test(degreePhraseFr) ? ` et spécialisé${isFeminineCv ? "e" : ""} ` : " ";
-  const s1 = `${expPhraseFr}${degreePhraseFr}${fieldConnectorFr}${cvFieldFr}${platformSentenceFr}, je positionne mon expertise sur le poste ${frDe(roleTitle)}${domainLabel ? ` dans le secteur ${domainLabel}` : ""}.`;
-  const s2 = `Mon parcours m'a permis d'affirmer une solide maîtrise en ${focusListText}, centrée sur ${angleFr}${canClaimOfferMissions && firstMission ? `, avec une aptitude éprouvée à ${firstMission}` : ""}.`;
-  const extraSkillsForS3 = verifiedDiffSkills.length > 0 ? verifiedDiffSkills : verifiedSecondarySkills;
+  const isNonSeniorStudentFr = isStudentOrRecentGrad && !yearsMatch && !isEngineeringStudent;
+  const fieldConnectorFr = degreePhraseFr && !/^(?: de formation | en )/i.test(degreePhraseFr) ? ` et spécialisé${isFeminineCv ? "e" : ""} ` : degreePhraseFr && /^ en /i.test(degreePhraseFr) ? `, orienté${isFeminineCv ? "e" : ""} ` : " ";
+  const s1 = isNonSeniorStudentFr
+    ? `${expPhraseFr}${degreePhraseFr}${fieldConnectorFr}${cvFieldFr}${platformSentenceFr}, je souhaite mettre mes compétences et ma rigueur au service du poste ${frDe(roleTitle)}${domainLabel ? ` dans le secteur ${domainLabel}` : ""}.`
+    : `${expPhraseFr}${degreePhraseFr}${fieldConnectorFr}${cvFieldFr}${platformSentenceFr}, je positionne mon expertise sur le poste ${frDe(roleTitle)}${domainLabel ? ` dans le secteur ${domainLabel}` : ""}.`;
+  const s2 = isNonSeniorStudentFr
+    ? `Ma formation et mes expériences m'ont permis de développer des bases solides en ${focusListText}, centrées sur ${angleFr}${canClaimOfferMissions && firstMission ? `, avec une réelle aptitude à ${firstMission}` : ""}.`
+    : `Mon parcours m'a permis d'affirmer une solide maîtrise en ${focusListText}, centrée sur ${angleFr}${canClaimOfferMissions && firstMission ? `, avec une aptitude éprouvée à ${firstMission}` : ""}.`;
+  const isAdjectiveTrait = (s: string) => /^(?:autonome|rigoureuse?|fiable|curieuse?|motiv[ée]e?|dynamique|impliqu[ée]e?)(?:\b|[\s,et])/i.test(s.trim());
+  const rawExtraForS3 = verifiedDiffSkills.length > 0 ? verifiedDiffSkills : verifiedSecondarySkills;
+  const extraSkillsForS3 = rawExtraForS3.filter((s) => !isAdjectiveTrait(s));
   const s3 = extraSkillsForS3.length > 0 && canClaimOfferMissions && secondMission
     ? `J'apporte également une valeur ajoutée différenciante en ${joinNaturalList(extraSkillsForS3, false)}${diffScopeNoteFr} pour ${secondMission} en collaboration étroite avec les équipes partenaires.`
     : extraSkillsForS3.length > 0
-    ? `J'y associe une valeur ajoutée différenciante en ${joinNaturalList(extraSkillsForS3, false)}${diffScopeNoteFr}, en interface directe avec les directions partenaires pour sécuriser la performance et l'excellence opérationnelle.`
+    ? (isNonSeniorStudentFr
+        ? `J'y associe des atouts complémentaires en ${joinNaturalList(extraSkillsForS3, false)}${diffScopeNoteFr} pour contribuer efficacement à la qualité des dossiers et au suivi rigoureux des activités.`
+        : `J'y associe une valeur ajoutée différenciante en ${joinNaturalList(extraSkillsForS3, false)}${diffScopeNoteFr}, en interface directe avec les directions partenaires pour sécuriser la performance et l'excellence opérationnelle.`)
     : canClaimOfferMissions && secondMission
     ? `J'interviens en interface directe avec les équipes commerciales, financières et opérationnelles${diffScopeNoteFr} pour ${secondMission}, tout en sécurisant les objectifs de performance et de qualité.`
     : `J'interviens en interface directe avec les directions partenaires${diffScopeNoteFr} pour sécuriser l'atteinte des objectifs, la fiabilité des indicateurs clés et l'excellence opérationnelle.`;
@@ -3758,7 +3999,7 @@ export function parseAuthenticExperiencesFromCv(
   const looksLikeActionSentence = (l: string | undefined): boolean => {
     if (!l) return false;
     const s = l.trim();
-    if (/^(?:[•*–—\-●▪▫➢➤✓✔]+|\d+[.)])\s+/.test(s)) return true;
+    if (/^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9])|\d+[.)])\s+/.test(s)) return true;
     if (/^r[ée]alis[ée]\s+en\s+[ée]quipe\b/i.test(s)) return true;
     if (/^(?:contexte|environnement|stack|outils|technologies|missions?|r[eé]alisations?|t[âa]ches?)\s*:/i.test(s)) return true;
     if (s.length > 82) return true;
@@ -3772,19 +4013,82 @@ export function parseAuthenticExperiencesFromCv(
     return false;
   };
 
+  // Helper universel d'extraction de date/période d'expérience (plage standard, mois-mois année, semestre, mois+année seul)
+  const sameYearMonthRangeRe = new RegExp(`^\\s*(${MONTH_NAMES_PATTERN})\\s*[-–—à]\\s*(${MONTH_NAMES_PATTERN})\\s+((?:19|20)\\d{2})\\b`, "i");
+  const semesterYearRangeRe = /^\s*(\d+(?:er|e|ème)?\s+semestre\s+(?:19\d\d|20\d\d)(?:\s*[-–—]\s*(?:19\d\d|20\d\d))?)\b/i;
+  const singleMonthYearRe = new RegExp(`^\\s*(${MONTH_NAMES_PATTERN}\\s+(?:19|20)\\d{2})\\b`, "i");
+
+  const matchExpDateInfo = (l: string): { fullMatch: string; startRaw: string; endRaw: string; isSinglePoint: boolean } | null => {
+    const sem = l.match(semesterYearRangeRe);
+    if (sem) {
+      return { fullMatch: sem[0], startRaw: sem[1].replace(/\s+/g, " ").trim(), endRaw: sem[1].replace(/\s+/g, " ").trim(), isSinglePoint: true };
+    }
+    const sym = l.match(sameYearMonthRangeRe);
+    if (sym) {
+      return { fullMatch: sym[0], startRaw: `${sym[1]} ${sym[3]}`, endRaw: `${sym[2]} ${sym[3]}`, isSinglePoint: false };
+    }
+    const dr = l.match(DATE_RANGE_REGEX);
+    if (dr) {
+      return {
+        fullMatch: dr[0],
+        startRaw: dr[1] || dr[3] || "2021",
+        endRaw: dr[2] || (isEn ? "Present" : "Présent"),
+        isSinglePoint: false,
+      };
+    }
+    const smy = l.match(singleMonthYearRe);
+    if (smy) {
+      return { fullMatch: smy[0], startRaw: smy[1], endRaw: smy[1], isSinglePoint: true };
+    }
+    return null;
+  };
+
+  // Prétraitement 0 : Réassembler les dates de marge gauche coupées sur 2 lignes (ex: "Juillet - Août • Poste..." + "2025 → ...")
+  const splitMonthPrefixRe = new RegExp(`^((?:${MONTH_NAMES_PATTERN}(?:\\s*[-–—à]\\s*${MONTH_NAMES_PATTERN})?)|(?:\\d+(?:er|e|ème)?\\s+semestre))\\s+([•*●▪▫➢➤]\\s+.+)$`, "i");
+  const nextYearWithBulletRe = /^((?:19\d\d|20\d\d)(?:\s*[-–—]\s*(?:19\d\d|20\d\d))?)\s+([→➔⇒➢➤•●▪▫]\s*.+)$/;
+  const standaloneMonthOnlyRe = new RegExp(`^(?:${MONTH_NAMES_PATTERN}(?:\\s*[-–—à]\\s*${MONTH_NAMES_PATTERN})?|\\d+(?:er|e|ème)?\\s+semestre)$`, "i");
+  const standaloneYearPrefixRe = /^((?:19\d\d|20\d\d)(?:\s*[-–—]\s*(?:19\d\d|20\d\d))?)(?:\s+(.+))?$/;
+
+  const combinedDateMarginLines: string[] = [];
+  for (let ei = 0; ei < expLines.length; ei++) {
+    const cur = expLines[ei];
+    const nxt = ei + 1 < expLines.length ? expLines[ei + 1] : "";
+    const mSplit = !/\b(?:19|20)\d{2}\b/.test(cur) ? cur.match(splitMonthPrefixRe) : null;
+    const nYearBullet = nxt ? nxt.match(nextYearWithBulletRe) : null;
+    if (mSplit && nYearBullet) {
+      combinedDateMarginLines.push(`${mSplit[1]} ${nYearBullet[1]} ${mSplit[2]}`);
+      combinedDateMarginLines.push(`• ${nYearBullet[2].replace(/^[→➔⇒➢➤•●▪▫]\s*/, "").trim()}`);
+      ei++;
+      continue;
+    }
+    if (standaloneMonthOnlyRe.test(cur.trim()) && nxt && standaloneYearPrefixRe.test(nxt.trim())) {
+      const ny = nxt.trim().match(standaloneYearPrefixRe)!;
+      if (ny[2] && /^[→➔⇒➢➤•●▪▫]/.test(ny[2].trim())) {
+        combinedDateMarginLines.push(`${cur.trim()} ${ny[1]}`);
+        combinedDateMarginLines.push(`• ${ny[2].replace(/^[→➔⇒➢➤•●▪▫]\s*/, "").trim()}`);
+      } else {
+        combinedDateMarginLines.push(`${cur.trim()} ${nxt.trim()}`);
+      }
+      ei++;
+      continue;
+    }
+    combinedDateMarginLines.push(cur);
+  }
+  expLines = combinedDateMarginLines;
+
   // Prétraitement universel des lignes d'expériences :
-  // 1) Fusionner les retours à la ligne coupés (minuscule / préposition pendante) juste après un en-tête daté
+  // 1) Fusionner les retours à la ligne coupés (minuscule / préposition pendante / parenthèse ouverte) juste après un en-tête daté
   // 2) Scinder proprement les blocs employeur à plusieurs sous-rôles internes (ex: Contrat de professionnalisation + Stage sous AGRIAL)
   const isStandaloneYearHeaderLine = (l: string): boolean => {
     const m = l.match(/^\s*((?:19\d\d|20\d\d))\s+([A-ZÀ-Ÿ].{5,})$/);
     if (!m) return false;
     const rest = m[2].trim();
     if (/^(?:Exp[eé]riences?|Formations?|Comp[eé]tences?)\b/i.test(rest)) return false;
-    if (/^(?:[•*–—\-●▪▫➢➤✓✔]|\d+[.)])\s+/.test(rest) || /[;.]\s+\S/.test(rest) || rest.length > 135) return false;
+    if (/^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]|\d+[.)])\s+/.test(rest) || /[;.]\s+\S/.test(rest) || rest.length > 135) return false;
     return !looksLikeActionSentence(rest.slice(0, 75));
   };
   const isAnyExpDateLine = (l: string): boolean =>
-    DATE_RANGE_REGEX.test(l) || (l.includes("|") && /\b(19\d\d|20\d\d)\b/.test(l)) || isStandaloneYearHeaderLine(l);
+    Boolean(matchExpDateInfo(l)) || (l.includes("|") && /\b(19\d\d|20\d\d)\b/.test(l)) || isStandaloneYearHeaderLine(l);
   const subRoleLineRe = /^(?:Contrat\s+(?:de\s+professionnalisation|d['’]apprentissage|CDI|CDD|à\s+durée\s+(?:déterminée|indéterminée))|Stage(?:\s+(?:assistant[- ]ing[ée]nieur|d['’]ing[ée]nieur|de\s+fin\s+d['’][ée]tudes?|ouvrier|technicien|de\s+recherche|[ée]tudiant))?|Alternance(?:\s+[\wÀ-ÿ'-]{1,25}){0,3}|Apprentissage(?:\s+[\wÀ-ÿ'-]{1,25}){0,3})(?:\s*\([^)]{1,30}\))?\s*$/i;
   const extractParentCompanyFromDateHeader = (rawRest: string): string => {
     const clean = rawRest.replace(/^[\s|–—\-·•]+|[\s|–—\-·•]+$/g, "").trim();
@@ -3812,7 +4116,7 @@ export function parseAuthenticExperiencesFromCv(
         const nxt = expLines[ei + 1];
         if (
           !nxt ||
-          /^(?:[•*–—\-●▪▫➢➤✓✔]|\d+[.)])\s/.test(nxt) ||
+          /^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]|\d+[.)])\s/.test(nxt) ||
           /^(?:Exp[eé]riences?\s+(?:associatives?|pr[ée]c[ée]dentes?)|Autres?\s+exp[eé]riences?)\s*:?$/i.test(nxt) ||
           isAnyExpDateLine(nxt) ||
           subRoleLineRe.test(nxt) ||
@@ -3820,9 +4124,12 @@ export function parseAuthenticExperiencesFromCv(
         ) {
           break;
         }
+        const openParens = (curr.match(/\(/g) || []).length;
+        const closeParens = (curr.match(/\)/g) || []).length;
         const startsLower = /^[a-zà-ÿ]/.test(nxt);
         const prevEndsDangling = /(?:[,;:\-–—/(]|\b(?:de|du|des|d['’]|la|le|les|l['’]|un|une|en|à|au|aux|pour|par|avec|sur|et|ou)|\b\d{1,3})$/i.test(curr.trim());
-        if (startsLower || (prevEndsDangling && nxt.length <= 80 && !looksLikeActionSentence(nxt))) {
+        const isProperCityContinuation = /\b(?:de|du|des|sur|en)\s*$/i.test(curr.trim()) && /^[A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\- ]+(?:\(\d{2,5}\))?$/.test(nxt.trim());
+        if (openParens > closeParens || startsLower || isProperCityContinuation || (prevEndsDangling && nxt.length <= 80 && !looksLikeActionSentence(nxt))) {
           curr = `${curr} ${nxt}`.replace(/\s{2,}/g, " ").trim();
           ei++;
         } else {
@@ -3914,35 +4221,35 @@ export function parseAuthenticExperiencesFromCv(
     return true;
   };
 
-  const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|contrat(?:\s+de\s+professionnalisation|\s+d['’]apprentissage)?|stage(?:\s+assistant[- ]ing[ée]nieur|\s+d['’]ing[ée]nieur)?|apprenti(?:e)?|alternant(?:e)?|stagiaire|intern)\b/i;
+  const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|avocat|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit|cuisine|partie|rayon|chantier)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|infirmier|infirmi[eè]re|aide[- ]soignant|m[ée]decin|pharmacien|kin[ée]sith[ée]rapeute|commercial|vendeur|vendeuse|conseiller|conseill[eè]re|t[ée]l[ée]conseiller|business\s+developer|recruteur|recruteuse|assistant|assistante|secr[ée]taire|r[ée]ceptionniste|serveur|serveuse|cuisinier|cuisini[eè]re|boulanger|p[âa]tissier|chauffeur|conducteur|conductrice|cariste|magasinier|m[ée]canicien|[ée]lectricien|plombier|ma[çc]on|menuisier|soudeur|dessinateur|projeteur|professeur|enseignant|formateur|formatrice|animateur|animatrice|[ée]ducateur|[ée]ducatrice|designer|graphiste|journaliste|nurse|doctor|accountant|teacher|sales|representative|associate|coordinator|officer|clerk|technician|operator|supervisor|contrat(?:\s+de\s+professionnalisation|\s+d['’]apprentissage)?|stage(?:\s+assistant[- ]ing[ée]nieur|\s+d['’]ing[ée]nieur)?|apprenti(?:e)?|alternant(?:e)?|stagiaire|intern|trainee)\b/i;
 
   for (let i = 0; i < expLines.length; i++) {
     const line = expLines[i];
-    const dateMatch = line.match(DATE_RANGE_REGEX);
+    const dateInfo = matchExpDateInfo(line);
     const hasPipe = line.includes("|");
-    const singleYearMatch = !dateMatch && !hasPipe ? line.match(/^\s*((?:19\d\d|20\d\d))\s+([A-ZÀ-Ÿ].{5,})$/) : null;
+    const singleYearMatch = !dateInfo && !hasPipe ? line.match(/^\s*((?:19\d\d|20\d\d))\s+([A-ZÀ-Ÿ].{5,})$/) : null;
     const isSingleYearAnchor = Boolean(
       singleYearMatch &&
       singleYearMatch[2].trim().length <= 135 &&
-      !/^(?:[•*–—\-●▪▫➢➤✓✔]|\d+[.)])\s+/.test(singleYearMatch[2].trim()) &&
+      !/^(?:[•*–—\-●▪▫➢➤✓✔→➔⇒]|\d+[.)])\s+/.test(singleYearMatch[2].trim()) &&
       !/[;.]\s+\S/.test(singleYearMatch[2].trim()) &&
       !looksLikeActionSentence(singleYearMatch[2].trim().slice(0, 75)) &&
       !/^(?:Exp[eé]riences?|Formations?|Comp[eé]tences?)\b/i.test(singleYearMatch[2].trim())
     );
 
-    if (dateMatch || (hasPipe && /\b(19\d\d|20\d\d)\b/.test(line)) || isSingleYearAnchor) {
+    if (dateInfo || (hasPipe && /\b(19\d\d|20\d\d)\b/.test(line)) || isSingleYearAnchor) {
       const prevBodyBoundary = anchors.length > 0 ? anchors[anchors.length - 1].bodyStartIdx : 0;
 
       // Extraire l'intitulé/texte présent sur la MÊME ligne que la plage de dates (format Word/Canva/ATS moderne : "Poste 10/2024 - 07/2025" ou "Poste - Entreprise Depuis 11/2025")
-      const inlineHeader = dateMatch
+      const inlineHeader = dateInfo
         ? line
-            .replace(dateMatch[0], "")
-            .replace(/\([^)]*(?:ans?|mois|years?|months?)[^)]*\)/gi, "")
+            .replace(dateInfo.fullMatch, "")
+            .replace(/\(\s*(?:environ\s+)?\d+(?:[.,]\d+)?(?:\s*[à-]\s*\d+)?\s*\+?\s*(?:ans?|mois|years?|months?)\b[^)]*\)/gi, "")
             .replace(/^[\s|–—\-·•]+|[\s|–—\-·•]+$/g, "")
             .trim()
         : isSingleYearAnchor && singleYearMatch
         ? singleYearMatch[2]
-            .replace(/\([^)]*(?:ans?|mois|years?|months?)[^)]*\)/gi, "")
+            .replace(/\(\s*(?:environ\s+)?\d+(?:[.,]\d+)?(?:\s*[à-]\s*\d+)?\s*\+?\s*(?:ans?|mois|years?|months?)\b[^)]*\)/gi, "")
             .replace(/^[\s|–—\-·•]+|[\s|–—\-·•]+$/g, "")
             .trim()
         : "";
@@ -3957,7 +4264,7 @@ export function parseAuthenticExperiencesFromCv(
       const nextL = expLines[i + 1];
       const nextLLooksLikeShortEntity =
         Boolean(nextL) &&
-        !DATE_RANGE_REGEX.test(nextL) &&
+        !isAnyExpDateLine(nextL) &&
         !looksLikeActionSentence(nextL) &&
         !isPureLocationLine(nextL) &&
         !/^(?:Exp[eé]riences?\s+(?:associatives?|pr[ée]c[ée]dentes?)|Autres?\s+exp[eé]riences?)\s*:?$/i.test(nextL) &&
@@ -3983,7 +4290,7 @@ export function parseAuthenticExperiencesFromCv(
           // Format Word / Canva / ATS moderne : "Chargée Supply Chain – Prévision... 10/2024 – 07/2025" suivi sur i+1 par "Ariston, Saint-Denis"
           if (
             nextL &&
-            !DATE_RANGE_REGEX.test(nextL) &&
+            !isAnyExpDateLine(nextL) &&
             !looksLikeActionSentence(nextL) &&
             !/^(?:Exp[eé]riences?\s+(?:associatives?|pr[ée]c[ée]dentes?)|Autres?\s+exp[eé]riences?)\s*:?$/i.test(nextL) &&
             nextL.length <= 75
@@ -4109,19 +4416,22 @@ export function parseAuthenticExperiencesFromCv(
   for (let aIdx = 0; aIdx < anchors.length; aIdx++) {
     const anchor = anchors[aIdx];
     const line = expLines[anchor.dateLineIdx];
+    const dateInfo = matchExpDateInfo(line);
     const dateMatch = line.match(DATE_RANGE_REGEX);
     const hasPipe = line.includes("|");
-    const singleYearMatch = !dateMatch && !hasPipe ? line.match(/^\s*((?:19\d\d|20\d\d))\s+(.+)$/) : null;
+    const singleYearMatch = !dateInfo && !hasPipe ? line.match(/^\s*((?:19\d\d|20\d\d))\s+(.+)$/) : null;
     const isAssociativeAnchor = associativeDividerIdx >= 0 && anchor.dateLineIdx > associativeDividerIdx;
 
-    const rawStart = dateMatch ? (dateMatch[1] || dateMatch[3] || "2021") : (singleYearMatch ? singleYearMatch[1] : "2021");
-    const rawEnd = dateMatch ? (dateMatch[2] || (isEn ? "Present" : "Présent")) : (singleYearMatch ? singleYearMatch[1] : (isEn ? "Present" : "Présent"));
+    const rawStart = dateInfo ? dateInfo.startRaw : (singleYearMatch ? singleYearMatch[1] : "2021");
+    const rawEnd = dateInfo ? dateInfo.endRaw : (singleYearMatch ? singleYearMatch[1] : (isEn ? "Present" : "Présent"));
     const startDate = normalizeCvDate(rawStart, isEn);
     const endDate = normalizeCvDate(rawEnd, isEn);
+    const isExplicitSinglePointDate = Boolean(dateInfo?.isSinglePoint || singleYearMatch);
 
     let role = isEn ? (targetRoleTitle || "Professional Role") : (targetRoleTitle || "Poste professionnel");
     let company = isEn ? "Company" : "Entreprise";
     let location = defaultLocation || (isEn ? "Paris, France" : "France");
+    let promotedScopeBullet = "";
 
     if (!hasPipe && anchor.inlineHeader.length >= 3) {
       // Intitulé du poste sur la même ligne que la date
@@ -4131,6 +4441,58 @@ export function parseAuthenticExperiencesFromCv(
         company = parsedComp.company || expLines[anchor.nextLineCompanyIdx];
         if (parsedComp.location) location = parsedComp.location;
       } else {
+        // Cas 0 : Phrase narrative descriptive avec rôle + structure ("Emploi saisonnier à la mairie de Massy (91) au poste d'adjoint administratif..., au niveau de...", "Stage d'observation... dans la librairie Arborescence de Massy (91)", "Animatrice centre de loisir...", "Preneuse de notes...")
+        const posteRoleMatch = anchor.inlineHeader.match(/\bau\s+poste\s+d['’]([^,;.()]+)(.*)$/i);
+        const mairieMatch = anchor.inlineHeader.match(/\b(?:mairie|commune|ville)\s+(?:de|d['’])\s+([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\-]+(?:\s+[A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\-]+)?)(?:\s*\((\d{2,5})\))?/i);
+        const stageDansMatch = anchor.inlineHeader.match(/^(Stage\s+d['’]observation(?:\s+en\s+entreprise)?)\s+(?:effectu[ée]\s+)?(?:dans\s+(?:la|le|l['’])|en|chez|au\s+sein\s+d[eu]\s+(?:la|le|l['’])?)\s+(.+)$/i);
+
+        if (posteRoleMatch) {
+          const prefixPart = anchor.inlineHeader.slice(0, posteRoleMatch.index).trim();
+          const extractedRole = posteRoleMatch[1].trim();
+          role = extractedRole.charAt(0).toUpperCase() + extractedRole.slice(1);
+          if (/^emploi\s+saisonnier/i.test(prefixPart) && !/saisonnier/i.test(role)) {
+            role = `${role} (Emploi saisonnier)`;
+          }
+          if (mairieMatch) {
+            company = `Mairie de ${mairieMatch[1].trim()}`;
+            location = mairieMatch[2] ? `${mairieMatch[1].trim()} (${mairieMatch[2]})` : mairieMatch[1].trim();
+          } else {
+            const orgMatch = prefixPart.match(/\b(?:à la|à l['’]|au|chez|dans\s+(?:la|le|l['’]))\s+([^,;.()]+)/i);
+            if (orgMatch) company = orgMatch[1].trim().charAt(0).toUpperCase() + orgMatch[1].trim().slice(1);
+          }
+          const scopeTail = (posteRoleMatch[2] || "").replace(/^[,;\s]+/, "").trim();
+          if (scopeTail.length >= 12) {
+            const cleanScope = scopeTail
+              .replace(/^au\s+niveau\s+de\s+la\s+/i, "Assurer l'accueil et la ")
+              .replace(/^au\s+niveau\s+d[eu]s?\s+/i, "Gérer les ")
+              .replace(/\bcartes\s+d['’]identit[ée]s\b/gi, "cartes d'identité")
+              .trim();
+            promotedScopeBullet = cleanScope.charAt(0).toUpperCase() + cleanScope.slice(1);
+          }
+        } else if (stageDansMatch) {
+          role = isEn ? "Observation Intern" : "Stagiaire d'observation";
+          let orgRaw = stageDansMatch[2].trim();
+          const cityDeptMatch = orgRaw.match(/^(.+?)\s+de\s+([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\-]+)(?:\s*\((\d{2,5})\))?$/);
+          if (cityDeptMatch) {
+            orgRaw = cityDeptMatch[1].trim();
+            location = cityDeptMatch[3] ? `${cityDeptMatch[2].trim()} (${cityDeptMatch[3]})` : cityDeptMatch[2].trim();
+          }
+          company = orgRaw.charAt(0).toUpperCase() + orgRaw.slice(1);
+        } else if (/^Animatrice?\s+centre\s+de\s+loisir/i.test(anchor.inlineHeader)) {
+          role = isEn ? "Recreation Center Activity Leader" : "Animatrice de centre de loisirs";
+          const detail = anchor.inlineHeader.replace(/^Animatrice?\s+centre\s+de\s+loisirs?\s*/i, "").trim();
+          company = isEn ? "Municipal Recreation Center" : "Centre de loisirs";
+          if (detail) {
+            promotedScopeBullet = `Encadrer et animer des activités éducatives et ludiques ${detail}`;
+          }
+        } else if (/^Preneuse?\s+de\s+notes\b/i.test(anchor.inlineHeader)) {
+          role = isEn ? "University Note-Taker (Disability Support)" : "Preneuse de notes universitaire";
+          company = isEn ? "University Disability Support" : "Accompagnement universitaire";
+          const detail = anchor.inlineHeader.replace(/^Preneuse?\s+de\s+notes\s*/i, "").trim();
+          if (detail) {
+            promotedScopeBullet = `Assurer la prise de notes complète et structurée des cours magistraux ${detail}`;
+          }
+        } else {
         // Cas 1 : Projets académiques / d'ingénierie au format "Projet de 5ème année, Etude d'un outil..." ou "Projet d'étude UniLaSalle, ..."
         const projCommaMatch = anchor.inlineHeader.match(/^(Projet(?:\s+(?:d['’][ée]tude|de\s+\d+[eè]me\s+ann[ée]e|de\s+fin\s+d['’][ée]tudes?|acad[ée]mique|industriel|tuteur[ée])?(?:\s+[A-ZÀ-Ÿ][\wÀ-ÿ.-]+){0,3}))\s*[,:]\s*(.{6,})$/i);
         // Cas 2 : Responsabilité associative sans entreprise ("Trésorier du bureau de promotion")
@@ -4174,6 +4536,7 @@ export function parseAuthenticExperiencesFromCv(
           } else if (/^projet\b/i.test(role)) {
             company = isEn ? "Academic Engineering Project" : "Projet académique";
           }
+        }
         }
       }
     } else {
@@ -4336,17 +4699,17 @@ export function parseAuthenticExperiencesFromCv(
         .replace(/(?:\s*[•●▪▫➢➤✓✔]){2,}/g, " ")
         .replace(/\s+[•●▪▫➢➤✓✔]+\s*$/g, "")
         .trim();
-      if (!bLine || /^[•●▪▫➢➤✓✔·*\-–—\s]+$/.test(bLine)) {
+      if (!bLine || /^[•●▪▫➢➤✓✔·*\-–—→➔⇒\s]+$/.test(bLine)) {
         continue;
       }
       const nextBLine = bi + 1 < bodyLines.length ? bodyLines[bi + 1] : "";
-      const isBulletStart = /^(?:[•*–—\-]|●|▪|▫|➢|➤|✓|✔|\d+[.)])\s+/.test(bLine);
+      const isBulletStart = /^(?:[•*–—\-→➔⇒]|●|▪|▫|➢|➤|✓|✔|[o○◦](?=\s+[A-ZÀ-Ÿ0-9])|\d+[.)])\s+/.test(bLine);
       const isLabelledLine = /^(?:Contexte|Environnement(?:\s+technique)?|Stack(?:\s+technique)?|Outils|Technologies)\s*:/i.test(bLine);
       const isStandaloneSubheading =
         !isBulletStart &&
         !isLabelledLine &&
         /^[A-Za-zÀ-ÿ0-9\s&/,'’\-]{2,60}:\s*$/.test(bLine) &&
-        (!nextBLine || /^(?:[•*–—\-]|●|▪|▫|➢|➤|✓|✔|\d+[.)])\s+/.test(nextBLine));
+        (!nextBLine || /^(?:[•*–—\-→➔⇒]|●|▪|▫|➢|➤|✓|✔|[o○◦](?=\s+[A-ZÀ-Ÿ0-9])|\d+[.)])\s+/.test(nextBLine));
 
       if (isStandaloneSubheading) {
         continue;
@@ -4747,7 +5110,7 @@ export function parseAuthenticExperiencesFromCv(
               " pour fiabiliser l'industrialisation des déploiements et l'élasticité des infrastructures",
               " afin de réduire les délais de livraison tout en maintenant un haut niveau de qualité",
             ]);
-          } else if (/maintenance|gmao|sap\s*pm|fiabilit|critic|mtbf|mttr|trs|smed|tpm|5s|pi[eè]ces\s+d[ée]tach|parc\s+machine|moyens?\s+de\s+production/i.test(bLow)) {
+          } else if (/\b(?:maintenance|gmao|sap\s*pm|fiabilit[ée]\s+industrielle|fiabilisation|critic|mtbf|mttr|trs|smed|tpm|5s|pi[eè]ces\s+d[ée]tach|parc\s+machine|moyens?\s+de\s+production)\b/i.test(bLow)) {
             body += pickUniqueClause([
               " afin d'optimiser la disponibilité des équipements et la fiabilité de la maintenance",
               " pour réduire les temps d'arrêt machine et sécuriser la continuité de production",
@@ -4763,17 +5126,39 @@ export function parseAuthenticExperiencesFromCv(
               " afin d'objectiver les écarts observés et formuler des conclusions techniques argumentées",
               " pour fiabiliser la traçabilité des relevés terrain et la pertinence des préconisations",
             ]);
+          } else if (/enfants?|centre\s+de\s+loisirs?|activit[ée]s?\s+[ée]ducatives?|ludiques?/i.test(bLow)) {
+            body += pickUniqueClause([
+              " afin de garantir la sécurité, l'éveil et le bien-être des enfants",
+              " en veillant à la qualité pédagogique et à la cohésion d'équipe",
+            ]);
+          } else if (/handicap|cours\s+magistraux|prise\s+de\s+notes?/i.test(bLow)) {
+            body += pickUniqueClause([
+              " afin de garantir un support académique complet, structuré et fidèle",
+              " pour assurer la continuité des apprentissages dans le respect strict des délais",
+            ]);
+          } else if (/citoyens?|passeports?|cartes?\s+d['’]identit|mairie|d[ée]marches?\s+administratives?/i.test(bLow)) {
+            body += pickUniqueClause([
+              " dans le respect des procédures administratives et de la qualité du service public",
+              " afin de garantir la complétude et la fiabilité des dossiers des usagers",
+            ]);
+          } else if (/librairie|stage\s+d['’]observation|monde\s+professionnel/i.test(bLow)) {
+            body += pickUniqueClause([
+              " afin d'appréhender concrètement l'organisation commerciale et les standards professionnels",
+            ]);
           } else {
             body += pickUniqueClause([
-              " afin de sécuriser la tenue des jalons et la satisfaction des parties prenantes",
-              " pour optimiser la coordination transverse et l'efficacité opérationnelle",
-              " afin d'élever durablement la performance et la qualité de service",
+              " avec rigueur et sens des responsabilités afin d'assurer la qualité du service",
+              " en veillant au respect des procédures, des délais et de la satisfaction des interlocuteurs",
+              " afin de contribuer efficacement à la continuité et à la qualité des activités",
             ]);
           }
         }
       }
 
       body = body
+        .replace(/\bengagement,/gi, "engagements,")
+        .replace(/\bprise de note rigoureuses\b/gi, "prise de notes rigoureuse")
+        .replace(/\bcartes\s+d['’]identit[ée]s\b/gi, "cartes d'identité")
         .replace(/([A-Z]{2,5})\s*\/\s*([A-Z]{2,5})/g, "$1 / $2")
         .replace(/([A-Z]{2,5})\s*\/\s*([A-Z]{2,5})/g, "$1 / $2");
       body = body.charAt(0).toUpperCase() + body.slice(1);
@@ -4783,6 +5168,10 @@ export function parseAuthenticExperiencesFromCv(
     const prioritizedActions = prioritizedRawActions.map((item, bIdx) =>
       reformulateStarBulletForOffer(item.text, bIdx)
     );
+
+    if (promotedScopeBullet && !prioritizedActions.some((b) => b.toLowerCase().includes(promotedScopeBullet.slice(0, 18).toLowerCase()))) {
+      prioritizedActions.unshift(reformulateStarBulletForOffer(promotedScopeBullet, 0));
+    }
 
     const formattedBullets = [...prioritizedActions, ...envBullets];
 
@@ -4854,7 +5243,7 @@ export function parseAuthenticExperiencesFromCv(
     }
     const endYearMatch = (endDate || "").match(/\b(20\d\d|19\d\d)\b/);
     const endYear = endYearMatch ? parseInt(endYearMatch[1], 10) : 0;
-    const isCurrentExp = endDate.toLowerCase().includes("pr") || endDate.toLowerCase().includes("pres") || endDate.toLowerCase().includes("aujourd");
+    const isCurrentExp = !isExplicitSinglePointDate && (endDate.toLowerCase().includes("pr") || endDate.toLowerCase().includes("pres") || endDate.toLowerCase().includes("aujourd"));
     if (isCurrentExp) expRelevanceScore += 6;
     else if (endYear >= 2022) expRelevanceScore += 4;
     else if (endYear >= 2018) expRelevanceScore += 2;
@@ -4940,19 +5329,27 @@ export function parseAuthenticExperiencesFromCv(
               : "Formalized detailed functional specifications (SFD) and coordinated UAT validation cycles with engineering teams."
           );
           exp.bullets.push("Facilitated business alignment workshops and supported operational rollout across teams.");
-        } else if (/exploit|support|ops|admin/i.test(expRoleLower)) {
+        } else if (/exploit|support|ops/i.test(expRoleLower)) {
           exp.bullets.push(
             themes.dataAi
               ? "Structured SQL diagnostic queries and automated data quality checks to secure operational reporting reliability."
               : "Monitored production incidents, prioritized root-cause fixes, and maintained SLA continuity on critical infrastructure."
           );
           exp.bullets.push("Documented operational runbooks and collaborated with engineering teams to accelerate incident resolution.");
-        } else if (/maintenance|fiabilit|m[ée]thodes|gmao|sap\s*pm|industriel/i.test(expCorpusLower)) {
+        } else if (/\b(?:maintenance|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(expCorpusLower)) {
           exp.bullets.push("Monitoring equipment reliability KPIs (MTBF, MTTR, OEE) and standardizing preventive maintenance plans within the CMMS.");
           exp.bullets.push("Coordinating closely with production, technical teams, and suppliers to improve asset availability and reduce downtime.");
         } else if (/agronom|soil|wheat|corn|maize|crop|trial|experiment|unilasalle|agrial|quality\s+control|audit/i.test(expCorpusLower)) {
           exp.bullets.push("Structured field measurements and statistical data analysis (R Studio) to deliver reliable, actionable trial references.");
           exp.bullets.push("Drafted detailed technical conclusions and agronomic recommendations grounded in observed field performance.");
+        } else if (/adjoint\s+administratif|mairie|citoyen/i.test(expCorpusLower)) {
+          exp.bullets.push("Managed citizen administrative files (passport & ID requests) in strict compliance with regulatory procedures and confidentiality.");
+        } else if (/animat|centre\s+de\s+loisirs/i.test(expCorpusLower)) {
+          exp.bullets.push("Designed and led creative educational workshops for young children while ensuring safety, teamwork, and accountability.");
+        } else if (/preneus|note-taker|handicap/i.test(expCorpusLower)) {
+          exp.bullets.push("Delivered comprehensive, accurate lecture notes under strict deadlines, demonstrating reliability and analytical synthesis.");
+        } else if (/stage\s+d['’]observation|librairie/i.test(expCorpusLower)) {
+          exp.bullets.push("Observed daily business operations, inventory organization, and customer relations within a professional environment.");
         } else if (exp._isAssociative) {
           exp.bullets.push("Coordinated administrative tracking, stakeholder communication, and logistics execution across student association events.");
         } else {
@@ -4966,9 +5363,17 @@ export function parseAuthenticExperiencesFromCv(
         } else if (/\b(?:supply\s*chain|demand\s*planning|supply\s*planning|approvisionnement|gestion\s+des\s+stocks|s&op|otif|cpfr|pr[ée]visions?\s+des\s+ventes)\b/i.test(expCorpusLower)) {
           exp.bullets.push("Suivre et analyser les indicateurs clés de performance (taux de service, OTIF, forecast accuracy, couverture de stocks) dans le cadre du processus S&OP.");
           exp.bullets.push("Collaborer étroitement avec les équipes commerciales, marketing et fournisseurs pour anticiper les risques de rupture et optimiser les flux.");
-        } else if (/maintenance|fiabilit|m[ée]thodes|gmao|sap\s*pm|parc\s+machine|moyens?\s+de\s+production/i.test(expCorpusLower)) {
+        } else if (/\b(?:maintenance|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(expCorpusLower)) {
           exp.bullets.push("Analyser les indicateurs de fiabilité (MTBF, MTTR, TRS) et actualiser les plans de maintenance préventive sous GMAO pour optimiser la disponibilité des équipements.");
           exp.bullets.push("Coordonner les équipes terrain et le suivi des prestataires techniques afin de résoudre les problématiques mécaniques et sécuriser la continuité industrielle.");
+        } else if (/adjoint\s+administratif|mairie|citoyen|passeport/i.test(expCorpusLower)) {
+          exp.bullets.push("Instruire les dossiers administratifs (demandes de passeports et cartes d'identité) dans le respect strict des procédures réglementaires et des délais d'accueil.");
+        } else if (/animat|centre\s+de\s+loisir/i.test(expCorpusLower)) {
+          exp.bullets.push("Concevoir et animer des activités pédagogiques et créatives en équipe tout en veillant à la sécurité et au bien-être des enfants.");
+        } else if (/preneus|handicap|prise\s+de\s+notes/i.test(expCorpusLower)) {
+          exp.bullets.push("Assurer la restitution fidèle, synthétique et ponctuelle des enseignements universitaires dans le respect des engagements pris auprès de l'étudiant.");
+        } else if (/stagiaire\s+d['’]observation|stage\s+d['’]observation|librairie/i.test(expCorpusLower)) {
+          exp.bullets.push("Observer l'organisation opérationnelle d'une entreprise, le conseil clientèle et la gestion quotidienne de l'activité commerciale.");
         } else if (exp._isAssociative) {
           exp.bullets.push("Assurer le suivi organisationnel, la coordination des intervenants et la bonne tenue logistique des actions engagées.");
         } else if (/business\s+analyst|analyste\s+m[ée]tier|patrimoine/i.test(expRoleLower) || /moa\b|patrimoine\s+bancaire/i.test(expCorpusLower)) {
@@ -4998,7 +5403,7 @@ export function parseAuthenticExperiencesFromCv(
               : "Documenter les procédures d'exploitation et optimiser les scripts de contrôle pour fiabiliser la continuité applicative."
           );
         } else {
-          exp.bullets.push(`Coordonner les actions opérationnelles et le suivi des indicateurs de performance ${exp.company ? `chez ${exp.company}` : "du périmètre"}.`);
+          exp.bullets.push(`Coordonner les actions opérationnelles et le suivi des indicateurs ${exp.company && !/^Entreprise$/i.test(exp.company) ? `au sein de ${exp.company}` : "du périmètre"}.`);
           exp.bullets.push("Collaborer avec les équipes partenaires pour optimiser les processus et atteindre les objectifs fixés.");
         }
       }
@@ -5077,7 +5482,7 @@ export function parseAuthenticExperiencesFromCv(
     if (sortedByScore.length >= 3 && (sortedByScore[2].score >= minKeep3rd || (!sortedByScore[2].exp._isCompactPrior && (sortedByScore[2].exp.bullets?.length || 0) >= 3))) {
       keptSet.add(sortedByScore[2].exp);
     }
-    if (sortedByScore.length >= 4 && (sortedByScore[3].score >= minKeep4th || sortedByScore[3].exp._isCompactPrior || (!sortedByScore[3].exp._isAssociative && sortedByScore[3].score >= 0))) {
+    if (sortedByScore.length >= 4 && (sortedByScore[3].score >= minKeep4th || sortedByScore[3].exp._isCompactPrior || (!sortedByScore[3].exp._isAssociative && (sortedByScore[3].score >= 0 || topScore <= 18)))) {
       keptSet.add(sortedByScore[3].exp);
     }
 
@@ -5228,8 +5633,9 @@ export function translateEducationItemToEnglish(edu: any) {
 }
 
 // Extraction authentique de la formation depuis la section FORMATION exclusivement
-const FORMATION_EXPLANATORY_REGEX = /^(?:dipl[oô]me\s+(?:vis[ée]|reconnu|homologu[ée]|certifi[ée])\s+par|titre\s+(?:rncp|enregistr[ée])|conf[ée]rant\s+le\s+grade|[ée]quivalent\s+master|niveau\s+\d|m[ée]moire\s*:|th[eè]se\s*:|mention\s*(?::|(?:tr[eè]s[\s-]+bien|bien|assez[\s-]+bien|passable)\b)|options?\s*(?::|\s+[A-ZÀ-Ÿa-zà-ÿ])|sp[ée](?:cialit[ée]s?|\.)?(?:\s*:|\s+[A-ZÀ-Ÿa-zà-ÿ])|cours\s*:|(?:(?:19\d\d|20\d\d)\s*[-–—]\s*)?(?:semestre\s+d['’][ée]tude|[ée]change\s+universitaire|mobilit[ée]\s+internationale)|repr[ée]sentant\b)/i;
-const FORMATION_EMBEDDED_CERT_REGEX = /^(?:certifications?|certificats?|toeic|toefl|ielts|cambridge|gmat|gre|tage\s*mage|voltaire|pix|psm|pspo|pmp|itil|safe)\b/i;
+const FORMATION_EXPLANATORY_REGEX = /^(?:dipl[oô]me\s+(?:vis[ée]|reconnu|homologu[ée]|certifi[ée])\s+par|titre\s+(?:rncp|enregistr[ée])|conf[ée]rant\s+le\s+grade|[ée]quivalent\s+master|niveau\s+\d|m[ée]moire\s*:|th[eè]se\s*:|mention\s*(?::|(?:tr[eè]s[\s-]+bien|bien|assez[\s-]+bien|passable)\b)|options?\s*(?::|\s+[A-ZÀ-Ÿa-zà-ÿ])|sp[ée](?:cialit[ée]s?|\.)?(?:\s*:|\s+[A-ZÀ-Ÿa-zà-ÿ])|cours\s*:|(?:L[123]|M[12]|B[123]|S[1-6])\s*:|(?:(?:19\d\d|20\d\d)\s*[-–—]\s*)?(?:semestre\s+d['’][ée]tude|[ée]change\s+universitaire|mobilit[ée]\s+internationale)|repr[ée]sentant\b)/i;
+const FORMATION_EMBEDDED_CERT_REGEX = /^(?:certifications?|certificats?|toeic|toefl|ielts|cambridge|gmat|gre|tage\s*mage|voltaire|pix|psm|pspo|pmp|itil|safe|(?:session\s+g[ée]n[ée]rale\s+du\s+)?bafa\b|certificat\s+d['’][eé]tudes\s+musicales|\bcem\b)/i;
+const FORMATION_NON_DEGREE_LINE_REGEX = /^(?:permis\s+(?:[A-Z]\b|de\s+conduire)|(?:session\s+g[ée]n[ée]rale\s+du\s+)?bafa\b|certificat\s+d['’][eé]tudes\s+musicales)/i;
 
 export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   const sections = parseCvSections(cvText);
@@ -5245,8 +5651,8 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   let rawFormationLines = sections.FORMATION.filter((l) => !isContactOrAddressNoise(l));
   const educations: any[] = [];
 
-  const instCueRegex = /(?:Universit[ée]|University|[EÉ]cole|IUT|INSA|CNAM|Coll[eè]ge|Lyc[ée]e|Business\s+School|Polytech|HEC|ESSEC|ESCP|EDHEC|Audencia|Sorbonne|Sciences\s+Po|Institut|Academy|Faculty|UniLaSalle|La\s+Salle|AgroParisTech|ENSA[IA]?|ISARA|Purpan|ESA\b|Oniris|VetAgro|Arts\s+et\s+M[ée]tiers|Centrale|Mines\s+\w+|Sup[eé]lec|ESIGELEC|ESILV|EPF|EFREI|ISEP|HEI|ICAM|Junia|NEOMA|KEDGE|SKEMA|IESEG|St[\s-]?Michel|Saint[\s-]?Michel)/i;
-  const degreeCueRegex = /\b(?:Master|Licence|Baccalaur[ée]at|Bac\s*\+|BAC\s+[A-Z0-9]{2,}|Bac|Bachelor|Doctorat|PhD|MBA|BBA|MSc|DUT|BTS|Mast[eè]re|[EÉ]l[eè]ve[\s-]+Ing[ée]nieur(?:e|s)?|Ing[ée]nieur(?:e|s|r)?|Cycle\s+Ing[ée]nieur|Classes?\s+Pr[ée]paratoires?(?:\s+aux\s+Grandes\s+[EÉ]coles)?|CPGE|Programme\s+Grande\s+[EÉ]cole|PGE|Grade\s+de\s+Master|DEUG|DESS|DEA|\d+(?:[eè]me|er|e)\s+Ann[ée]e)\b/i;
+  const instCueRegex = /(?:Universit[ée]|University|[EÉ]cole|IUT|INSA|CNAM|Coll[eè]ge|Lyc[ée]e|Business\s+School|Polytech|HEC|ESSEC|ESCP|EDHEC|Audencia|Sorbonne|Sciences\s+Po|Institut|Academy|Faculty|UniLaSalle|La\s+Salle|AgroParisTech|ENSA[IA]?|ISARA|Purpan|ESA\b|Oniris|VetAgro|Arts\s+et\s+M[ée]tiers|Centrale|Mines\s+\w+|Sup[eé]lec|ESIGELEC|ESILV|EPF|EFREI|ISEP|HEI|ICAM|Junia|NEOMA|KEDGE|SKEMA|IESEG|IAE|IFSI|CFA[I]?|AFPA|CNED|GRETA|ESG|EM\s*Lyon|INSEEC|ENSM|ENV|ENS\b|ENSP|ENAC|T[ée]l[ée]com|IMT\b|ENSAM|UTC|UTT|UTBM|Epitech|OpenClassrooms|Conservatoire|Campus|Centre\s+de\s+Formation|St[\s-]?Michel|Saint[\s-]?Michel)/i;
+  const degreeCueRegex = /\b(?:Master|Licence|Baccalaur[ée]at|Bac\s*\+|BAC\s+[A-Z0-9]{2,}|Bac|Bachelor|Doctorat|PhD|MBA|BBA|MSc|BSc|LLB|LLM|DUT|BTS|BUT|CAP|BEP|DCG|DSCG|PASS|LAS|Mast[eè]re|Dipl[ôo]me(?:\s+d['’][ÉE]tat)?|Titre\s+(?:RNCP|Professionnel)|[EÉ]l[eè]ve[\s-]+Ing[ée]nieur(?:e|s)?|Ing[ée]nieur(?:e|s|r)?|Cycle\s+Ing[ée]nieur|Classes?\s+Pr[ée]paratoires?(?:\s+aux\s+Grandes\s+[EÉ]coles)?|CPGE|Programme\s+Grande\s+[EÉ]cole|PGE|Grade\s+de\s+Master|DEUG|DESS|DEA|\d+(?:[eè]me|er|e)\s+Ann[ée]e)\b/i;
 
   // Défense en profondeur : si FORMATION est vide ou polluée (texte collé dans désordre), secourir depuis CONTACT/OTHER
   if (rawFormationLines.length === 0) {
@@ -5281,7 +5687,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   for (let r = 0; r < rawFormationLines.length; r++) {
     const line = rawFormationLines[r].normalize("NFC").trim();
     if (!line) continue;
-    if (/^(?:qualit[ée]s?|langues?(?:\s+(?:et|&)\s+(?:qualit[ée]s?|atouts?|centres?\s+d['’]int[ée]r[êe]ts?))?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]ts?|int[ée]r[êe]ts?|loisirs?|divers|outils?(?:\s+(?:et|&)\s+(?:syst[eè]mes?|logiciels?|m[ée]thodes?))?|comp[eé]tences?)\b/i.test(line)) {
+    if (/^(?:qualit[ée]s?|langues?(?:\s+(?:et|&)\s+(?:qualit[ée]s?|atouts?|centres?\s+d['’]int[ée]r[êe]ts?))?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]ts?|int[ée]r[êe]ts?|loisirs?|divers|outils?(?:\s+(?:et|&)\s+(?:syst[eè]mes?|logiciels?|m[ée]thodes?))?|habilitations?(?:\s*(?:et|&)\s*comp[eé]tences?)?|comp[eé]tences?|savoir[- ]faire)\b/i.test(line)) {
       break;
     }
 
@@ -5292,21 +5698,28 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     const isStandaloneDateLine = /^(?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?$/i.test(line);
     const prevEndsComplete = /\b(?:19\d\d|20\d\d)\s*$/.test(prevClean) && !/[-–—,/:]$/.test(prevClean);
 
+    const prevEndsDanglingPhrase = /\b(?:dans\s+les|dans|les|des|de|du|en|au|aux|avec|et|pour|par|sur)\s*$/i.test(prevClean);
+    const isExplicitTailCont =
+      /\bSorbonne\s*:\s*en\s+cours\b/i.test(curClean) ||
+      /^(?:obtenu|valid[ée]|dipl[oô]m[ée]|sp[ée]cialit[ée]s?\b|avec\s+la\s+|premi[eè]re\)|fin\s+p[ée]riode)/i.test(curClean);
+
     const isWrappedContinuation =
       Boolean(prev) &&
       !startsBullet &&
       !prevEndsComplete &&
-      !isInstitutionLine(prev, line) &&
       !isStandaloneDateLine &&
-      !FORMATION_EXPLANATORY_REGEX.test(curClean) &&
-      !FORMATION_EMBEDDED_CERT_REGEX.test(curClean) &&
-      !degreeCueRegex.test(curClean) &&
-      !isInstitutionLine(line) &&
-      !/\b(?:19\d\d|20\d\d)\b/.test(line) &&
-      (curClean.split(/\s+/).length <= 4 ||
-        /^[a-zà-ÿ,)]/.test(curClean) ||
-        /\b(?:de|du|des|d['’]|en|et|sp[ée]cialisation|option|majeure?|supply|business|management|syst[eè]mes?)$/i.test(prevClean) ||
-        /[-–—,/(:]$/.test(prevClean));
+      (isExplicitTailCont ||
+        prevEndsDanglingPhrase ||
+        (!FORMATION_EXPLANATORY_REGEX.test(curClean) &&
+          !FORMATION_EMBEDDED_CERT_REGEX.test(curClean) &&
+          !isInstitutionLine(prev, line) &&
+          !degreeCueRegex.test(curClean) &&
+          !isInstitutionLine(line) &&
+          !/\b(?:19\d\d|20\d\d)\b/.test(line) &&
+          (curClean.split(/\s+/).length <= 4 ||
+            /^[a-zà-ÿ,)]/.test(curClean) ||
+            /\b(?:de|du|des|d['’]|en|et|sp[ée]cialisation|option|majeure?|supply|business|management|syst[eè]mes?)$/i.test(prevClean) ||
+            /[-–—,/(:]$/.test(prevClean))));
 
     if (isWrappedContinuation) {
       formationLines[formationLines.length - 1] = `${prev} ${line}`;
@@ -5381,8 +5794,8 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       continue;
     }
 
-    // Ligne de certification intégrée dans FORMATION (ex: "Certification TOEIC : 850 points (2020)") -> gérée par parseAuthenticCertificationsFromCv
-    if (FORMATION_EMBEDDED_CERT_REGEX.test(line)) {
+    // Ligne de certification / permis intégrée dans FORMATION -> gérée par parseAuthenticCertificationsFromCv ou ignorée
+    if (FORMATION_EMBEDDED_CERT_REGEX.test(line) || FORMATION_NON_DEGREE_LINE_REGEX.test(line)) {
       continue;
     }
 
@@ -5405,8 +5818,14 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     let deg = line;
     let gradYear = "";
 
-    // Extraire d'abord une année/plage placée EN TÊTE de ligne ("2021 Bac mention Bien - ...")
-    const leadingRangeDeg = deg.match(/^((?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?)\s*[|–—,-]?\s+(.+)$/i);
+    // Statut ": en cours" en fin de ligne ("Licence de droit à l'université Paris I - Panthéon Sorbonne : en cours")
+    if (/\s*:\s*en\s+cours\s*$/i.test(deg)) {
+      gradYear = isEn ? "In Progress" : "En cours";
+      deg = deg.replace(/\s*:\s*en\s+cours\s*$/i, "").trim();
+    }
+
+    // Extraire d'abord une année/plage placée EN TÊTE de ligne ("2021 Bac mention Bien - ...", "2019 : Diplôme d'État...")
+    const leadingRangeDeg = deg.match(/^((?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?)\s*(?:[:|–—,-]\s*|\s+)(.+)$/i);
     if (leadingRangeDeg && leadingRangeDeg[2].trim().length >= 3) {
       const yrs = leadingRangeDeg[1].match(/\b(19\d\d|20\d\d)\b/g);
       if (yrs && yrs.length > 0) gradYear = yrs[yrs.length - 1];
@@ -5434,7 +5853,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       }
     }
 
-    deg = deg.replace(/\bIng[ée]nieurr\b/g, "Ingénieur").replace(/\.$/, "").trim();
+    deg = deg.replace(/\bIng[ée]nieurr\b/g, "Ingénieur").replace(/^[:\-–—\s]+|\.\s*$/g, "").trim();
     if (!deg) continue;
 
     let degree = deg;
@@ -5444,9 +5863,47 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     let inlineInstitution = "";
     let honorsOrDetails = "";
 
+    // Format "Licence de droit à l'université Paris I - Panthéon Sorbonne" (institution introduite inline par "à l'" / "à ")
+    const degAtInstMatch = deg.match(/^(.+?)\s+(?:à\s+l['’]|à\s+|at\s+|chez\s+|au\s+sein\s+d[eu]\s+l['’]?)\s*((?:Universit[ée]|University|[EÉ]cole|IUT|INSA|Sorbonne|Sciences\s+Po|Institut|Lyc[ée]e|Coll[eè]ge).+)$/i);
+    // Format Bac descriptif avec année entre parenthèses ("Bac (2023-2024) : obtenu mention très bien dans les spécialités hggsp et hlp (avec la spécialité maths en première)")
+    const bacDescriptiveMatch = deg.match(/^(Bac(?:calaur[ée]at)?)\s*(?:\(\s*(?:19\d\d|20\d\d)(?:\s*[-–—]\s*(?:19\d\d|20\d\d))?\s*\))?\s*(?::\s*obtenu\s+|:\s*)(.+)$/i);
     // Format monoligne Bac / Diplôme + Mention + Spé + École, Ville (ex: "Bac mention Bien - spé SVT, et Physique-Chimie, StMichel, Solesmes")
-    const bacMatch = deg.match(/^(Bac(?:calaur[ée]at)?)\s*(?:(Mention\s+(?:Tr[eè]s\s+Bien|Bien|Assez\s+Bien)))?\s*(?:[-–—]\s*(.+))?$/i);
-    if (bacMatch) {
+    const bacMatch = !bacDescriptiveMatch ? deg.match(/^(Bac(?:calaur[ée]at)?)\s*(?:(Mention\s+(?:Tr[eè]s\s+Bien|Bien|Assez\s+Bien)))?\s*(?:[-–—]\s*(.+))?$/i) : null;
+    if (degAtInstMatch) {
+      inlineInstitution = degAtInstMatch[2].trim().replace(/^universit[ée]/i, "Université");
+      const degPart = degAtInstMatch[1].trim();
+      const mDegField = degPart.match(/^(Licence(?:\s+[123]|\s+Pro(?:fessionnelle)?)?|Master(?:\s*[12])?|Bachelor(?:'s)?(?:\s+Degree)?|DUT|BTS)\s+(?:de\s+|en\s+|in\s+)?(.+)$/i);
+      if (mDegField) {
+        degree = mDegField[1].trim();
+        const rawF = mDegField[2].trim();
+        field = rawF.charAt(0).toUpperCase() + rawF.slice(1);
+      } else {
+        degree = degPart;
+      }
+    } else if (bacDescriptiveMatch) {
+      degree = "Baccalauréat";
+      const restBac = bacDescriptiveMatch[2].trim();
+      const mentM = restBac.match(/\bmention\s+(tr[eè]s\s+bien|bien|assez\s+bien)\b/i);
+      if (mentM) {
+        honorsOrDetails = `Mention ${mentM[1].replace(/(^|\s+)(\S)/g, (_, sp, ch) => sp + ch.toUpperCase())}`;
+      }
+      const specM = restBac.match(/dans\s+les?\s*sp[ée]cialit[ée]s\s+([^()]+)(?:\(([^)]+)\))?/i);
+      if (specM) {
+        const spText = specM[1].trim().replace(/\b([a-z]{3,6})\b/g, (w) => (w === "et" ? "et" : w.toUpperCase()));
+        field = `Spécialités ${spText}`;
+        if (specM[2]) {
+          const extraNote = specM[2]
+            .trim()
+            .replace(/^avec\s+la\s+/i, "")
+            .replace(/\bmaths\b/i, "Mathématiques")
+            .replace(/\bpremi[eè]re\b/i, "Première");
+          honorsOrDetails = honorsOrDetails ? `${honorsOrDetails} · ${extraNote.charAt(0).toUpperCase() + extraNote.slice(1)}` : extraNote;
+        }
+      } else {
+        field = restBac.charAt(0).toUpperCase() + restBac.slice(1);
+      }
+      inlineInstitution = isEn ? "Secondary Education" : "Enseignement secondaire";
+    } else if (bacMatch) {
       degree = /^bac$/i.test(bacMatch[1]) ? "Baccalauréat" : bacMatch[1].trim();
       if (bacMatch[2]) {
         honorsOrDetails = bacMatch[2].replace(/^mention\s+/i, "Mention ").trim();
@@ -5565,7 +6022,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       if (letters.length >= 5 && letters === letters.toUpperCase()) {
         return s
           .split(/\s+/)
-          .map((w) => (/^(?:MIAGE|MBA|MSc|MS|BBA|DUT|BTS|CPGE|PGE|DEUG|DESS|DEA|PhD|L1|L2|L3|M1|M2|IT|SI|BAC|STI2D)$/i.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
+          .map((w) => (/^(?:MIAGE|MBA|MSc|BSc|MS|BBA|DUT|BTS|BUT|CAP|BEP|DCG|DSCG|DE|IFSI|RNCP|BIM|CPGE|PGE|DEUG|DESS|DEA|PhD|L1|L2|L3|M1|M2|IT|SI|BAC|STI2D)$/i.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
           .join(" ");
       }
       return s;
@@ -5630,14 +6087,32 @@ export function inferCertificationIssuer(certName: string): string {
   if (/hubspot/i.test(certName)) return "HubSpot";
   if (/docusign/i.test(certName)) return "DocuSign";
   if (/toeic|toefl|ielts|cambridge/i.test(certName)) return "Certification Linguistique";
+  if (/bafa/i.test(certName)) return "Jeunesse & Animation";
   return "";
 }
 
-// Extraction authentique des certifications depuis la section CERTIFICATIONS (et lignes Certification placées dans FORMATION)
+// Extraction authentique des certifications depuis la section CERTIFICATIONS (et lignes Certification placées dans FORMATION / SKILLS)
 export function parseAuthenticCertificationsFromCv(cvText: string): ParsedCertificationItem[] {
   const sections = parseCvSections(cvText);
-  const embeddedFormationCerts = sections.FORMATION.filter((l) => FORMATION_EMBEDDED_CERT_REGEX.test(l.trim()));
-  const certLines = [...sections.CERTIFICATIONS, ...embeddedFormationCerts];
+  const wrappedFormationLines: string[] = [];
+  for (const fl of sections.FORMATION) {
+    const t = fl.trim();
+    if (!t) continue;
+    if (wrappedFormationLines.length > 0 && !/^[•●▪▫➢➤✓✔*\-–—]\s+/.test(t) && /^(?:obtenu|valid[ée]|en\s+(?:19|20)\d\d)\b/i.test(t)) {
+      wrappedFormationLines[wrappedFormationLines.length - 1] = `${wrappedFormationLines[wrappedFormationLines.length - 1]} ${t}`;
+    } else {
+      wrappedFormationLines.push(t);
+    }
+  }
+  const embeddedFormationCerts = wrappedFormationLines.filter((l) => FORMATION_EMBEDDED_CERT_REGEX.test(l.replace(/^[•*–—\-\s]+/, "").trim()));
+  const embeddedSkillsCerts = sections.SKILLS
+    .map((l) => l.replace(/^[•*–—\-\s]+/, "").trim())
+    .filter((l) => /\b(?:toeic|toefl|ielts|cambridge|voltaire|pix)\b/i.test(l))
+    .map((l) => {
+      const splitTest = l.match(/^(?:Fran[çc]ais|Anglais|Allemand|Espagnol|English|French)[^:]*:\s*(.+)$/i);
+      return splitTest ? splitTest[1].trim() : l;
+    });
+  const certLines = [...sections.CERTIFICATIONS, ...embeddedFormationCerts, ...embeddedSkillsCerts];
   const rawCerts: string[] = [];
   let currentCert = "";
 
@@ -5653,10 +6128,10 @@ export function parseAuthenticCertificationsFromCv(cvText: string): ParsedCertif
       break;
     }
     // Ne pas confondre une certification comme "Google AI" ou "HashiCorp" avec un nom de candidat
-    if (!/google|salesforce|aws|azure|oracle|ibm|meta|microsoft|scrum|agile|certif|hashicorp|kubernetes|cncf|terraform|togaf|cissp|istqb|itil|pmp|toeic|toefl|ielts|cambridge/i.test(l) && /^[A-ZÀ-Ÿ][a-zà-ÿ-]+(\s+[A-ZÀ-Ÿ]{2,})+$/.test(l)) {
+    if (!/google|salesforce|aws|azure|oracle|ibm|meta|microsoft|scrum|agile|certif|hashicorp|kubernetes|cncf|terraform|togaf|cissp|istqb|itil|pmp|toeic|toefl|ielts|cambridge|bafa|solf[eè]ge|\bcem\b/i.test(l) && /^[A-ZÀ-Ÿ][a-zà-ÿ-]+(\s+[A-ZÀ-Ÿ]{2,})+$/.test(l)) {
       break;
     }
-    if (/^[A-ZÀ-ÿ\s]{5,}$/.test(l) && !/certif|cloud|admin|app|google|salesforce|scrum|ai|aws|cka|pmp|itil|togaf|toeic/i.test(l)) {
+    if (/^[A-ZÀ-ÿ\s]{5,}$/.test(l) && !/certif|cloud|admin|app|google|salesforce|scrum|ai|aws|cka|pmp|itil|togaf|toeic|bafa|cem/i.test(l)) {
       break;
     }
     // Ignorer toute ligne narrative (résumé/paragraphe) qui fuiterait accidentellement
@@ -5667,7 +6142,7 @@ export function parseAuthenticCertificationsFromCv(cvText: string): ParsedCertif
     const cleanLine = l.replace(/^[•*–—\-\s]+/, "").trim();
     if (!cleanLine) continue;
 
-    const startsWithKnownCert = /^(?:[•*–—\-]\s+)?(?:Salesforce|Google|AWS|Amazon|Azure|Microsoft|DocuSign|Adobe|Workday|Atlassian|Jira|MuleSoft|Power\s*BI|Looker|UiPath|HashiCorp|Terraform|Kubernetes|CKA|CKAD|CKS|Scrum|PSM|PSPO|CSM|CSPO|PMP|PMI|ITIL|Prince2|COBIT|SAFe|ISTQB|TOGAF|CISSP|CISM|CISA|GCP|CompTIA|Red\s+Hat|Linux|Databricks|Snowflake|ServiceNow|SAP|HubSpot|Tableau|Docker|Oracle|Python|Java|Lean|Six\s+Sigma|TOEIC|TOEFL|IELTS|Cambridge|DevOps|FinOps|ISO|Certifi[ée]|Certified|Certificat|Certification|Dipl[oô]me)/i.test(l);
+    const startsWithKnownCert = /^(?:[•*–—\-]\s+)?(?:Salesforce|Google|AWS|Amazon|Azure|Microsoft|DocuSign|Adobe|Workday|Atlassian|Jira|MuleSoft|Power\s*BI|Looker|UiPath|HashiCorp|Terraform|Kubernetes|CKA|CKAD|CKS|Scrum|PSM|PSPO|CSM|CSPO|PMP|PMI|ITIL|Prince2|COBIT|SAFe|ISTQB|TOGAF|CISSP|CISM|CISA|GCP|CompTIA|Red\s+Hat|Linux|Databricks|Snowflake|ServiceNow|SAP|HubSpot|Tableau|Docker|Oracle|Python|Java|Lean|Six\s+Sigma|TOEIC|TOEFL|IELTS|Cambridge|Voltaire|PIX|Session\s+g[ée]n[ée]rale\s+du\s+BAFA|BAFA|Certificat|Certification|Dipl[oô]me|DevOps|FinOps|ISO|Certifi[ée]|Certified)/i.test(l);
     const wordCount = cleanLine.split(/\s+/).length;
     const prevIncomplete =
       /[-–—,/(:]$|\b(?:of|for|and|de|du|des|en|pour|à|certified|community|service|sales|marketing|experience|platform|app|data|solutions|associate|developer|enterprise|cloud)$/i.test(currentCert.trim()) ||
@@ -5699,11 +6174,17 @@ export function parseAuthenticCertificationsFromCv(cvText: string): ParsedCertif
     .map((raw) => {
       const yearMatch = raw.match(/\b(19\d\d|20\d\d)\b/);
       const year = yearMatch ? yearMatch[1] : "";
-      const cleanName = raw
+      let cleanName = raw
         .replace(/\(\s*(?:19\d\d|20\d\d)\s*\)/g, "")
         .replace(/\bAdminstrator\b/g, "Administrator")
         .replace(/\s+/g, " ")
         .trim();
+      if (/^Session\s+g[ée]n[ée]rale\s+du\s+BAFA\b/i.test(cleanName)) {
+        cleanName = "BAFA (Session générale validée)";
+      }
+      if (/\bCertificat\s+d['’][Eeé]tudes\s+Musicales\b/i.test(cleanName)) {
+        cleanName = cleanName.replace(/\s+obtenu\s+en\s+\d{4}\s*$/i, "").trim();
+      }
       return {
         name: cleanName,
         issuer: inferCertificationIssuer(cleanName),
@@ -5749,21 +6230,30 @@ export function translateLanguageItemToEnglish(item: { language: string; profici
   return { language: langName, proficiency: prof || "Professional Proficiency" };
 }
 
-// Extraction authentique des langues depuis la section LANGUAGES (supporte lignes multiples et lignes groupées "Langues : Français (...), Anglais (...)")
+// Extraction authentique des langues depuis la section LANGUAGES (et mentions de langues/scores placées dans SKILLS/OTHER)
 export function parseAuthenticLanguagesFromCv(cvText: string, isEn: boolean): { language: string; proficiency: string }[] {
   const sections = parseCvSections(cvText);
-  const langLines = sections.LANGUAGES;
+  const worldLanguagesList =
+    "Fran[çc]ais|Anglais|Allemand|Espagnol|Italien|Portugais|Arabe|Chinois|Mandarin|Cantonais|N[ée]erlandais|Russe|Japonais|Cor[ée]en|Polonais|Turc|Lingala|Cr[ée]ole|Hindi|Tamoul|Ourdou|Wolof|Bambara|Sonink[ée]|Peul|Kabyle|Berb[èe]re|Roumain|Hongrois|Tch[èe]que|Slovaque|Grec|Su[ée]dois|Norv[ée]gien|Danois|Finnois|Vietnamien|Tha[ïi]|Indon[ée]sien|Malais|Persan|Farsi|H[ée]breu|Bengali|Punjabi|Swahili|Ukrainien|Serbe|Croate|Bulgare|Albanais|Arm[ée]nien|Catalan|Basque|Breton|Corse|French|English|German|Spanish|Italian|Portuguese|Arabic|Chinese|Dutch|Russian|Japanese|Korean|Polish|Turkish|Creole|Hebrew|Vietnamese|Ukrainian|Romanian|Greek|Swedish|Norwegian|Danish|Finnish|Hungarian|Czech|Hindi|Urdu|Bengali|Swahili|Tagalog|Thai";
+  const knownLangRe = new RegExp(`^(?:${worldLanguagesList})\\b`, "i");
+  const langLineHeaderRe = /^(?:langues?(?:\s+vivantes?|\s+[ée]trang[eè]res?)?|languages?)\s*:\s*/i;
+  const embeddedSkillLangs = [...sections.SKILLS, ...sections.OTHER].filter((l) => {
+    const cl = l.replace(/^[•●▪▫➢➤✓✔*\-–—\s]+/, "").replace(langLineHeaderRe, "").trim();
+    return knownLangRe.test(cl);
+  });
+  const dedicatedLangSet = new Set(sections.LANGUAGES.map((l) => l.trim()));
+  const langLines = [...sections.LANGUAGES, ...embeddedSkillLangs];
   const result: { language: string; proficiency: string }[] = [];
   const seenLangs = new Set<string>();
-  const knownLangRe = /^(Fran[çc]ais|Anglais|Allemand|Espagnol|Italien|Portugais|Arabe|Chinois|Mandarin|N[ée]erlandais|Russe|Japonais|Cor[ée]en|Polonais|Turc|Lingala|French|English|German|Spanish|Italian|Portuguese|Arabic|Chinese|Dutch|Russian|Japanese|Korean|Polish|Turkish)\b/i;
 
   for (const rawLine of langLines) {
+    const isFromDedicatedLangSection = dedicatedLangSet.has(rawLine.trim());
     let clean = rawLine.replace(/^[•●▪▫➢➤✓✔*\-–—\s]+/, "").trim();
     if (!clean) continue;
     if (/^(?:qualit[ée]s?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]t|loisirs?|informatique|bureautique)\s*:?/i.test(clean)) {
       continue;
     }
-    clean = clean.replace(/^(?:langues?|languages?)\s*:\s*/i, "").trim();
+    clean = clean.replace(langLineHeaderRe, "").trim();
     if (!clean) continue;
 
     // Ne découper par virgule QUE si la ligne contient plusieurs langues distinctes (sinon "Anglais niveau ingénieur, B2+" reste un seul bloc !)
@@ -5771,7 +6261,7 @@ export function parseAuthenticLanguagesFromCv(cvText: string, isEn: boolean): { 
     const parts: string[] = [];
     for (const seg of rawPipeParts) {
       const commaSegs = seg.split(/\s*,(?![^(]*\))\s*/).map((s) => s.trim()).filter(Boolean);
-      if (commaSegs.length > 1 && commaSegs.filter((cs) => knownLangRe.test(cs)).length >= 2) {
+      if (commaSegs.length > 1 && (isFromDedicatedLangSection || commaSegs.filter((cs) => knownLangRe.test(cs)).length >= 2)) {
         parts.push(...commaSegs);
       } else {
         parts.push(seg);
@@ -5779,29 +6269,41 @@ export function parseAuthenticLanguagesFromCv(cvText: string, isEn: boolean): { 
     }
 
     for (const part of parts) {
-      const langStart = part.match(/^(Fran[çc]ais|Anglais|Allemand|Espagnol|Italien|Portugais|Arabe|Chinois|Mandarin|N[ée]erlandais|Russe|Japonais|Cor[ée]en|Polonais|Turc|Lingala|French|English|German|Spanish|Italian|Portuguese|Arabic|Chinese|Dutch|Russian|Japanese|Korean|Polish|Turkish)(?:\s*(?:\(([^)]+)\)|[-–:]\s*(.+)|\s+(.+)))?$/i);
+      const worldMatch = part.match(
+        new RegExp(`^(${worldLanguagesList})(?:\\s*(?:\\(([^)]+)\\)\\s*(?::\\s*(.+))?|[-–:]\\s*(.+)|\\s+(.+)))?$`, "i")
+      );
+      // En rubrique Langues dédiée, accepter aussi toute langue du monde capitalisée (ex: "Khmer (natif)", "Amharique (B2)")
+      const genericDedicatedMatch = !worldMatch && isFromDedicatedLangSection
+        ? part.match(/^([A-ZÀ-Ÿ][a-zà-ÿ-]{2,20})(?:\s*(?:\(([^)]+)\)\s*(?::\s*(.+))?|[-–:]\s*(.+)))?$/i)
+        : null;
+      const langStart = worldMatch || genericDedicatedMatch;
       if (!langStart) continue;
 
       const rawLang = langStart[1].trim();
-      const rawProf = (langStart[2] || langStart[3] || langStart[4] || (isEn ? "Professional Proficiency" : "Professionnel"))
-        .replace(/^,\s*/, "")
-        .trim();
+      if (/^(?:Autre|Autres|Divers|Natif|Courant|Bilingue|Scolaire|Notions|Langue|Langues|Niveau|Certificat|Toeic|Toefl|Ielts)$/i.test(rawLang)) {
+        continue;
+      }
+      const rawProfJoined = langStart[2] && langStart[3]
+        ? `${langStart[2].trim()} — ${langStart[3].trim()}`
+        : (langStart[2] || langStart[3] || langStart[4] || langStart[5] || (isEn ? "Professional Proficiency" : "Professionnel"));
+      const rawProf = rawProfJoined.replace(/^,\s*/, "").trim();
 
-      let langName = rawLang;
+      let langName = rawLang.charAt(0).toUpperCase() + rawLang.slice(1);
       let prof = rawProf ? rawProf.charAt(0).toUpperCase() + rawProf.slice(1) : (isEn ? "Professional Proficiency" : "Professionnel");
       if (!isEn) {
-        if (/french|fran[çc]ais/i.test(rawLang)) langName = "Français";
-        else if (/english|anglais/i.test(rawLang)) langName = "Anglais";
-        else if (/spanish|espagnol/i.test(rawLang)) langName = "Espagnol";
-        else if (/german|allemand/i.test(rawLang)) langName = "Allemand";
-        else if (/italian|italien/i.test(rawLang)) langName = "Italien";
-        else if (/portuguese|portugais/i.test(rawLang)) langName = "Portugais";
-        else if (/arabic|arabe/i.test(rawLang)) langName = "Arabe";
-        else if (/chinese|chinois|mandarin/i.test(rawLang)) langName = "Chinois";
-        else if (/dutch|n[ée]erlandais/i.test(rawLang)) langName = "Néerlandais";
-        else if (/russian|russe/i.test(rawLang)) langName = "Russe";
-        else if (/japanese|japonais/i.test(rawLang)) langName = "Japonais";
-        else if (/lingala/i.test(rawLang)) langName = "Lingala";
+        if (/^french$|^fran[çc]ais$/i.test(rawLang)) langName = "Français";
+        else if (/^english$|^anglais$/i.test(rawLang)) langName = "Anglais";
+        else if (/^spanish$|^espagnol$/i.test(rawLang)) langName = "Espagnol";
+        else if (/^german$|^allemand$/i.test(rawLang)) langName = "Allemand";
+        else if (/^italian$|^italien$/i.test(rawLang)) langName = "Italien";
+        else if (/^portuguese$|^portugais$/i.test(rawLang)) langName = "Portugais";
+        else if (/^arabic$|^arabe$/i.test(rawLang)) langName = "Arabe";
+        else if (/^chinese$|^chinois$|^mandarin$/i.test(rawLang)) langName = "Chinois";
+        else if (/^dutch$|^n[ée]erlandais$/i.test(rawLang)) langName = "Néerlandais";
+        else if (/^russian$|^russe$/i.test(rawLang)) langName = "Russe";
+        else if (/^japanese$|^japonais$/i.test(rawLang)) langName = "Japonais";
+        else if (/^creole$|^cr[ée]ole$/i.test(rawLang)) langName = "Créole";
+        else if (/^lingala$/i.test(rawLang)) langName = "Lingala";
 
         if (/native|langue\s+maternelle|maternelle|bilingual|bilingue/i.test(rawProf)) prof = "Langue maternelle / Bilingue";
         else if (/full professional/i.test(rawProf)) prof = "Capacité professionnelle complète";
@@ -5820,6 +6322,16 @@ export function parseAuthenticLanguagesFromCv(cvText: string, isEn: boolean): { 
         }
       }
     }
+  }
+
+  // Si le CV est clairement francophone et ne listait explicitement que des langues étrangères (ex: "Anglais (B2) : TOEIC"), ajouter Français natif en complément
+  const cvScore = scoreLanguageText(cvText);
+  if (result.length > 0 && cvScore.frScore > cvScore.enScore && !seenLangs.has("français") && !seenLangs.has("french")) {
+    result.unshift(
+      isEn
+        ? { language: "French", proficiency: "Native / Bilingual" }
+        : { language: "Français", proficiency: "Langue maternelle / Bilingue" }
+    );
   }
 
   if (result.length === 0) {
@@ -5895,9 +6407,9 @@ export function extractAuthenticLocationFromCv(cvText: string, isEn: boolean): s
   if (!cvText) return isEn ? "Remote / Hybrid" : "France / Hybride";
   // Priorité absolue à l'en-tête / bloc coordonnées du candidat (évite de copier la ville d'une entreprise passée ou d'une université)
   const sections = parseCvSections(cvText);
-  const topLines = cvText.split("\n").slice(0, 8);
+  const topLines = cvText.split("\n").slice(0, 6);
   const headerSource = sections.CONTACT.length > 0
-    ? [...sections.CONTACT, ...topLines].join("\n")
+    ? [...topLines, ...sections.CONTACT].join("\n")
     : topLines.join("\n");
 
   const cleanForLocation = headerSource
@@ -5905,13 +6417,13 @@ export function extractAuthenticLocationFromCv(cvText: string, isEn: boolean): s
     .replace(/https?:\/\/\S+/gi, " ")
     .replace(/@[\w.-]+/g, " ");
 
-  const cpCityMatch = cleanForLocation.match(/\b(\d{5})\s+([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\- ]{1,30}?)(?=\s*(?:[|\n•·,]|$))/);
+  const cpCityMatch = cleanForLocation.match(/\b(\d{5})\s*,?\s*([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\- ]{1,30}?)(?=\s*(?:[|\n•·]|$))/);
   const cityCpMatch = cleanForLocation.match(/\b([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\- ]{1,25}),\s*(\d{5})\b/);
   const locationMatch = cleanForLocation.match(
     /\b(?:London|New\s+York|San\s+Francisco|Paris|Lyon|Marseille|Bordeaux|Toulouse|Nantes|Lille|Rennes|Strasbourg|Montpellier|Nice|Saint-Denis|B[ée]ziers|Berlin|Amsterdam|Dublin|Bruxelles|Gen[eè]ve|Kinshasa|Abidjan|Montr[ée]al|United\s+Kingdom|United\s+States|France|[ÎI]le-de-France|[A-ZÀ-Ÿ][a-zà-ÿ-]+,\s*(?:France|UK|USA|Germany|Netherlands|Belgique|Canada|Suisse))\b/i
   );
   if (cpCityMatch) {
-    const cityClean = cpCityMatch[2].trim();
+    const cityClean = cpCityMatch[2].replace(/[,.;:]+$/, "").trim();
     if (!/\b(?:France|Email|Mail|Phone|Tel|Mobile|Permis|LinkedIn)\b/i.test(cityClean)) {
       return `${cpCityMatch[1]} ${cityClean}`;
     }
@@ -5967,7 +6479,7 @@ function generateResilientAtsResult(
   }
 
   let extractedCompany: string | null = null;
-  const nonRoleOrLocCompanyRegex = /^(?:H\/F|F\/H|M\/F|M\/W|CDI|CDD|Stage|Alternance|Freelance|Full[\s-]?Time|Part[\s-]?Time|Permanent|Contract|Temporary|Interim|Intérim|Paris|Lyon|Marseille|Toulouse|Bordeaux|Nantes|Lille|Nice|Strasbourg|Rennes|Grenoble|Montpellier|Rouen|Toulon|Dijon|Île-de-France|Ile-de-France|La\s+Défense|France|Europe|London|Londres|Manchester|Birmingham|Edinburgh|Dublin|UK|United\s+Kingdom|New\s+York|San\s+Francisco|Boston|Austin|Chicago|Seattle|Los\s+Angeles|USA|US|Canada|Toronto|Montr[ée]al|Brussels|Bruxelles|Geneva|Gen[èe]ve|Lausanne|Zurich|Luxembourg|Berlin|Munich|Frankfurt|Amsterdam|Madrid|Barcelona|Milan|Rome|Lisbon|Remote|Hybride?|Hybrid|On[\s-]?site|Pr[ée]sentiel|T[ée]l[ée]travail|HelloWork|Indeed|LinkedIn|Jooble|Apec|Cadremploi|Welcome\s+to\s+the\s+Jungle|Glassdoor|Monster|Missions?|Profil|Description|Contexte|R[ée]sum[ée]|Avantages?|Process(?:us)?)$/i;
+  const nonRoleOrLocCompanyRegex = /^(?:H\/F|F\/H|M\/F|M\/W|CDI|CDD|Stage|Alternance|Freelance|Temps[\s-]?plein|Temps[\s-]?partiel|Full[\s-]?Time|Part[\s-]?Time|Permanent|Contract|Temporary|Interim|Intérim|Paris|Lyon|Marseille|Toulouse|Bordeaux|Nantes|Lille|Nice|Strasbourg|Rennes|Grenoble|Montpellier|Rouen|Toulon|Dijon|Angers|Reims|Le\s+Havre|Saint-[ÉE]tienne|Clermont-Ferrand|Aix-en-Provence|Île-de-France|Ile-de-France|La\s+Défense|France|Europe|London|Londres|Manchester|Birmingham|Edinburgh|Dublin|UK|United\s+Kingdom|New\s+York|San\s+Francisco|Boston|Austin|Chicago|Seattle|Los\s+Angeles|USA|US|Canada|Toronto|Montr[ée]al|Brussels|Bruxelles|Geneva|Gen[èe]ve|Lausanne|Zurich|Luxembourg|Berlin|Munich|Frankfurt|Amsterdam|Madrid|Barcelona|Milan|Rome|Lisbon|Remote|Hybride?|Hybrid|On[\s-]?site|Pr[ée]sentiel|T[ée]l[ée]travail|HelloWork|Indeed|LinkedIn|Jooble|Apec|Cadremploi|Welcome\s+to\s+the\s+Jungle|Glassdoor|Monster|Missions?|Profil|Description|Contexte|R[ée]sum[ée]|Avantages?|Process(?:us)?)$/i;
 
   const explicitCompanyMatch = jobText.match(/^\s*(?:Entreprise|Soci[ée]t[ée]|Company|Employeur|Employer|Recruteur|Hiring\s+Company|Client|Groupe|Organisation|Organization|[ÉE]tablissement|Marque|Brand|Maison|Enseigne|Filiale|Entit[ée])\s*[:=]\s*([^\n]{2,100})/im)?.[1]?.trim();
   if (explicitCompanyMatch) {
@@ -5995,24 +6507,44 @@ function generateResilientAtsResult(
     }
   }
   if (!extractedCompany) {
-    // Ex: "Supply Planner - Danone" ou "SYSLEY • Saint-Ouen" ou ligne isolée Indeed ("Supply Planner\nSYSLEY\nSaint-Ouen (93)\nCDI")
+    // Ex: "Supply Planner - Danone", "SYSLEY • Saint-Ouen", "Clinique Atlantique - Nantes (44) - CDI", ou bloc multi-lignes Indeed
+    const roleOrContractSegRe = /\b(?:planner|manager|responsable|chef\s+de|charg[ée]|ing[ée]nieur|consultant|analyst|d[ée]veloppeur|assistant|directeur|coordinateur|coordinatrice|infirmier|infirmi[eè]re|comptable|commercial|business\s+developer|conducteur\s+de\s+travaux|technicien|architecte|cdi|cdd|stage|alternance|temps\s+plein|temps\s+partiel|full[\s-]?time|part[\s-]?time|h\/f|f\/h|m\/f|pme\s+industrielle|gros\s+oeuvre)\b/i;
     for (let li = 0; li < Math.min(jobNonEmptyLines.length, 5); li++) {
       const jl = jobNonEmptyLines[li];
       const bulletLeftMatch = jl.match(/^([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ()]{1,40}?)\s*[•·]\s*(?:[A-ZÀ-Ÿ0-9(].+)$/);
       if (bulletLeftMatch?.[1]) {
-        const leftCand = bulletLeftMatch[1].trim();
-        if (!nonRoleOrLocCompanyRegex.test(leftCand) && !/\b(?:planner|manager|responsable|chef\s+de|charg[ée]|ing[ée]nieur|consultant|analyst|d[ée]veloppeur|assistant|directeur|coordinateur|coordinatrice|cdi|cdd|stage|alternance|temps\s+plein)\b/i.test(leftCand)) {
+        const leftCand = bulletLeftMatch[1].replace(/\s*\(\d{2,5}\)\s*$/, "").trim();
+        if (!nonRoleOrLocCompanyRegex.test(leftCand) && !roleOrContractSegRe.test(leftCand)) {
           extractedCompany = sanitizeExtractedCompany(leftCand);
           if (extractedCompany) break;
         }
       }
-      const rightBrandMatch = jl.match(/^.{4,65}?\s+(?:[-–|•·]|chez|at)\s+([A-ZÀ-Ÿ0-9][A-Za-zÀ-ÿ0-9&'.\- ()]{1,45})$/i);
-      if (rightBrandMatch?.[1]) {
-        const cand = rightBrandMatch[1].trim();
-        if (!nonRoleOrLocCompanyRegex.test(cand)) {
-          extractedCompany = sanitizeExtractedCompany(cand);
-          if (extractedCompany) break;
+      // Si la ligne comporte des séparateurs (" - ", " | ", " • ", " chez ", " at "), analyser segment par segment en sautant titres, contrats et villes
+      if (li <= 2 && /\s+(?:[-–|•·]|chez|at)\s+/i.test(jl)) {
+        const segs = jl.split(/\s+(?:[-–|•·]|chez|at)\s+/i).map((s) => s.trim()).filter(Boolean);
+        for (let si = 0; si < segs.length; si++) {
+          const segNoDept = segs[si].replace(/\s*\(\d{2,5}\)\s*$/, "").trim();
+          const hasDeptParens = /\(\d{2,5}\)/.test(segs[si]);
+          if (
+            si === 0 &&
+            roleOrContractSegRe.test(segNoDept) &&
+            !/\b(?:clinique|h[ôo]pital|cabinet|groupe|soci[ée]t[ée]|entreprise|laboratoire|institut|fondation|association)\b/i.test(segNoDept)
+          ) {
+            continue;
+          }
+          if (
+            segNoDept.length >= 2 &&
+            segNoDept.length <= 45 &&
+            /^[A-ZÀ-Ÿ0-9]/.test(segNoDept) &&
+            !hasDeptParens &&
+            !nonRoleOrLocCompanyRegex.test(segNoDept) &&
+            !roleOrContractSegRe.test(segNoDept)
+          ) {
+            extractedCompany = sanitizeExtractedCompany(segNoDept);
+            if (extractedCompany) break;
+          }
         }
+        if (extractedCompany) break;
       }
       // Ligne dédiée Indeed / LinkedIn (index 1..3) située sous l'intitulé de poste et/ou suivie d'un lieu / contrat / note
       if (li >= 1 && li <= 3 && jl.length >= 2 && jl.length <= 45 && /^[A-ZÀ-Ÿ0-9]/.test(jl) && jl.split(/\s+/).length <= 5) {
@@ -6159,7 +6691,10 @@ function generateResilientAtsResult(
     "process", "processus", "gestion", "management", "pilotage", "analyse", "suivi", "calcul",
     "service", "taux", "performance", "besoin", "besoins", "client", "clients", "outil", "outils",
     "systeme", "systemes", "qualite", "equipe", "equipes", "methodologie", "strategy", "planning",
-    "controle", "coordination", "execution", "production", "operation", "operations"
+    "controle", "coordination", "execution", "production", "operation", "operations",
+    "droit", "legal", "affairs", "affaires", "generales", "general", "nouvelles", "technique",
+    "techniques", "methodes", "industrielle", "industriel", "securite", "projet", "projets",
+    "juridique", "juridiques", "conformite", "redaction", "notes", "note"
   ]);
   const integratedKeywords = missingOrGaps.filter((kw) => {
     const toks = tokenizeMeaningfulTerms(kw);
@@ -6198,7 +6733,6 @@ function generateResilientAtsResult(
   // 6 & 7. Catégories de compétences DYNAMIQUES (offre + outils + atouts différenciants) & Profil Professionnel adapté
   const authenticSummary = extractRawSummaryFromCv(cvText);
   const postStarCorpusNorm = [
-    roleTitle,
     authenticSummary,
     experiences.map((e: any) => `${e.role} ${(e.bullets || []).join(" ")}`).join(" "),
   ]
@@ -6232,18 +6766,27 @@ function generateResilientAtsResult(
   const nonInterpersonalMgmtRe = /(?:Inventory|Data|Service\s*Level|Database|Warehouse|Stock|Order|Supply|Demand|Release|Backlog|Project|Product(?:\s+Launch)?|Risk|Change|Process|Trade-Offs|Claims|Disputes)\s+Management/i;
 
   const roleOnlyLower = (roleTitle || "").toLowerCase();
+  const roleAndReqsNorm = `${roleTitle} ${criticalRequiredKeywords.join(" ")}`.toLowerCase();
   const skillsAndRoleNorm = `${roleTitle} ${criticalRequiredKeywords.join(" ")} ${cvText.slice(0, 600)}`.toLowerCase();
   const isAgronomyAuditFocused = /\b(?:agronom|agroalimentaire|agro[- ]industries?|contr[oô]le\s+qualit[ée]|avaries|contentieux|audit|expertises?\s+terrain|exp[ée]rimentation\s+v[ée]g[ée]tale)\b/i.test(skillsAndRoleNorm);
-  const isMaintenanceFocused = /\b(?:maintenance|fiabilit[ée]|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm|tpm|smed|mtbf|mttr|trs|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(skillsAndRoleNorm);
+  const isMaintenanceFocused =
+    /\b(?:maintenance\s+industrielle|fiabilit[ée]\s+industrielle|fiabilisation|m[ée]thodes\s+(?:maintenance|industrielles?)|gmao|sap\s*pm|tpm|smed|mtbf|mttr|trs|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(skillsAndRoleNorm) ||
+    (/\bmaintenance\b/i.test(roleAndReqsNorm) && !/\b(?:product\s*owner|scrum|salesforce|crm|logiciel|applicative)\b/i.test(roleAndReqsNorm));
+  const isLegalFocused = !isMaintenanceFocused && !isAgronomyAuditFocused && /\b(?:droit\b|juridique|juriste|avocat|contrats?|conformit[ée]|affaires\s+g[ée]n[ée]rales|rgpd|dora|nda)\b/i.test(skillsAndRoleNorm);
   const scHitsInScope = (skillsAndRoleNorm.match(/\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/gi) || []).length;
-  const isSupplyChainFocused = /\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/i.test(roleOnlyLower) || (!isMaintenanceFocused && !isAgronomyAuditFocused && scHitsInScope >= 2);
-  const isProductRole = /\b(?:product\s*owner|proxy\s*po|product\s*manager|chef\s+de\s+produit|scrum\s+master)\b/i.test(roleOnlyLower);
+  const isSupplyChainFocused = /\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/i.test(roleOnlyLower) || (!isMaintenanceFocused && !isAgronomyAuditFocused && !isLegalFocused && scHitsInScope >= 2);
+  const isProductRole = /\b(?:product\s*owner|proxy\s*po|product\s+manager|chef\s+de\s+produit|scrum\s+master)\b/i.test(roleOnlyLower);
   const isArchRole = /\b(?:architect\w*|urbanis\w*|cartograph\w*)\b/i.test(roleOnlyLower);
-  const isArchitectureFocused = isArchRole || (!isProductRole && !isSupplyChainFocused && !isMaintenanceFocused && !isAgronomyAuditFocused && /architect|urbanisation|cartographie|esb|uml|bpmn/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
-  const isProductFocused = isProductRole || (!isArchitectureFocused && !isSupplyChainFocused && !isMaintenanceFocused && !isAgronomyAuditFocused && /\b(?:product\s*owner|proxy|backlog|scrum|user\s*stories|sprint)\b/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
+  const isArchitectureFocused = isArchRole || (!isProductRole && !isSupplyChainFocused && !isMaintenanceFocused && !isAgronomyAuditFocused && !isLegalFocused && /architect|urbanisation|cartographie|esb|uml|bpmn/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
+  const isProductFocused = isProductRole || (!isArchitectureFocused && !isSupplyChainFocused && !isMaintenanceFocused && !isAgronomyAuditFocused && !isLegalFocused && /\b(?:product\s*owner|proxy|backlog|scrum|user\s*stories|sprint)\b/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
+  const isFinanceFocused = !isMaintenanceFocused && !isAgronomyAuditFocused && /\b(?:comptab\w*|contr[oô]le\s+de\s+gestion|tr[ée]sorerie|audit\s+financier|fiscalit[ée]|ifrs|liasse\s+fiscale)\b/i.test(skillsAndRoleNorm);
+  const isHealthFocused = /\b(?:infirmier|infirmi[eè]re|aide[- ]soignant|m[ée]decin|pharmacien|soins\s+(?:infirmiers|cliniques)|ehpad|patient)\b/i.test(skillsAndRoleNorm);
+  const isSalesFocused = !isSupplyChainFocused && /\b(?:commercial|business\s+developer|prospection|n[ée]gociation\s+commerciale|closing|portefeuille\s+clients?|b2b|b2c)\b/i.test(skillsAndRoleNorm);
+  const isHrFocused = /\b(?:ressources\s+humaines|recrutement|talent\s+acquisition|gestion\s+de\s+la\s+paie|droit\s+social|gpec|sirh)\b/i.test(skillsAndRoleNorm);
+  const isConstructionFocused = /\b(?:btp|g[ée]nie\s+civil|conducteur\s+de\s+travaux|chantier|autocad|revit|bim)\b/i.test(skillsAndRoleNorm);
   const methodCatTitle = isEn
-    ? (isAgronomyAuditFocused ? "Quality Control, Audit & Scientific Methodology" : isMaintenanceFocused ? "Maintenance Engineering, Reliability & Continuous Improvement" : isSupplyChainFocused ? "Operations, Planning & Methodologies" : isArchitectureFocused ? "Architecture, Modeling & Delivery" : isProductFocused ? (jobFocus.themes.dataAi ? "Agile Product & Data Delivery" : "Agile Product & Backlog Delivery") : "Operational Delivery & Methodologies")
-    : (isAgronomyAuditFocused ? "Contrôle Qualité, Audit & Méthodes Scientifiques" : isMaintenanceFocused ? "Méthodes Maintenance, Fiabilité & Amélioration Continue" : isSupplyChainFocused ? "Opérations, Planification & Méthodes" : isArchitectureFocused ? "Architecture, Modélisation & Urbanisation SI" : isProductFocused ? (jobFocus.themes.dataAi ? "Méthodologies Agiles & Pilotage Produit Data" : "Méthodologies Agiles & Pilotage Produit") : "Pilotage Opérationnel, Processus & Méthodes");
+    ? (isLegalFocused ? "Legal Analysis, Contracts & Compliance" : isAgronomyAuditFocused ? "Quality Control, Audit & Scientific Methodology" : isMaintenanceFocused ? "Maintenance Engineering, Reliability & Continuous Improvement" : isSupplyChainFocused ? "Operations, Planning & Methodologies" : isArchitectureFocused ? "Architecture, Modeling & Delivery" : isProductFocused ? (jobFocus.themes.dataAi ? "Agile Product & Data Delivery" : "Agile Product & Backlog Delivery") : isFinanceFocused ? "Finance, Accounting & Controlling" : isHealthFocused ? "Clinical Care & Healthcare Protocols" : isSalesFocused ? "Sales Strategy & Client Development" : isHrFocused ? "HR Operations & Talent Management" : isConstructionFocused ? "Construction Engineering & Site Delivery" : "Domain Expertise & Methodologies")
+    : (isLegalFocused ? "Droit, Contrats & Conformité Réglementaire" : isAgronomyAuditFocused ? "Contrôle Qualité, Audit & Méthodes Scientifiques" : isMaintenanceFocused ? "Méthodes Maintenance, Fiabilité & Amélioration Continue" : isSupplyChainFocused ? "Opérations, Planification & Méthodes" : isArchitectureFocused ? "Architecture, Modélisation & Urbanisation SI" : isProductFocused ? (jobFocus.themes.dataAi ? "Méthodologies Agiles & Pilotage Produit Data" : "Méthodologies Agiles & Pilotage Produit") : isFinanceFocused ? "Finance, Comptabilité & Contrôle de Gestion" : isHealthFocused ? "Soins Cliniques, Protocoles & Accompagnement" : isSalesFocused ? "Développement Commercial & Relation Client" : isHrFocused ? "Ressources Humaines, Recrutement & Talents" : isConstructionFocused ? "Génie Civil, BTP & Conduite d'Opérations" : "Savoir-Faire Métier & Méthodologies");
 
   const coreToolsAndRoleSkills: string[] = [];
   const methodAndArchSkills: string[] = [];
@@ -6408,7 +6951,11 @@ function generateResilientAtsResult(
 
   const isTechOrItCover = /\b(?:it|si|software|data|cloud|devops|product\s*owner|salesforce|erp|d[ée]velopp|architect|informatique)\b/i.test(`${roleTitle} ${jobText}`);
 
-  const diffLetterSkills = differentiatingSkills.slice(0, 2).map((k) => formatSkillForProse(k, isEn)).filter(Boolean);
+  const diffLetterSkills = differentiatingSkills
+    .filter((k) => !/^(?:autonome|rigoureuse?|fiable|curieuse?|motiv[ée]e?|dynamique|impliqu[ée]e?)(?:\b|[\s,et])/i.test(k.trim()))
+    .slice(0, 2)
+    .map((k) => formatSkillForProse(k, isEn))
+    .filter(Boolean);
   const diffLetterClauseEn = diffLetterSkills.length > 0
     ? ` I also bring differentiating expertise in ${joinNaturalList(diffLetterSkills, true)} to create measurable added value beyond core requirements.`
     : "";
@@ -6417,6 +6964,16 @@ function generateResilientAtsResult(
     : "";
 
   const isNonStandardRoleFrame = Boolean(topExperience?.role && /^(?:Contrat|Stage|Alternance|Apprentissage|Projet|Organisation|Internship|Apprenticeship|Project)\b/i.test(topExperience.role));
+  const isStudentCoverProfile =
+    /\b(?:[ée]tudiante?(?:\s+en)?|candidature\s+(?:de|d['’])\s*stage|\blicence\b|\bL[123]\b)\b/i.test(cvText) &&
+    !/\b\d{1,2}\s*\+?\s*(?:ans|années|years)\s+(?:d['’]exp[eé]rience|of\s+experience)/i.test(cvText);
+  const isGenericTopCompanyFr = Boolean(
+    topExperience?.company &&
+      (/^(?:Centre\s+de\s+loisirs|Accompagnement\s+universitaire|Exp[ée]rience\s+professionnelle|Entreprise\s+pr[ée]c[ée]dente)$/i.test(topExperience.company) ||
+        (topExperience.role || "").toLowerCase().includes(topExperience.company.toLowerCase()))
+  );
+  const topRoleFr = topExperience?.role || "";
+  const frEnTantQue = /^[aeiouyàâéèêëîïôöùûüœæh]/i.test(topRoleFr) ? "En tant qu'" : "En tant que ";
   const topExpOpeningEn = topExperience
     ? isNonStandardRoleFrame
       ? `During my ${topExperience.role} at ${topExperience.company}, I`
@@ -6424,8 +6981,8 @@ function generateResilientAtsResult(
     : "Throughout my career, I have";
   const topExpOpeningFr = topExperience
     ? isNonStandardRoleFrame
-      ? `Dans le cadre de mon ${topExperience.role.charAt(0).toLowerCase() + topExperience.role.slice(1)} chez ${topExperience.company}, j'ai`
-      : `En tant que ${topExperience.role} chez ${topExperience.company}, j'ai`
+      ? `Dans le cadre de mon ${topRoleFr.charAt(0).toLowerCase() + topRoleFr.slice(1)}${isGenericTopCompanyFr ? "" : ` chez ${topExperience.company}`}, j'ai`
+      : `${frEnTantQue}${topRoleFr}${isGenericTopCompanyFr ? "" : ` chez ${topExperience.company}`}, j'ai`
     : "Tout au long de mon parcours, j'ai";
 
   const coverLetter = {
@@ -6441,10 +6998,10 @@ function generateResilientAtsResult(
     paragraphs: {
       vous: isEn
         ? `Your organization${hasSpecificCompany ? ` (${company})` : ""} operates at the forefront of ${jobFocus.domainLabel}. The ${roleTitle} position closely aligns with my career focus, particularly your need to ${firstMissionRef || `drive ${primaryOfferFocus}`} while maintaining tight coordination across ${isTechOrItCover ? "business and IT teams" : "cross-functional and operational teams"}.`
-        : `Votre organisation${hasSpecificCompany ? ` (${company})` : ""} évolue sur des enjeux stratégiques dans le secteur ${jobFocus.domainLabel}. Le poste ${frDe(roleTitle)} retient toute mon attention par l'importance accordée à ${firstMissionRef ? frMissionClause(firstMissionRef) : `la maîtrise d'enjeux clés tels que ${primaryOfferFocus}`}, des dimensions au cœur de mon expertise.`,
+        : `Votre organisation${hasSpecificCompany ? ` (${company})` : ""} évolue sur des enjeux stratégiques dans le secteur ${jobFocus.domainLabel}. Le poste ${frDe(roleTitle)} retient toute mon attention par l'importance accordée à ${firstMissionRef ? frMissionClause(firstMissionRef) : `la maîtrise d'enjeux clés tels que ${primaryOfferFocus}`}, ${isStudentCoverProfile ? "des enjeux qui rejoignent pleinement ma formation et mon projet professionnel." : "des dimensions au cœur de mon expertise."}`,
       moi: isEn
         ? `${topExpOpeningEn} applied ${topExpSkills} to deliver high-impact initiatives${topHighlightLower ? `, where I ${topHighlightLower}` : ""}. This hands-on background directly prepares me to support your ${primaryOfferFocus} priorities.${diffLetterClauseEn}`
-        : `${topExpOpeningFr} mobilisé mon savoir-faire en ${topExpSkills} sur des projets exigeants${frHighlightClause}. Cette expérience concrète me permet d'apporter une réponse immédiate à vos attentes sur les volets ${primaryOfferFocus}.${diffLetterClauseFr}`,
+        : `${topExpOpeningFr} mobilisé mon savoir-faire en ${topExpSkills} ${isStudentCoverProfile ? "sur des missions concrètes" : "sur des projets exigeants"}${frHighlightClause}. Cette expérience concrète me permet d'apporter une réponse immédiate à vos attentes sur les volets ${primaryOfferFocus}.${diffLetterClauseFr}`,
       nous: isEn
         ? `Joining your teams${hasSpecificCompany ? ` at ${company}` : ""} would allow me to contribute immediately to ${secondMissionRef || `your upcoming ${roleTitle} initiatives`}. I would welcome the opportunity to discuss how my background aligns with your roadmap in an interview.`
         : `Intégrer vos équipes${hasSpecificCompany ? ` chez ${company}` : ""} me permettrait de m'investir sans délai pour ${secondMissionRef || `accompagner vos projets ${frDe(roleTitle)} sur les volets ${primaryOfferFocus}`}. Je me tiens à votre entière disposition pour un entretien afin d'échanger sur cette future collaboration.`,
@@ -6458,7 +7015,6 @@ function generateResilientAtsResult(
 
   // Calcul objectif et dynamique de l'Indice de Passage Recruteur (sans auto-confirmation par les missions d'offre du profSummary)
   const tailoredCorpusNorm = [
-    roleTitle,
     authenticSummary,
     dynamicSkillsCategories.map((c) => c.skills.join(" ")).join(" "),
     experiences.map((e) => `${e.role} ${e.bullets.join(" ")}`).join(" "),
@@ -6750,9 +7306,9 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
   kw.integratedKeywords = filterAndFormatKeywords(kw.integratedKeywords);
   kw.missingOrGaps = filterAndFormatKeywords(kw.missingOrGaps);
 
-  // Si après filtrage la liste des compétences requises est trop restreinte (< 6), la compléter
-  if (kw.criticalRequiredKeywords.length < 6) {
-    const supplement = extractSkillsAndCompetencies(sg.jobOverview?.summary || "", cvRawText, 10, isEn);
+  // Si après filtrage la liste des compétences requises est vraiment insuffisante (< 4), la compléter
+  if (kw.criticalRequiredKeywords.length < 4) {
+    const supplement = extractSkillsAndCompetencies(sg.jobOverview?.summary || "", cvRawText, 8, isEn);
     for (const s of supplement) {
       if (!kw.criticalRequiredKeywords.some((k: string) => k.toLowerCase() === s.toLowerCase())) {
         kw.criticalRequiredKeywords.push(s);
@@ -6859,6 +7415,7 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
   if (
     cvRawText &&
     (!cv.personalInfo?.location ||
+      (/\b\d{5}\b/.test(authenticLocation) && !/\b\d{5}\b/.test(cv.personalInfo.location.trim())) ||
       (/^(?:france|france\s*\/\s*(?:hybride|remote)|london\s*\/\s*remote)$/i.test(cv.personalInfo.location.trim()) && authenticLocation && !/^(?:france|france\s*\/\s*(?:hybride|remote)|remote\s*\/\s*hybrid)$/i.test(authenticLocation)) ||
       (/^uk$/i.test(cv.personalInfo.location.trim()) && !/\bUK\b/.test(cvRawText.replace(/[\w.-]+@[\w.-]+|@\w+/g, ""))))
   ) {
@@ -7043,12 +7600,12 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     }
   }
   cv.languages = Array.isArray(cv.languages) ? cv.languages : [];
-  const knownLangNameRe = /^(?:Fran[çc]ais|Anglais|Allemand|Espagnol|Italien|Portugais|Arabe|Chinois|Mandarin|N[ée]erlandais|Russe|Japonais|Cor[ée]en|Polonais|Turc|Lingala|French|English|German|Spanish|Italian|Portuguese|Arabic|Chinese|Dutch|Russian|Japanese|Korean|Polish|Turkish)$/i;
+  const invalidLanguageNoiseRe = /\b(?:solidworks|office|access|studio|fusion|inkscape|informatique|donn[ée]es|mod[ée]lisation|excel|python|sql|java|react|sap|salesforce|bac|licence|master|dipl[oô]me|exp[eé]rience|comp[eé]tence|bafa|permis)\b/i;
   const hasCorruptedLanguage =
     cv.languages.length === 0 ||
     cv.languages.some((l: any) => {
-      const ln = typeof l === "string" ? l : (l?.language || "");
-      return !ln || !knownLangNameRe.test(ln.trim()) || /\b(?:solidworks|office|access|studio|fusion|inkscape|informatique|donn[ée]es|mod[ée]lisation)\b/i.test(ln);
+      const ln = (typeof l === "string" ? l : (l?.language || "")).trim();
+      return !ln || ln.length < 2 || ln.length > 35 || ln.split(/\s+/).length > 4 || /^\d+$/.test(ln) || invalidLanguageNoiseRe.test(ln);
     });
   if (cvRawText && hasCorruptedLanguage) {
     const authLangs = parseAuthenticLanguagesFromCv(cvRawText, isEn);
@@ -7057,11 +7614,13 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     }
   }
 
-  // Vérifier les puces de chaque expérience (infinitif garanti en français + suppression des points noirs orphelins)
+  // Vérifier les puces de chaque expérience (infinitif garanti en français + suppression des points noirs/flèches/o orphelins)
   const cleanResidualBullets = (text: string): string =>
     text
-      .replace(/(?:\s*[•●▪▫➢➤✓✔]){2,}/g, " ")
-      .replace(/\s+[•●▪▫➢➤✓✔]+\s*$/g, "")
+      .replace(/^(?:[→➔⇒➢➤●▪▫✓✔•\-–—*]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9]))\s*/g, "")
+      .replace(/(?:\s*[•●▪▫➢➤✓✔→➔⇒]){2,}/g, " ")
+      .replace(/\s+[•●▪▫➢➤✓✔→➔⇒]+\s*$/g, "")
+      .replace(/[→➔⇒]/g, " ")
       .replace(/\s{2,}/g, " ")
       .trim();
 
@@ -7081,8 +7640,8 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
       : [];
     return {
       id: exp.id || `exp-${i + 1}`,
-      role: exp.role || (isEn ? "Professional Role" : "Poste Professionnel"),
-      company: exp.company || (isEn ? "Company" : "Entreprise"),
+      role: cleanResidualBullets(String(exp.role || (isEn ? "Professional Role" : "Poste Professionnel"))),
+      company: cleanResidualBullets(String(exp.company || (isEn ? "Company" : "Entreprise"))),
       location: exp.location || (isEn ? "Location" : "France"),
       startDate: exp.startDate || "2021",
       endDate: exp.endDate || (isEn ? "Present" : "Présent"),
@@ -7092,6 +7651,54 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
       matchedKeywordsInRole: Array.isArray(exp.matchedKeywordsInRole) ? exp.matchedKeywordsInRole : [],
     };
   });
+
+  // Guardrail Anti-Corruptions Expériences : si le LLM a laissé des flèches "→", des fragments d'études/Bac, ou fusionné/perdu des expériences, reconstruire depuis le parseur déterministe
+  const hasCorruptedModelExperiences =
+    Boolean(cvRawText) &&
+    (cv.experiences.length === 0 ||
+      cv.experiences.some(
+        (e: any) =>
+          /\b(?:Premi[eè]re\)|Licence\s+de\s+droit|Session\s+g[ée]n[ée]rale\s+du\s+BAFA)\b/i.test(`${e.role} ${e.company} ${(e.bullets || []).join(" ")}`) ||
+          /^[o○◦]\s+/i.test(e.role || "") ||
+          /\b\d{4}\s*[→➔⇒]/.test(`${e.role} ${(e.bullets || []).join(" ")}`)
+      ) ||
+      (() => {
+        const parsedCheck = parseAuthenticExperiencesFromCv(cvRawText, cleanJobTitle, cleanOverviewCompany, cv.personalInfo.location || "", isEn, kw.matchedKeywords);
+        return cv.experiences.length < 2 && parsedCheck.length >= 3;
+      })());
+  if (hasCorruptedModelExperiences && cvRawText) {
+    const jfGuard = extractJobFocusContext(sg.jobOverview?.summary || "", cleanJobTitle, kw.criticalRequiredKeywords, isEn, cvRawText);
+    const rebuiltExps = parseAuthenticExperiencesFromCv(
+      cvRawText,
+      cleanJobTitle,
+      cleanOverviewCompany,
+      cv.personalInfo.location || "",
+      isEn,
+      kw.matchedKeywords,
+      jfGuard,
+      kw.criticalRequiredKeywords,
+      kw.integratedKeywords
+    );
+    if (rebuiltExps.length > 0) {
+      cv.experiences = rebuiltExps;
+    }
+  }
+
+  // Guardrail Anti-Pollution Domaine Industriel : bannir "Fiabilité Industrielle" si ni l'offre ni le CV ne relèvent de la maintenance industrielle
+  const isIndustrialMaintContext = /\b(?:maintenance|gmao|sap\s*pm|mtbf|mttr|trs|parc\s+machines?|moyens?\s+de\s+production|industriel(?:le|s)?|fiabilit[ée]\s+industrielle|fiabilisation)\b/i.test(
+    `${cleanJobTitle} ${sg.jobOverview?.summary || ""} ${cvRawText}`
+  );
+  if (!isIndustrialMaintContext) {
+    const scrubFiab = (list: string[]) => list.map((s) => (/^Fiabilit[ée]\s+Industrielle$/i.test(s) ? (isEn ? "Reliability & Accountability" : "Fiabilité & Respect des Engagements") : s));
+    kw.criticalRequiredKeywords = scrubFiab(kw.criticalRequiredKeywords);
+    kw.matchedKeywords = scrubFiab(kw.matchedKeywords);
+    kw.integratedKeywords = scrubFiab(kw.integratedKeywords);
+    kw.missingOrGaps = scrubFiab(kw.missingOrGaps);
+    cv.skillsCategories = cv.skillsCategories.map((c: any) => ({
+      ...c,
+      skills: Array.from(new Set(scrubFiab(Array.isArray(c.skills) ? c.skills : []))),
+    }));
+  }
 
   // Guardrail Anti-Pollution de l'Entreprise Cible :
   // L'entreprise qui recrute (sg.jobOverview.company) NE DOIT JAMAIS être mise comme employeur passé du candidat !
@@ -7105,9 +7712,9 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     }
   }
 
-  // Guardrail Dates Authentiques : si le CV source indique une date fermée, garantir current = false
+  // Guardrail Dates Authentiques : si le CV source indique une date fermée ou ponctuelle, garantir current = false
   for (const exp of cv.experiences) {
-    if (exp.endDate && !/pr[ée]sent|current|aujourd/i.test(exp.endDate) && exp.current) {
+    if (exp.endDate && (!/pr[ée]sent|current|aujourd/i.test(exp.endDate) || exp.endDate === exp.startDate) && exp.current) {
       exp.current = false;
     }
   }
@@ -7122,7 +7729,7 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     );
   }
 
-  // 2. Si le résumé professionnel est minimaliste (< 130 car.) ou contient des mentions/domaines étrangers absents du CV source, le reconstruire strictement depuis le CV réel
+  // 2. Si le résumé professionnel est minimaliste (< 130 car.) ou contient des mentions/domaines étrangers/diplôme "en cours" présenté comme obtenu, le reconstruire strictement depuis le CV réel
   const leakedForeignTerms = [
     "salesforce", "miage", "scrum", "kanban", "josian", "nkuli",
     "s&op", "forecast accuracy", "otif", "prévision des ventes", "prévisions des ventes"
@@ -7140,6 +7747,12 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     /\b(?:supply\s*chain|s&op|forecast\s+accuracy|otif|pr[ée]visions?\s+des\s+ventes)\b/i.test(cv.professionalSummary) &&
     !/\b(?:supply\s*chain|logistique|approvisionn|demand\s*plan|supply\s*plan|achats?)\b/i.test(`${sg.jobOverview?.title || ""} ${sg.jobOverview?.summary || ""}`) &&
     ((cvRawText.match(/\b(?:supply\s*chain|s&op|forecast\s+accuracy|otif|pr[ée]visions?\s+des\s+ventes)\b/gi) || []).length <= 1);
+  const isIndustrialLeakedInSummary =
+    !isIndustrialMaintContext &&
+    /\bfiabilit[ée]\s+industrielle\b/i.test(cv.professionalSummary || "");
+  const isBrokenStudentSummary =
+    Boolean(cvRawText) &&
+    /\b(?:dipl[oô]m[ée]e?\s+d['’]un\s+Projet|Professionnel\s+exp[ée]riment[ée].*\b(?:Licence|en\s+cours)\b)/i.test(cv.professionalSummary || "");
 
   const sectionsForSummaryGuard = cvRawText ? parseCvSections(cvRawText) : null;
   const authExpSummaryCorpus = sectionsForSummaryGuard
@@ -7152,20 +7765,33 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     !new RegExp(`\\b${claimedYearsMatch[1]}\\s*(?:ans?|years?)\\b`, "i").test(authExpSummaryCorpus)
   );
 
-  if (!cv.professionalSummary || cv.professionalSummary.trim().length < 130 || hasForeignLeakInSummary || isSupplyChainLeakedForNonScRole || hasFalseYearsInSummary) {
+  if (
+    !cv.professionalSummary ||
+    cv.professionalSummary.trim().length < 130 ||
+    hasForeignLeakInSummary ||
+    isSupplyChainLeakedForNonScRole ||
+    isIndustrialLeakedInSummary ||
+    isBrokenStudentSummary ||
+    hasFalseYearsInSummary
+  ) {
     const rawSum = extractRawSummaryFromCv(cvRawText);
+    const jfSum = extractJobFocusContext(sg.jobOverview?.summary || "", cleanJobTitle, kw.criticalRequiredKeywords, isEn, cvRawText);
     cv.professionalSummary = buildAdaptedProfessionalSummary(
       rawSum,
       cvRawText,
       sg.jobOverview?.title || (isEn ? "Target Role" : "Poste cible"),
       sg.jobOverview?.company || "",
       isEn,
-      kw.matchedKeywords
+      kw.matchedKeywords,
+      jfSum.topFocusKeywords,
+      jfSum.domainLabel,
+      jfSum.missionPhrases,
+      jfSum.themes
     );
   }
 
   // Guardrail Formation Universel : Si l'IA n'a pas extrait de formation, a retourné des placeholders génériques,
-  // ou a fragmenté une ligne coupée ("Chain", "Diplôme visé par l'État...", "OUTILS ET SYSTÈMES"), réinjecter les véritables formations parsées du CV source
+  // ou a fragmenté une ligne coupée ("Chain", "Diplôme visé par l'État...", "Première)", "Permis B", "BAFA"), réinjecter les véritables formations parsées du CV source
   const hasBrokenEducationEntry =
     Array.isArray(cv.education) &&
     cv.education.some(
@@ -7173,8 +7799,11 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
         !edu?.institution ||
         /Higher Education|Établissement d'enseignement supérieur/i.test(edu.institution) ||
         FORMATION_EXPLANATORY_REGEX.test((edu?.degree || "").trim()) ||
+        FORMATION_NON_DEGREE_LINE_REGEX.test((edu?.degree || "").trim()) ||
+        /\b(?:premiere\)|permis\s+[a-z]\b|bafa|\bcem\b|solf[eè]ge)\b/i.test(`${edu?.degree || ""} ${edu?.field || ""} ${edu?.institution || ""}`) ||
+        /^[o○◦]\s+/i.test((edu?.degree || "").trim()) ||
         /^(?:[•*●▪▫]|\d{4}$|outils?|logiciels?|technologies?|syst[eè]mes?|comp[eé]tences?)\b/i.test((edu?.degree || "").trim()) ||
-        (typeof edu?.degree === "string" && edu.degree.trim().split(/\s+/).length === 1 && !/^(?:MBA|DUT|BTS|PhD|Master|Bachelor|Licence|CPGE|Bac|Baccalaur[ée]at)$/i.test(edu.degree.trim()))
+        (typeof edu?.degree === "string" && edu.degree.trim().split(/\s+/).length === 1 && !/^(?:MBA|DUT|BTS|BUT|CAP|BEP|BP|BMA|DEUG|DESS|DEA|DEUST|DCG|DSCG|DEC|IFSI|PASS|LAS|DE|DAEU|PhD|Master|Bachelor|Licence|CPGE|Bac|Baccalaur[ée]at|BSc|BA|MSc|MEng|MA|LLB|LLM|JD|MD|CPA|CFA|Abitur|GCSE|Matura|GED)$/i.test(edu.degree.trim()))
     );
   if (!cv.education || cv.education.length === 0 || hasBrokenEducationEntry) {
     const authenticEdus = parseAuthenticEducationFromCv(cvRawText, isEn);
@@ -7384,6 +8013,7 @@ function normalizeAnalysisToEnglish(data: any, cvRawText = '', explicitTargetRol
         data.semanticGap.jobOverview.industry = "Technology & Scaled Services";
       } else if (hasFrenchIndustryMarker) {
         if (/cosm[ée]tique|beaut[ée]|luxe/i.test(ind)) data.semanticGap.jobOverview.industry = "Cosmetics, Beauty & Luxury";
+        else if (/droit|juridique|conformit/i.test(ind)) data.semanticGap.jobOverview.industry = "Legal, Corporate Affairs & Compliance";
         else if (/agroalimentaire|grande\s+consommation/i.test(ind)) data.semanticGap.jobOverview.industry = "FMCG, Food & Consumer Goods";
         else if (/sant[ée]|sciences\s+de\s+la\s+vie/i.test(ind)) data.semanticGap.jobOverview.industry = "Healthcare & Life Sciences";
         else if (/banque|assurance|financiers/i.test(ind)) data.semanticGap.jobOverview.industry = "Banking, Insurance & Financial Services";
@@ -7747,14 +8377,160 @@ async function extractTextLocallyFromPdf(base64Data: string): Promise<string> {
             });
           }
         } else {
-          pageLayouts.push({
-            isTwoCol: false,
-            splitX: 0,
-            topHeaderLines: [],
-            leftLines: [],
-            rightLines: [],
-            singleColLines: rebuildLines(spans),
-          });
+          // Détection locale de bande hybride 2 colonnes (ex: en-tête pleine largeur -> bande centrale 2 colonnes Profil || Formation -> bas pleine largeur Expériences)
+          const sortedVis = [...spans].sort((a, b) => (b.y !== a.y ? b.y - a.y : a.x - b.x));
+          const visRows: { refY: number; maxH: number; spans: PdfSpanItem[] }[] = [];
+          for (const it of sortedVis) {
+            const lastRow = visRows[visRows.length - 1];
+            if (lastRow) {
+              const tol = Math.max(2.6, Math.min(lastRow.spans[0].h, it.h) * 0.45);
+              if (Math.abs(lastRow.refY - it.y) <= tol) {
+                lastRow.spans.push(it);
+                lastRow.maxH = Math.max(lastRow.maxH, it.h);
+                continue;
+              }
+            }
+            visRows.push({ refY: it.y, maxH: it.h, spans: [it] });
+          }
+
+          const isStandaloneDateText = (r: string) =>
+            /^(?:(?:janv?|f[ée]vr?|mars?|avr|mai|juin|juil|ao[uû]t?|sept?|oct|nov|d[ée]c|[a-zà-ÿ]+\.?)\s+)?(?:19|20)\d{2}(?:\s*[-–—à]\s*(?:(?:[a-zà-ÿ]+\.?\s+)?(?:19|20)\d{2}|pr[ée]sent|present|aujourd['’]?hui|actuel(?:lement)?))?$/i.test(r.trim());
+
+          interface LocalBandMatch {
+            splitX: number;
+            startRow: number;
+            endRow: number;
+            score: number;
+          }
+          let bestLocalBand: LocalBandMatch | null = null;
+
+          for (let candX = Math.round(vp.width * 0.30); candX <= Math.round(vp.width * 0.70); candX += 4) {
+            const rowClass: Array<"SPAN" | "LEFT" | "RIGHT" | "BOTH"> = visRows.map((row) => {
+              const hasCrossing = row.spans.some((s) => s.x < candX - 4 && s.x + s.w > candX + 4);
+              if (hasCrossing) return "SPAN";
+              const sRow = [...row.spans].sort((a, b) => a.x - b.x);
+              for (let rIdx = 0; rIdx < sRow.length - 1; rIdx++) {
+                const c = sRow[rIdx];
+                const n = sRow[rIdx + 1];
+                if (c.x + c.w <= candX + 4 && n.x >= candX - 4 && n.x - (c.x + c.w) <= 22) {
+                  return "SPAN";
+                }
+              }
+              const hasL = sRow.some((s) => s.x + s.w * 0.5 < candX);
+              const hasR = sRow.some((s) => s.x + s.w * 0.5 >= candX);
+              if (hasL && hasR) return "BOTH";
+              return hasL ? "LEFT" : "RIGHT";
+            });
+
+            let r = 0;
+            while (r < visRows.length) {
+              if (rowClass[r] === "SPAN") {
+                r++;
+                continue;
+              }
+              const runStart = r;
+              while (r < visRows.length && rowClass[r] !== "SPAN") r++;
+              const runEnd = r - 1;
+
+              let s = runStart;
+              let e = runEnd;
+              // Si une ligne d'en-tête isolée en fin de bande précède directement un bloc pleine largeur après un écart vertical important, l'exclure de la bande 2 colonnes
+              while (e > s && (rowClass[e] === "LEFT" || rowClass[e] === "RIGHT") && e + 1 < visRows.length && rowClass[e + 1] === "SPAN") {
+                const side = rowClass[e];
+                let prevSameIdx = e - 1;
+                while (prevSameIdx >= s && rowClass[prevSameIdx] !== side && rowClass[prevSameIdx] !== "BOTH") prevSameIdx--;
+                const gapFromColAbove = prevSameIdx >= s ? visRows[prevSameIdx].refY - visRows[e].refY : 999;
+                const gapToSpanBelow = visRows[e].refY - visRows[e + 1].refY;
+                if (visRows[e].maxH >= medianH * 1.25 || gapFromColAbove > Math.max(24, medianH * 2.5) || gapFromColAbove > gapToSpanBelow) {
+                  e--;
+                } else {
+                  break;
+                }
+              }
+              // Même prudence au sommet de la bande
+              while (s < e && (rowClass[s] === "LEFT" || rowClass[s] === "RIGHT") && s - 1 >= 0 && rowClass[s - 1] === "SPAN") {
+                const side = rowClass[s];
+                let nextSameIdx = s + 1;
+                while (nextSameIdx <= e && rowClass[nextSameIdx] !== side && rowClass[nextSameIdx] !== "BOTH") nextSameIdx++;
+                const gapToColBelow = nextSameIdx <= e ? visRows[s].refY - visRows[nextSameIdx].refY : 999;
+                const gapFromSpanAbove = visRows[s - 1].refY - visRows[s].refY;
+                if (gapToColBelow > Math.max(24, medianH * 2.5) && gapFromSpanAbove < gapToColBelow) {
+                  s++;
+                } else {
+                  break;
+                }
+              }
+
+              if (e - s + 1 < 6) continue;
+              const bothCount = rowClass.slice(s, e + 1).filter((c) => c === "BOTH").length;
+              if (bothCount < 2) continue;
+
+              const bandSpans = visRows.slice(s, e + 1).flatMap((vr) => vr.spans);
+              const leftSpans = bandSpans.filter((sp) => sp.x + sp.w * 0.5 < candX);
+              const rightSpans = bandSpans.filter((sp) => sp.x + sp.w * 0.5 >= candX);
+              if (leftSpans.length < 6 || rightSpans.length < 6) continue;
+
+              const lRows = rebuildLines(leftSpans);
+              const rRows = rebuildLines(rightSpans);
+              const nonDateL = lRows.filter((lr) => !isStandaloneDateText(lr)).length;
+              const nonDateR = rRows.filter((rr) => !isStandaloneDateText(rr)).length;
+              if (nonDateL < 4 || nonDateR < 4) continue;
+
+              const subL = leftSpans.filter((sp) => sp.w > 42 || sp.str.split(/\s+/).length >= 2).length;
+              const subR = rightSpans.filter((sp) => sp.w > 42 || sp.str.split(/\s+/).length >= 2).length;
+              if (subL < 4 || subR < 4) continue;
+
+              const minYL = Math.min(...leftSpans.map((sp) => sp.y));
+              const maxYL = Math.max(...leftSpans.map((sp) => sp.y));
+              const minYR = Math.min(...rightSpans.map((sp) => sp.y));
+              const maxYR = Math.max(...rightSpans.map((sp) => sp.y));
+              const yOverlap = Math.min(maxYL, maxYR) - Math.max(minYL, minYR);
+              if (yOverlap < 75) continue;
+
+              const gutterW = Math.min(...rightSpans.map((sp) => sp.x)) - Math.max(...leftSpans.map((sp) => sp.x + sp.w));
+              if (gutterW < 14) continue;
+
+              const bandScore =
+                yOverlap * 2 +
+                Math.min(nonDateL, nonDateR) * 20 +
+                bothCount * 25 +
+                Math.min(gutterW, 28) * 4;
+              if (!bestLocalBand || bandScore > bestLocalBand.score) {
+                bestLocalBand = { splitX: candX, startRow: s, endRow: e, score: bandScore };
+              }
+            }
+          }
+
+          if (bestLocalBand) {
+            const preLines = rebuildLines(visRows.slice(0, bestLocalBand.startRow).flatMap((vr) => vr.spans));
+            const bandSpans = visRows.slice(bestLocalBand.startRow, bestLocalBand.endRow + 1).flatMap((vr) => vr.spans);
+            const bandLeft = bandSpans.filter((sp) => sp.x + sp.w * 0.5 < bestLocalBand!.splitX);
+            const bandRight = bandSpans.filter((sp) => sp.x + sp.w * 0.5 >= bestLocalBand!.splitX);
+            const postLines = rebuildLines(visRows.slice(bestLocalBand.endRow + 1).flatMap((vr) => vr.spans));
+
+            pageLayouts.push({
+              isTwoCol: false,
+              splitX: 0,
+              topHeaderLines: [],
+              leftLines: [],
+              rightLines: [],
+              singleColLines: [
+                ...preLines,
+                ...rebuildLines(bandLeft),
+                ...rebuildLines(bandRight),
+                ...postLines,
+              ],
+            });
+          } else {
+            pageLayouts.push({
+              isTwoCol: false,
+              splitX: 0,
+              topHeaderLines: [],
+              leftLines: [],
+              rightLines: [],
+              singleColLines: rebuildLines(spans),
+            });
+          }
         }
       }
 
@@ -8547,19 +9323,22 @@ app.post(PIPELINE_ROUTES, async (req, res) => {
       return res.status(400).json({ error: "Veuillez fournir le contenu ou le fichier de l'offre d'emploi." });
     }
 
-    // Extraction locale prioritaire pour éviter d'envoyer de lourds blobs base64 à Gemini
+    // Extraction locale rapide (0 coût) + pièce multimodale PDF/Image directe pour lecture visuelle universelle (colonnes, encarts, frises)
     let resolvedCvText = cvText || "";
     let cvInlinePart: any = null;
-    if (!resolvedCvText && cvBase64) {
+    if (cvBase64) {
       const cvMime = getMimeTypeFromDataUrl(cvBase64);
-      if (cvMime.includes("word") || cvMime.includes("docx") || cvMime.includes("officedocument")) {
-        resolvedCvText = await extractTextLocallyFromDocx(cvBase64);
-      } else {
-        resolvedCvText = await extractTextLocallyFromPdf(cvBase64);
+      if (!resolvedCvText) {
+        if (cvMime.includes("word") || cvMime.includes("docx") || cvMime.includes("officedocument")) {
+          resolvedCvText = await extractTextLocallyFromDocx(cvBase64);
+        } else {
+          resolvedCvText = await extractTextLocallyFromPdf(cvBase64);
+        }
       }
 
-      if (!resolvedCvText) {
-        const cleanCv = cvBase64.replace(/^data:[^;]+;base64,/, "");
+      const isVisualDoc = cvMime.includes("pdf") || cvMime.startsWith("image/");
+      const cleanCv = cvBase64.replace(/^data:[^;]+;base64,/, "");
+      if (isVisualDoc && cleanCv.length > 50 && cleanCv.length <= 7_000_000) {
         const actualMime = cvMime.startsWith("image/") ? cvMime : "application/pdf";
         cvInlinePart = {
           inlineData: {
@@ -8572,16 +9351,19 @@ app.post(PIPELINE_ROUTES, async (req, res) => {
 
     let resolvedJobText = jobText || "";
     let jobInlinePart: any = null;
-    if (!resolvedJobText && jobBase64) {
+    if (jobBase64) {
       const jobMime = getMimeTypeFromDataUrl(jobBase64);
-      if (jobMime.includes("word") || jobMime.includes("docx") || jobMime.includes("officedocument")) {
-        resolvedJobText = await extractTextLocallyFromDocx(jobBase64);
-      } else {
-        resolvedJobText = await extractTextLocallyFromPdf(jobBase64);
+      if (!resolvedJobText) {
+        if (jobMime.includes("word") || jobMime.includes("docx") || jobMime.includes("officedocument")) {
+          resolvedJobText = await extractTextLocallyFromDocx(jobBase64);
+        } else {
+          resolvedJobText = await extractTextLocallyFromPdf(jobBase64);
+        }
       }
 
-      if (!resolvedJobText) {
-        const cleanJob = jobBase64.replace(/^data:[^;]+;base64,/, "");
+      const isVisualJob = jobMime.includes("pdf") || jobMime.startsWith("image/");
+      const cleanJob = jobBase64.replace(/^data:[^;]+;base64,/, "");
+      if (isVisualJob && cleanJob.length > 50 && cleanJob.length <= 7_000_000) {
         const actualMime = jobMime.startsWith("image/") ? jobMime : "application/pdf";
         jobInlinePart = {
           inlineData: {
@@ -8595,17 +9377,21 @@ app.post(PIPELINE_ROUTES, async (req, res) => {
     resolvedCvText = sanitizeDocumentText(resolvedCvText);
     resolvedJobText = sanitizeDocumentText(resolvedJobText);
 
-    // Contrôle de conformité de nature de document (Garde-fou anti-hallucination)
-    const cvValidation = validateDocumentAsCv(resolvedCvText);
-    if (!cvValidation.isValid) {
-      console.warn(`[Pipeline ATS] Document CV rejeté : ${cvValidation.error}`);
-      return res.status(400).json({ error: cvValidation.error });
+    // Contrôle de conformité de nature de document (sauf document scanné sans texte local, lu visuellement par Gemini)
+    if (resolvedCvText.trim().length > 0 || !cvInlinePart) {
+      const cvValidation = validateDocumentAsCv(resolvedCvText);
+      if (!cvValidation.isValid) {
+        console.warn(`[Pipeline ATS] Document CV rejeté : ${cvValidation.error}`);
+        return res.status(400).json({ error: cvValidation.error });
+      }
     }
 
-    const jobValidation = validateDocumentAsJobOffer(resolvedJobText);
-    if (!jobValidation.isValid) {
-      console.warn(`[Pipeline ATS] Offre d'emploi rejetée : ${jobValidation.error}`);
-      return res.status(400).json({ error: jobValidation.error });
+    if (resolvedJobText.trim().length > 0 || !jobInlinePart) {
+      const jobValidation = validateDocumentAsJobOffer(resolvedJobText);
+      if (!jobValidation.isValid) {
+        console.warn(`[Pipeline ATS] Offre d'emploi rejetée : ${jobValidation.error}`);
+        return res.status(400).json({ error: jobValidation.error });
+      }
     }
 
     const ai = getGeminiClient();
@@ -8680,8 +9466,8 @@ Your role is to execute a rigorous semantic tailoring pipeline aligning a candid
 
 ---
 INPUT DATA:
-${resolvedCvText ? `### SOURCE CV TEXT:\n${resolvedCvText}\n` : ""}
-${resolvedJobText ? `### TARGET JOB OFFER TEXT:\n${resolvedJobText}\n` : ""}
+${cvInlinePart ? "### VISUAL SOURCE CV ATTACHED (PDF/IMAGE): Read the visual layout directly as primary source of truth (respect columns, sidebars, timelines, headers, and exact dates/titles regardless of design template), using the extracted text below as complementary reference.\n" : ""}${resolvedCvText ? `### SOURCE CV TEXT:\n${resolvedCvText}\n` : ""}
+${jobInlinePart ? "### VISUAL TARGET JOB OFFER ATTACHED (PDF/IMAGE): Read it visually alongside any extracted text below.\n" : ""}${resolvedJobText ? `### TARGET JOB OFFER TEXT:\n${resolvedJobText}\n` : ""}
 ${targetRoleTitle ? `### TARGET ROLE TITLE SPECIFIED:\n${targetRoleTitle}\n` : ""}
 ${candidateNotes ? `### CANDIDATE FOCUS & PRIORITIES:\n${candidateNotes}\n` : ""}
 Required Output Language: ENGLISH (International ATS)
@@ -8772,8 +9558,8 @@ Ton rôle est d'exécuter un pipeline d'adaptation sémantique rigoureux entre l
 
 ---
 DONNÉES EN ENTRÉE :
-${resolvedCvText ? `### TEXTE DU CV SOURCE :\n${resolvedCvText}\n` : ""}
-${resolvedJobText ? `### TEXTE DE L'OFFRE D'EMPLOI CIBLE :\n${resolvedJobText}\n` : ""}
+${cvInlinePart ? "### DOCUMENT CV VISUEL JOINT (PDF/IMAGE) : Lis en priorité la mise en page visuelle du document joint (colonnes, encarts latéraux, frises chronologiques, titres, dates et sections) quel que soit le gabarit graphique (Canva, Word, LaTeX, ATS), et appuie-toi sur le texte extrait ci-dessous comme repère complémentaire.\n" : ""}${resolvedCvText ? `### TEXTE DU CV SOURCE :\n${resolvedCvText}\n` : ""}
+${jobInlinePart ? "### DOCUMENT OFFRE VISUEL JOINT (PDF/IMAGE) : Lis également le document d'offre joint.\n" : ""}${resolvedJobText ? `### TEXTE DE L'OFFRE D'EMPLOI CIBLE :\n${resolvedJobText}\n` : ""}
 ${targetRoleTitle ? `### INTITULÉ DU POSTE CIBLE SOUHAITÉ :\n${targetRoleTitle}\n` : ""}
 ${candidateNotes ? `### REMARQUES / PRIORITÉS DU CANDIDAT :\n${candidateNotes}\n` : ""}
 Langue de sortie requise : FRANÇAIS (obligatoire pour tous les textes d'analyse, CV et lettre)
@@ -8851,6 +9637,7 @@ Retourne UNIQUEMENT un objet JSON valide conforme à la structure décrite, sans
     parts.push({ text: promptInstruction });
 
     let parsedResult: any = null;
+    let analysisEngine: "gemini-multimodal" | "gemini-text" | "local-resilient" = "local-resilient";
     try {
       const response = await callGeminiWithFallback(
         (modelName) =>
@@ -8877,18 +9664,15 @@ Retourne UNIQUEMENT un objet JSON valide conforme à la structure décrite, sans
           .trim();
         parsedResult = JSON.parse(cleaned);
       }
-
-      // Normalisation linguistique selon la cible (EN vs FR) avec injection du nom réel extrait et respect de l'intitulé choisi
-      if (isEn) {
-        parsedResult = normalizeAnalysisToEnglish(parsedResult, resolvedCvText, targetRoleTitle);
-      } else {
-        parsedResult = translateAnalysisToFrench(parsedResult, resolvedCvText, targetRoleTitle);
-      }
+      analysisEngine = cvInlinePart || jobInlinePart ? "gemini-multimodal" : "gemini-text";
     } catch (geminiError: any) {
       const errStr = geminiError?.message || String(geminiError);
       const isHighDemand = errStr.includes("503") || errStr.includes("high demand") || errStr.includes("UNAVAILABLE");
       const isQuota = errStr.includes("429") || errStr.includes("quota") || errStr.includes("RESOURCE_EXHAUSTED");
-      const reasonLabel = isHighDemand
+      const isBilling = errStr.includes("402") || errStr.includes("BILLING");
+      const reasonLabel = isBilling
+        ? "crédits/facturation API indisponibles"
+        : isHighDemand
         ? "haute demande temporaire de l'API"
         : isQuota
         ? "limite de requêtes atteinte"
@@ -8903,6 +9687,7 @@ Retourne UNIQUEMENT un objet JSON valide conforme à la structure décrite, sans
         candidateNotes,
         targetLanguage
       );
+      analysisEngine = "local-resilient";
     }
 
     if (isEn) {
@@ -8912,13 +9697,14 @@ Retourne UNIQUEMENT un objet JSON valide conforme à la structure décrite, sans
     }
 
     try {
-      recordAnalyticsEvent("pipeline_launch", { language: isEn ? "en" : "fr" });
+      recordAnalyticsEvent("pipeline_launch", { language: isEn ? "en" : "fr", engine: analysisEngine });
     } catch {
       // Ignorer
     }
 
     res.json({
       success: true,
+      analysisEngine,
       data: parsedResult,
     });
   } catch (_error: any) {
@@ -8933,6 +9719,7 @@ Retourne UNIQUEMENT un objet JSON valide conforme à la structure décrite, sans
     );
     res.json({
       success: true,
+      analysisEngine: "local-resilient",
       data: safeData,
     });
   }
@@ -9175,7 +9962,7 @@ function saveAnalytics(): void {
 
 function recordAnalyticsEvent(
   type: "visit" | "pipeline_launch" | "url_extract" | "download",
-  details?: { isMobile?: boolean; language?: string; clientId?: string }
+  details?: { isMobile?: boolean; language?: string; clientId?: string; engine?: string }
 ): void {
   const today = new Date().toISOString().slice(0, 10);
   if (!analyticsState.dailyStats[today]) {
