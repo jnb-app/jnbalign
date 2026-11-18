@@ -282,7 +282,10 @@ function extractCandidateFullName(cvText: string): string {
   const lines = rawLines.map(collapseCanvaLetterSpacing);
 
   // 1. Détection d'un email pour corréler les fragments de nom (ex: josian.nkuli / nkuli)
-  const emailMatch = cvText.match(/([a-zA-Z0-9._-]+)@([a-zA-Z0-9._-]+)\.[a-zA-Z0-9._-]+/);
+  const normalizedEmailText = cvText
+    .replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+)\s*\n?\s*\.\s*([a-zA-Z]{2,8})\b/g, "$1.$2")
+    .replace(/([a-zA-Z0-9._-]+)@\s*\n?\s*([a-zA-Z0-9._-]+\.[a-zA-Z]{2,8})\b/g, "$1@$2");
+  const emailMatch = normalizedEmailText.match(/([a-zA-Z0-9._-]+)@([a-zA-Z0-9._-]+)\.[a-zA-Z0-9._-]+/);
   const emailPrefix = emailMatch ? emailMatch[1].toLowerCase() : "";
   const emailParts = emailPrefix.split(/[._-]/).filter((p) => p.length >= 3);
 
@@ -482,6 +485,7 @@ export function sanitizeJobRoleTitle(rawTitle?: string): string {
 
   let cleaned = rawTitle
     .normalize("NFC")
+    .replace(/\b(M[ÉE]THODE[S]?|ING[ÉE]NIEUR|TECHNICIEN|CHARG[ÉE]E?|RESPONSABLE|CHEF)\s+DE(MAINTENANCE|GESTION|PROJET|PRODUCTION|QUALIT[ÉE])\b/gi, "$1 DE $2")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -1254,11 +1258,72 @@ const TAXONOMY_SKILLS_CANONICAL: { [normalized: string]: string } = {
   "industrialisation": "Industrialisation & Méthodes",
   "erp": "ERP",
   "sap": "SAP",
+  "sap pm": "SAP PM (Plant Maintenance)",
+  "plant maintenance": "SAP PM (Plant Maintenance)",
+  "module plant maintenance": "SAP PM (Plant Maintenance)",
   "oracle": "Oracle",
   "amelioration continue": "Amélioration Continue",
   "amélioration continue": "Amélioration Continue",
   "qualite": "Assurance Qualité (QA)",
   "qualité": "Assurance Qualité (QA)",
+  "demarche qualite": "Démarche Qualité",
+  "démarche qualité": "Démarche Qualité",
+  "qualite industrielle": "Qualité Industrielle",
+  "qualité industrielle": "Qualité Industrielle",
+
+  // --- INGÉNIERIE INDUSTRIELLE, MÉTHODES & MAINTENANCE ---
+  "methodes maintenance": "Méthodes Maintenance",
+  "méthodes maintenance": "Méthodes Maintenance",
+  "methode de maintenance": "Méthodes Maintenance",
+  "méthode de maintenance": "Méthodes Maintenance",
+  "methodes de maintenance": "Méthodes Maintenance",
+  "méthodes de maintenance": "Méthodes Maintenance",
+  "maintenance industrielle": "Maintenance Industrielle",
+  "maintenance preventive": "Maintenance Préventive",
+  "maintenance préventive": "Maintenance Préventive",
+  "maintenance corrective": "Maintenance Corrective",
+  "politique de maintenance": "Politique & Standards de Maintenance",
+  "standards de maintenance": "Politique & Standards de Maintenance",
+  "fiabilite industrielle": "Fiabilité Industrielle",
+  "fiabilité industrielle": "Fiabilité Industrielle",
+  "fiabilite": "Fiabilité Industrielle",
+  "fiabilité": "Fiabilité Industrielle",
+  "gmao": "GMAO",
+  "tpm": "TPM (Total Productive Maintenance)",
+  "5s": "Méthode 5S",
+  "smed": "SMED",
+  "amdec": "AMDEC / Criticité",
+  "criticite": "Étude de Criticité",
+  "criticité": "Étude de Criticité",
+  "etude de criticite": "Étude de Criticité",
+  "étude de criticité": "Étude de Criticité",
+  "mtbf": "Indicateurs Fiabilité (MTBF / MTTR / TRS)",
+  "mttr": "Indicateurs Fiabilité (MTBF / MTTR / TRS)",
+  "trs": "Indicateurs Fiabilité (MTBF / MTTR / TRS)",
+  "moyens de production": "Gestion des Moyens de Production",
+  "parc machines": "Gestion du Parc Machines",
+  "projets industriels": "Gestion de Projets Industriels",
+  "gestion de projets industriels": "Gestion de Projets Industriels",
+  "catia": "CATIA V5",
+  "catia v5": "CATIA V5",
+  "autocad": "AutoCAD",
+  "solidworks": "SolidWorks",
+  "vba": "VBA Excel",
+  "vba excel": "VBA Excel",
+  "excel vba": "VBA Excel",
+  "lecture de plans": "Lecture de Plans Mécaniques & Électriques",
+  "plans mecaniques": "Lecture de Plans Mécaniques & Électriques",
+  "plans mécaniques": "Lecture de Plans Mécaniques & Électriques",
+  "plans electriques": "Lecture de Plans Mécaniques & Électriques",
+  "plans électriques": "Lecture de Plans Mécaniques & Électriques",
+  "coordination technique": "Coordination Technique",
+  "suivi de fournisseurs": "Suivi Fournisseurs & Prestations",
+  "suivi fournisseurs": "Suivi Fournisseurs & Prestations",
+  "suivi de prestations": "Suivi Fournisseurs & Prestations",
+  "contrats cadres": "Contrats Cadres & Pièces Détachées",
+  "pieces detachees": "Contrats Cadres & Pièces Détachées",
+  "pièces détachées": "Contrats Cadres & Pièces Détachées",
+  "industrie 4.0": "Industrie 4.0",
 
   // --- SOFT SKILLS & COMPÉTENCES TRANSVERSALES ---
   "leadership": "Leadership",
@@ -1413,7 +1478,30 @@ const TAXONOMY_SKILLS_FR_TO_EN: Record<string, string> = {
   "suivi des lancements produits": "Product Launch Management",
   "gestion des arbitrages & priorités": "Supply Trade-Offs & Prioritization",
   "adéquation charge / capacité": "Capacity & Load Balancing",
-  "industrialisation & méthodes": "Industrialization & Process Engineering"
+  "industrialisation & méthodes": "Industrialization & Process Engineering",
+  "méthodes maintenance": "Maintenance Engineering Methods",
+  "maintenance industrielle": "Industrial Maintenance",
+  "maintenance préventive": "Preventive Maintenance",
+  "maintenance corrective": "Corrective Maintenance",
+  "politique & standards de maintenance": "Maintenance Standards & Governance",
+  "fiabilité industrielle": "Industrial Reliability",
+  "gmao": "CMMS (GMAO)",
+  "sap pm (plant maintenance)": "SAP PM (Plant Maintenance)",
+  "tpm (total productive maintenance)": "TPM (Total Productive Maintenance)",
+  "méthode 5s": "5S Methodology",
+  "amdec / criticité": "FMEA / Criticality Analysis",
+  "étude de criticité": "Equipment Criticality Analysis",
+  "indicateurs fiabilité (mtbf / mttr / trs)": "Reliability KPIs (MTBF / MTTR / OEE)",
+  "gestion des moyens de production": "Production Equipment Engineering",
+  "gestion du parc machines": "Machinery & Fleet Management",
+  "gestion de projets industriels": "Industrial Project Management",
+  "vba excel": "Excel VBA",
+  "lecture de plans mécaniques & électriques": "Mechanical & Electrical Blueprint Reading",
+  "coordination technique": "Technical Coordination",
+  "suivi fournisseurs & prestations": "Vendor & Contractor Management",
+  "démarche qualité": "Quality Management Approach",
+  "qualité industrielle": "Industrial Quality",
+  "contrats cadres & pièces détachées": "Spare Parts & Frame Contracts"
 };
 
 const TAXONOMY_SKILLS_FR_TO_EN_NORM: Map<string, string> = new Map(
@@ -1468,7 +1556,7 @@ function translateSkillToEnglish(skill: string): string {
   return trimmed;
 }
 
-const ALLOWED_SHORT_ACRONYMS = new Set(["AI", "IT", "BI", "CI", "CD", "QA", "UI", "UX", "RH", "HR", "SI", "PR", "ERP", "CRM", "KPI", "SAP", "P&L", "SEO", "SEA", "SFD", "UML", "MCD", "ESB", "SOA", "TMA", "MOA", "UAT", "API"]);
+const ALLOWED_SHORT_ACRONYMS = new Set(["AI", "IT", "BI", "CI", "CD", "QA", "UI", "UX", "RH", "HR", "SI", "PR", "ERP", "CRM", "KPI", "SAP", "P&L", "SEO", "SEA", "SFD", "UML", "MCD", "ESB", "SOA", "TMA", "MOA", "UAT", "API", "5S", "TPM", "TRS", "OEE", "VBA", "PM"]);
 
 // Vérifie si un mot ou une phrase est une véritable compétence professionnelle
 function isValidCompetency(raw: string): boolean {
@@ -1611,6 +1699,20 @@ function extractSkillsAndCompetencies(jobText: string, cvText?: string, maxSkill
     }
   }
 
+  // 1b. Éviter qu'un mot générique court (ex: "achats", "qualité", "sap") ne concurrence une compétence plus spécifique détectée ("Contrats Cadres & Pièces Détachées", "Démarche Qualité", "SAP PM (Plant Maintenance)")
+  if (scoredMap.has("sap pm (plant maintenance)") && scoredMap.has("sap") && !/\bsap\b(?!\s*(?:pm|\(pm\)))/i.test(primaryNorm.replace(/plant\s+maintenance\s*\(pm\)\s*de\s*sap/gi, "sap pm"))) {
+    scoredMap.delete("sap");
+  }
+  if (scoredMap.has("démarche qualité") && scoredMap.has("assurance qualité (qa)") && !/\b(?:assurance\s+qualit[ée]|qa\b)/i.test(primaryNorm)) {
+    scoredMap.delete("assurance qualité (qa)");
+  }
+  if (scoredMap.has("contrats cadres & pièces détachées") && scoredMap.has("gestion des achats") && !/\b(?:gestion\s+des\s+achats|acheteur|procurement)\b/i.test(primaryNorm)) {
+    scoredMap.delete("gestion des achats");
+  }
+  if (scoredMap.has("vba excel") && scoredMap.has("excel avancé")) {
+    scoredMap.delete("excel avancé");
+  }
+
   // 2. Trier par score décroissant pour refléter exactement les priorités réelles de l'offre
   const sortedSkills = Array.from(scoredMap.values())
     .sort((a, b) => b.score - a.score)
@@ -1632,12 +1734,12 @@ function extractSkillsAndCompetencies(jobText: string, cvText?: string, maxSkill
     if (skills.length >= maxSkills) break;
   }
 
-  // 3. Extraction ciblée dans les listes/sections "Compétences / Profil" de l'offre
-  const skillSectionMatches = primaryText.match(/(?:compétences|competences|skills|profil recherché|profil souhaite|requirements|technologies|outils|environnement|missions?)[\s:]*([^\n]+(?:\n[•*-][^\n]+){1,10})/gi) || [];
+  // 3. Extraction ciblée dans les listes/sections "Compétences / Profil" de l'offre (à puces ou lignes courtes)
+  const skillSectionMatches = primaryText.match(/(?:vos\s+compétences|compétences|competences|skills|profil recherché|profil souhaite|requirements|technologies|outils|environnement|missions?)[\s:]*([^\n]+(?:\n(?:[•*-][^\n]+|[^\n]{4,55})){1,10})/gi) || [];
   for (const section of skillSectionMatches) {
-    const lines = section.split("\n").map((l) => l.replace(/^[•*–—#\s\d.-]+/, "").trim());
+    const lines = section.split("\n").slice(1).map((l) => l.replace(/^[•*–—#\s\d.-]+/, "").trim());
     for (const l of lines) {
-      if (l.length >= 3 && l.length <= 38) {
+      if (l.length >= 3 && l.length <= 48 && !/[.!?]$/.test(l)) {
         addSkill(l);
       }
     }
@@ -1853,9 +1955,14 @@ function extractJobFocusContext(
       score: countHits(/\b(?:contr[oô]le\s+de\s+gestion|contr[oô]leu(?:r|se)\s+financier|analyste\s+financier|tr[ée]sorerie|cl[oô]ture\s+comptable|normes\s+ifrs|ifrs|audit\s+financier|reporting\s+financier|budg[ée]taire)\b/gi) * 3.5,
     },
     {
+      labelFr: "Aéronautique, Spatial & Défense",
+      labelEn: "Aerospace & Defense",
+      score: countHits(/\b(?:a[ée]ronautique|aerospace|a[ée]rospatial|spatial|avionique|aviation|d[ée]fense)\b/gi) * 3.8,
+    },
+    {
       labelFr: "Automobile & Mobilité",
       labelEn: "Automotive & Mobility",
-      score: countHits(/\b(?:secteur\s+automobile|automobile|constructeur\s+auto|concession|v[ée]hicules?|a[ée]ronautique|ferroviaire|mobilit[ée]\s+(?:urbaine|durable|[ée]lectrique))\b/gi) * 3.5,
+      score: countHits(/\b(?:secteur\s+automobile|automobile|constructeur\s+auto|concession|v[ée]hicules?|ferroviaire|mobilit[ée]\s+(?:urbaine|durable|[ée]lectrique))\b/gi) * 3.5,
     },
     {
       labelFr: "Énergie, Environnement & Utilities",
@@ -1873,9 +1980,9 @@ function extractJobFocusContext(
       score: countHits(/\b(?:retail|e-commerce|omnicanal|point\s+de\s+vente|boutiques?|magasins?|grande\s+distribution)\b/gi) * 2.8,
     },
     {
-      labelFr: "Industrie & Production",
+      labelFr: "Industrie & Maintenance Industrielle",
       labelEn: "Manufacturing & Industrial Operations",
-      score: countHits(/\b(?:usine|manufacturing|production\s+industrielle|industriel(?:le)?|m[ée]tallurgie|chimie|[ée]quipements?\s+industriels?)\b/gi) * 2.2,
+      score: countHits(/\b(?:maintenance\s+industrielle|m[ée]thodes\s+maintenance|fiabilit[ée]\s+industrielle|moyens?\s+de\s+production|parc\s+machines?|usine|manufacturing|production\s+industrielle|industriel(?:le|s)?|industrie|m[ée]tallurgie|chimie|[ée]quipements?\s+industriels?|gmao|catia)\b/gi) * 2.4,
     },
     {
       labelFr: "Supply Chain, Distribution & Opérations",
@@ -2249,13 +2356,30 @@ function harmonizeBulletToStar(rawBullet: string, isEn: boolean): string {
     [/^optimisation\s+de\s+l['’]/i, "Optimiser l'"],
     [/^optimisation\s+du\s+/i, "Optimiser le "],
     [/^optimisation\s+(?:de|d['’])\s*/i, "Optimiser "],
-    [/^mise\s+en\s+place\s+(?:de\s+la|de\s+l'|du|des)\s+/i, "Déployer "],
-    [/^mise\s+en\s+place\s+de\s+/i, "Déployer des "],
-    [/^mise\s+en\s+place\s+d['’]\s*/i, "Déployer d'"],
-    [/^mise\s+en\s+place\s+/i, "Déployer "],
-    [/^mise\s+en\s+oeuvre\s+(?:de\s+la|de\s+l'|du|des|de|d')?\s*/i, "Mettre en œuvre "],
+    [/^mise\s+en\s+place\s+de\s+la\s+/i, "Déployer la "],
+    [/^mise\s+en\s+place\s+de\s+l['’]/i, "Déployer l'"],
+    [/^mise\s+en\s+place\s+du\s+/i, "Déployer le "],
+    [/^mise\s+en\s+place\s+des\s+/i, "Déployer les "],
+    [/^mise\s+en\s+place\s+d['’]un(e)?\s+/i, "Déployer un$1 "],
+    [/^mise\s+en\s+place\s+(?:de|d['’])?\s*/i, "Déployer "],
+    [/^mise\s+en\s+[œo]e?uvre\s+de\s+la\s+/i, "Mettre en œuvre la "],
+    [/^mise\s+en\s+[œo]e?uvre\s+de\s+l['’]/i, "Mettre en œuvre l'"],
+    [/^mise\s+en\s+[œo]e?uvre\s+du\s+/i, "Mettre en œuvre le "],
+    [/^mise\s+en\s+[œo]e?uvre\s+des\s+/i, "Mettre en œuvre les "],
+    [/^mise\s+en\s+[œo]e?uvre\s+d['’]un(e)?\s+/i, "Mettre en œuvre un$1 "],
+    [/^mise\s+en\s+[œo]e?uvre\s+(?:de|d['’])?\s*/i, "Mettre en œuvre "],
+    [/^r[ée]actualisation\s+de\s+la\s+/i, "Réactualiser la "],
+    [/^r[ée]actualisation\s+de\s+l['’]/i, "Réactualiser l'"],
+    [/^r[ée]actualisation\s+du\s+/i, "Réactualiser le "],
+    [/^r[ée]actualisation\s+des\s+/i, "Réactualiser les "],
+    [/^r[ée]actualisation\s+(?:de|d['’])?\s*/i, "Réactualiser "],
+    [/^r[ée]alisation\s+des\s+/i, "Réaliser les "],
+    [/^r[ée]alisation\s+de\s+la\s+/i, "Réaliser la "],
+    [/^r[ée]alisation\s+de\s+l['’]/i, "Réaliser l'"],
+    [/^r[ée]alisation\s+du\s+/i, "Réaliser le "],
+    [/^r[ée]alisation\s+(?:de|d['’])?\s*/i, "Réaliser "],
     [/^r[ée]daction\s+des\s+/i, "Rédiger les "],
-    [/^r[ée]daction\s+(?:de\s+la|de\s+l'|du|de|d')?\s*/i, "Rédiger "],
+    [/^r[ée]daction\s+(?:de\s+la|de\s+l['’]|du|de|d')?\s*/i, "Rédiger "],
     [/^d[ée]ploiement\s+des\s+/i, "Déployer les "],
     [/^d[ée]ploiement\s+de\s+la\s+/i, "Déployer la "],
     [/^d[ée]ploiement\s+du\s+/i, "Déployer le "],
@@ -2567,6 +2691,11 @@ function harmonizeBulletToStar(rawBullet: string, isEn: boolean): string {
     }
   }
 
+  cleaned = cleaned
+    .replace(/([A-Za-zÀ-ÿ0-9])\(/g, "$1 (")
+    .replace(/\s+\./g, ".")
+    .replace(/\s{2,}/g, " ")
+    .trim();
   cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   if (!cleaned.endsWith(".") && !cleaned.endsWith("!") && !cleaned.endsWith("?")) {
     cleaned += ".";
@@ -2628,12 +2757,12 @@ export function parseCvSections(cvText: string): CvSections {
     if (/^(?:certifications?|certificats?|accreditations?)$/i.test(clean)) return "CERTIFICATIONS";
     // Résumé / Profil (Rejet strict de "Experience Cloud" ou "Transformation")
     if (/^(?:r[eé]sum[eé]|profil(?:\s+professionnel)?|synth[eé]se|[aà]\s+propos(?:\s+de\s+moi)?|summary|about(?:\s+me)?|objectif(?:\s+professionnel)?)$/i.test(clean)) return "SUMMARY";
-    // Expérience (y compris "Expériences précédentes", "Autres expériences")
-    if (/^(?:exp[eé]riences?(?:\s+(?:professionnelles?|pr[ée]c[ée]dentes?|ant[ée]rieures?))?|autres?\s+exp[eé]riences?|work\s+experience|professional\s+experience|previous\s+experience|employment\s+history|parcours(?:\s+professionnel)?)$/i.test(clean)) return "EXPERIENCE";
+    // Expérience (y compris "Expériences précédentes", "Autres expériences", ou en-tête accidentellement collé "Expérience Compétences")
+    if (/^(?:exp[eé]riences?(?:\s+(?:professionnelles?|pr[ée]c[ée]dentes?|ant[ée]rieures?))?|autres?\s+exp[eé]riences?|work\s+experience|professional\s+experience|previous\s+experience|employment\s+history|parcours(?:\s+professionnel)?)(?:\s+(?:comp[eé]tences?|skills))?$/i.test(clean)) return "EXPERIENCE";
     // Formation (Éducation)
     if (/^(?:formations?(?:\s+professionnelles?|\s+acad[eé]miques?)?|education(?:\s*(?:&|and)\s*training)?|dipl[oô]mes?|cursus(?:\s+universitaire)?|parcours\s+acad[eé]mique|[ée]tudes)$/i.test(clean)) return "FORMATION";
-    // Rubriques complémentaires (y compris "Secteur", "Centres d'intérêt", "Réalisations")
-    if (/^(?:secteurs?(?:\s+d['’]activit[ée])?|industries?|r[ée]alisations?(?:\s+(?:majeures?|cl[eé]s?|principales?))?|principales?\s+r[ée]alisations?|key\s+achievements?|qualit[ée]s?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]t|int[ée]r[êe]ts?|loisirs?|hobbies?|divers|informations?\s+compl[ée]mentaires?|r[ée]f[ée]rences?|permis(?:\s+de\s+conduire)?|b[eé]n[ée]volat)$/i.test(clean)) return "OTHER";
+    // Rubriques complémentaires (y compris "Secteur", "Centres d'intérêts", "Réalisations")
+    if (/^(?:secteurs?(?:\s+d['’]activit[ée])?|industries?|r[ée]alisations?(?:\s+(?:majeures?|cl[eé]s?|principales?))?|principales?\s+r[ée]alisations?|key\s+achievements?|qualit[ée]s?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]ts?|int[ée]r[êe]ts?|loisirs?|hobbies?|divers|informations?\s+compl[ée]mentaires?|r[ée]f[ée]rences?|permis(?:\s+de\s+conduire)?|b[eé]n[ée]volat)$/i.test(clean)) return "OTHER";
 
     return null;
   }
@@ -2994,7 +3123,8 @@ const PROPER_SKILL_CASE_TOKENS = new Set([
   "superset", "looker", "qlik", "snowflake", "bigquery", "figma", "hubspot", "shopify", "rgpd", "gdpr",
   "ifrs", "sirh", "seo", "sea", "ux", "ui", "api", "apis", "rest", "soap", "esb", "etl", "soa", "si", "ia",
   "product", "backlog", "user", "stories", "story", "roadmap", "sprint", "sprints", "supply", "chain",
-  "sales", "experience", "marketing", "cloud", "apex", "lwc"
+  "sales", "experience", "marketing", "cloud", "apex", "lwc", "gmao", "tpm", "smed", "5s", "mtbf",
+  "mttr", "trs", "oee", "catia", "v5", "vba", "pm", "amdec", "autocad", "solidworks", "iso"
 ]);
 
 function formatSkillForProse(skill: string, isEn: boolean): string {
@@ -3005,8 +3135,8 @@ function formatSkillForProse(skill: string, isEn: boolean): string {
   return s
     .split(/\s+/)
     .map((word, idx) => {
-      // Preserve parenthesized acronyms like (UAT), (SFD), (MOA)
-      if (/^\([A-Z0-9/&+]+\)$/.test(word)) return word;
+      // Preserve parenthesized acronyms/labels like (UAT), (SFD), (Plant Maintenance)
+      if (/^\([A-Z0-9/&+]+\)$/.test(word) || word.startsWith("(") || word.endsWith(")")) return word;
       const core = word.replace(/^[('"]+|[),.'"]+$/g, "");
       const coreLower = core.toLowerCase();
       if (PROPER_SKILL_CASE_TOKENS.has(coreLower) || (core.length <= 5 && core === core.toUpperCase() && /[A-Z]/.test(core))) {
@@ -3159,7 +3289,13 @@ export function buildAdaptedProfessionalSummary(
   const realPlatforms: string[] = [];
   for (const [regex, label] of [
     [/\bsalesforce\b/i, "Salesforce"],
+    [/\bsap\s*(?:pm|\(pm\))|\bplant\s+maintenance\b/i, "SAP PM"],
     [/\bsap\b/i, "SAP"],
+    [/\bgmao\b/i, "GMAO"],
+    [/\bcatia(?:\s*v5)?\b/i, "CATIA V5"],
+    [/\bautocad\b/i, "AutoCAD"],
+    [/\bsolidworks\b/i, "SolidWorks"],
+    [/\bvba\b/i, "VBA Excel"],
     [/\boracle\b/i, "Oracle"],
     [/\berp\b/i, "ERP"],
     [/\bjira\b/i, "Jira"],
@@ -3174,6 +3310,8 @@ export function buildAdaptedProfessionalSummary(
     [/\bgoogle\s+ai\b|\bia\b/i, "IA"],
   ] as [RegExp, string][]) {
     if (regex.test(cvLower) && !realPlatforms.includes(label)) {
+      if (label === "SAP" && realPlatforms.includes("SAP PM")) continue;
+      if (label === "Excel" && realPlatforms.includes("VBA Excel")) continue;
       realPlatforms.push(label);
     }
     if (realPlatforms.length >= 5) break;
@@ -3185,6 +3323,7 @@ export function buildAdaptedProfessionalSummary(
       if (isDevopsProfile && /^(?:AWS\/Cloud|Kubernetes\/Docker|Terraform)$/.test(p)) return 3;
       if (themes?.dataAi && /^(?:SQL|Power BI|Python|IA)$/.test(p)) return 3;
       if (themes?.agileProduct && /^(?:Jira|Salesforce)$/.test(p)) return 2;
+      if (/\b(?:maintenance|fiabilit|m[ée]thodes|industriel)\b/i.test(roleLower) && /^(?:GMAO|SAP PM|CATIA V5|VBA Excel|AutoCAD|SolidWorks)$/.test(p)) return 3;
       return 1;
     };
     return scorePlat(b) - scorePlat(a);
@@ -3197,16 +3336,34 @@ export function buildAdaptedProfessionalSummary(
     ? ` across enterprise platforms (${sortedPlatforms.slice(0, 3).join(", ")})`
     : "";
 
-  const isSupplyChainProfile = /\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|pr[ée]vision\s+des\s+ventes|gestion\s+des\s+stocks|otif|cpfr|logistique|pr[ée]visionniste)\b/i.test(cvLower);
-  const isFinanceProfile = !isSupplyChainProfile && /\b(?:audit\s+financier|contr[oô]le\s+de\s+gestion|comptabilit[ée]|ifrs|tr[ée]sorerie|consolidation\s+financi[eè]re|analyste\s+financier)\b/i.test(cvLower);
-  const isHrProfile = !isSupplyChainProfile && /\b(?:ressources?\s+humaines?|talent\s+acquisition|recrutement|sirh|paie|gestion\s+des\s+talents)\b/i.test(cvLower);
-  const isDigitalMktProfile = !isSupplyChainProfile && /\b(?:marketing\s+digital|growth\s+hacking|acquisition\s+client|seo|sea|google\s+ads|traffic\s+manager|brand\s+manager)\b/i.test(cvLower);
+  const isMaintenanceRole = /\b(?:maintenance|fiabilit[ée]|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|tpm|smed|mtbf|mttr|trs|oee|industrialisation|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique|moyens?\s+de\s+production|parc\s+machines?)\b/i.test(roleLower);
+  const maintenanceCvHits = (cvLower.match(/\b(?:maintenance|fiabilit[ée]|m[ée]thode[s]?\s*(?:de\s+)?maintenance|gmao|sap\s*pm|plant\s+maintenance|tpm|smed|mtbf|mttr|trs|criticité|pi[eè]ces\s+d[ée]tach[ée]es|moyens?\s+de\s+production|g[ée]nie\s+industriel|g[ée]nie\s+m[ée]canique)\b/gi) || []).length;
+  const isMaintenanceIndustrialProfile = isMaintenanceRole || (maintenanceCvHits >= 2 && !/\b(?:supply\s*chain|demand\s*plan|supply\s*plan|pr[ée]vision\s+des\s+ventes)\b/i.test(roleLower));
 
-  // Domaine d'expertise réel du candidat (inféré du CV sans faux positif sur "équipes marketing" ni sur l'intitulé cible)
+  const supplyChainRoleHit = /\b(?:supply\s*chain|demand\s*plan|supply\s*plan|approvisionn|pr[ée]visionniste|logistique|planificateur|ordonnancement|procurement)\b/i.test(roleLower);
+  const supplyChainCvHits = (cvLower.match(/\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|pr[ée]vision\s+des\s+ventes|gestion\s+des\s+stocks|otif|cpfr|logistique|pr[ée]visionniste|sell-in|sell-out|drp)\b/gi) || []).length;
+  const isSupplyChainProfile = (supplyChainRoleHit && supplyChainCvHits >= 1) || (!isMaintenanceIndustrialProfile && supplyChainCvHits >= 2);
+  const isFinanceProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && /\b(?:audit\s+financier|contr[oô]le\s+de\s+gestion|comptabilit[ée]|ifrs|tr[ée]sorerie|consolidation\s+financi[eè]re|analyste\s+financier)\b/i.test(cvLower);
+  const isHrProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && /\b(?:ressources?\s+humaines?|talent\s+acquisition|recrutement|sirh|paie|gestion\s+des\s+talents)\b/i.test(cvLower);
+  const isDigitalMktProfile = !isSupplyChainProfile && !isMaintenanceIndustrialProfile && /\b(?:marketing\s+digital|growth\s+hacking|acquisition\s+client|seo|sea|google\s+ads|traffic\s+manager|brand\s+manager)\b/i.test(cvLower);
+
+  const hasCvSop = /\bs\s*&\s*op\b/i.test(combinedSource);
+  const hasCvForecast = /\b(?:pr[ée]vision\s+des\s+ventes|forecast(?:\s+accuracy)?|demand\s+planning)\b/i.test(combinedSource);
+  const hasCvOtif = /\botif\b/i.test(combinedSource);
+  const hasCvStocks = /\b(?:gestion\s+des\s+stocks|couverture\s+de\s+stocks|stocks?)\b/i.test(combinedSource);
+  const hasCvMaintKpi = /\b(?:mtbf|mttr|trs|oee)\b/i.test(combinedSource);
+  const hasCvLeanTools = /\b(?:tpm|5s|smed|kanban|lean)\b/i.test(combinedSource);
+  const hasCvGmao = /\b(?:gmao|plant\s+maintenance|sap\s*pm)\b/i.test(combinedSource);
+
+  // Domaine d'expertise réel du candidat (inféré du CV sans faux positif sur "équipes marketing", "Supply Chain" isolé ni sur l'intitulé cible)
   const cvFieldFr = /\bdevops|kubernetes|terraform|aws|sre\b/i.test(cvLower)
     ? "dans l'ingénierie Cloud, DevOps et l'automatisation d'infrastructures"
+    : isMaintenanceIndustrialProfile
+    ? "en méthodes maintenance, fiabilité industrielle et gestion des moyens de production"
     : isSupplyChainProfile
-    ? "en Supply Chain, prévision des ventes (S&OP) et pilotage des approvisionnements"
+    ? (hasCvSop || hasCvForecast
+        ? "en Supply Chain, prévision des ventes (S&OP) et pilotage des approvisionnements"
+        : "en Supply Chain, planification opérationnelle et pilotage des approvisionnements")
     : /\bing[ée]nierie\s+informatique|\bsyst[èe]mes?\s+d['’]information|\bmiage\b|\bsalesforce\b|\bproduct\s+owner\b/i.test(cvLower)
     ? "dans le pilotage de systèmes d'information et de produits digitaux"
     : isDigitalMktProfile
@@ -3218,8 +3375,12 @@ export function buildAdaptedProfessionalSummary(
     : "dans le pilotage opérationnel et l'excellence d'exécution";
   const cvFieldEn = /\bdevops|kubernetes|terraform|aws|sre\b/i.test(cvLower)
     ? "in Cloud engineering, DevOps automation, and platform reliability"
+    : isMaintenanceIndustrialProfile
+    ? "in maintenance engineering, industrial reliability, and production asset performance"
     : isSupplyChainProfile
-    ? "in Supply Chain planning, demand forecasting (S&OP), and inventory optimization"
+    ? (hasCvSop || hasCvForecast
+        ? "in Supply Chain planning, demand forecasting (S&OP), and inventory optimization"
+        : "in Supply Chain operations, procurement planning, and service-level execution")
     : /\binformation\s+systems|\bmiage\b|software|salesforce|product\s+owner|ing[ée]nierie\b/i.test(cvLower)
     ? "in information systems and digital product delivery"
     : isDigitalMktProfile
@@ -3232,8 +3393,18 @@ export function buildAdaptedProfessionalSummary(
     let angleEn = "operational optimization, KPI governance, and cross-functional execution";
     if (isDevopsProfile) {
       angleEn = "cloud infrastructure automation, Kubernetes orchestration, CI/CD reliability, and platform security";
+    } else if (isMaintenanceIndustrialProfile) {
+      angleEn = `equipment reliability${hasCvMaintKpi ? " (MTBF, MTTR, OEE)" : ""}, ${hasCvGmao ? "CMMS deployment, " : ""}preventive maintenance standards, and continuous industrial improvement${hasCvLeanTools ? " (TPM, 5S, SMED)" : ""}`;
     } else if (isSupplyChainProfile) {
-      angleEn = "sales forecasting accuracy, S&OP alignment, inventory optimization, and supplier OTIF performance";
+      const scAnglesEn = [
+        hasCvForecast ? "sales forecasting accuracy" : "",
+        hasCvSop ? "S&OP alignment" : "",
+        hasCvStocks ? "inventory optimization" : "",
+        hasCvOtif ? "supplier OTIF performance" : "",
+      ].filter(Boolean);
+      angleEn = scAnglesEn.length >= 2
+        ? joinNaturalList(scAnglesEn, true)
+        : "procurement planning, supply continuity, and service-level performance";
     } else if (isPoProfile && themes?.dataAi) {
       angleEn = "data-driven product ownership, backlog prioritization, actionable User Stories, and deliverable quality assurance";
     } else if (isPoProfile && themes?.appLifecycle) {
@@ -3260,8 +3431,18 @@ export function buildAdaptedProfessionalSummary(
   let angleFr = "l'optimisation des processus opérationnels, le pilotage par les KPI et la coordination transverse";
   if (isDevopsProfile) {
     angleFr = "l'automatisation Cloud (IaC), l'orchestration de conteneurs, l'industrialisation CI/CD et la résilience en production";
+  } else if (isMaintenanceIndustrialProfile) {
+    angleFr = `la fiabilisation des équipements${hasCvMaintKpi ? " (MTBF, MTTR, TRS)" : ""}, ${hasCvGmao ? "le déploiement GMAO, " : ""}la standardisation des plans de maintenance et l'amélioration continue${hasCvLeanTools ? " (TPM, 5S, SMED)" : ""}`;
   } else if (isSupplyChainProfile) {
-    angleFr = "la fiabilité des prévisions de ventes (Forecast Accuracy), le processus S&OP, l'optimisation des stocks et la performance fournisseurs (OTIF)";
+    const scAnglesFr = [
+      hasCvForecast ? "la fiabilité des prévisions de ventes (Forecast Accuracy)" : "",
+      hasCvSop ? "le processus S&OP" : "",
+      hasCvStocks ? "l'optimisation des stocks" : "",
+      hasCvOtif ? "la performance fournisseurs (OTIF)" : "",
+    ].filter(Boolean);
+    angleFr = scAnglesFr.length >= 2
+      ? joinNaturalList(scAnglesFr, false)
+      : "la planification des approvisionnements, la continuité des flux et l'amélioration du taux de service";
   } else if (isPoProfile && themes?.dataAi) {
     angleFr = "la transformation des besoins métiers en User Stories actionnables, la valorisation de la donnée et la qualité des livrables produits";
   } else if (isPoProfile && themes?.appLifecycle) {
@@ -3412,11 +3593,12 @@ export function parseAuthenticExperiencesFromCv(
     if (DATE_RANGE_REGEX.test(l)) return false;
     if (looksLikeActionSentence(l)) return false;
     if (/^(?:exp[eé]riences?(?:\s+professionnelles?)?|formations?|comp[eé]tences?)\b/i.test(l)) return false;
+    if (/^(?:mise\s+en|[ée]tude\s+d|am[ée]lioration|standardisation|fiabilisation|actualisation|r[ée]actualisation|dimensionnement|cr[ée]ation|g[ée]n[ée]ration|optimisation|[ée]laboration|participation|contribution|maintenance\s+(?:pr[ée]ventive|corrective|curative)|r[ée]vision|contr[oô]le|v[ée]rification)\b/i.test(l)) return false;
     if (l.length > 85) return false;
     return true;
   };
 
-  const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|stagiaire|intern)\b/i;
+  const roleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+(?:projet|produit)|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|responsable|charg[ée]e?(?:\s+d|\s+supply|\s+de)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|planificateur|planificatrice|apprenti(?:e)?|alternant(?:e)?|stagiaire|intern)\b/i;
 
   for (let i = 0; i < expLines.length; i++) {
     const line = expLines[i];
@@ -3530,6 +3712,31 @@ export function parseAuthenticExperiencesFromCv(
               ) {
                 bodyStartIdx++;
               }
+            }
+          }
+        }
+
+        // Format 3 lignes centré sur la date isolée : Poste (i-1) / Date (i) / Entreprise (i+1) OU Entreprise (i-1) / Date (i) / Poste (i+1)
+        if (!hasPipe && companyLineIdx === null && roleLineIdx !== null && bodyStartIdx < expLines.length) {
+          const belowLine = expLines[bodyStartIdx];
+          const aboveLine = expLines[roleLineIdx] || "";
+          if (
+            belowLine &&
+            !DATE_RANGE_REGEX.test(belowLine) &&
+            !looksLikeActionSentence(belowLine) &&
+            !isPureLocationLine(belowLine) &&
+            !/^[•*–—\-●▪▫➢➤✓✔\d]/.test(belowLine) &&
+            !/^(?:Contexte|Environnement|Stack|Outils|Technologies|Projets?|Missions?|R[ée]alisations?)\b/i.test(belowLine) &&
+            belowLine.length <= 70 &&
+            belowLine.split(/\s+/).length <= 8
+          ) {
+            if (!roleRegex.test(aboveLine) && roleRegex.test(belowLine)) {
+              companyLineIdx = roleLineIdx;
+              roleLineIdx = bodyStartIdx;
+              bodyStartIdx++;
+            } else if (!roleRegex.test(belowLine)) {
+              nextLineCompanyIdx = bodyStartIdx;
+              bodyStartIdx++;
             }
           }
         }
@@ -3673,6 +3880,10 @@ export function parseAuthenticExperiencesFromCv(
         const parsedComp = splitCompanyAndCity(expLines[anchor.companyLineIdx]);
         company = parsedComp.company;
         if (parsedComp.location) location = parsedComp.location;
+      } else if (anchor.nextLineCompanyIdx !== null && expLines[anchor.nextLineCompanyIdx]) {
+        const parsedComp = splitCompanyAndCity(expLines[anchor.nextLineCompanyIdx]);
+        company = parsedComp.company || expLines[anchor.nextLineCompanyIdx];
+        if (parsedComp.location) location = parsedComp.location;
       }
 
       // Détection universelle de l'ordre En-tête : LinkedIn (Entreprise puis Poste) vs CV classique/Canva/Word (Poste puis Entreprise)
@@ -3694,7 +3905,7 @@ export function parseAuthenticExperiencesFromCv(
         .map((p, idx) => (idx === datePartIdx && dateMatch ? p.replace(dateMatch[0], "").trim() : p))
         .filter((p) => p.length > 1);
 
-      const pipeRoleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|programmeur|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+projet|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|stagiaire|intern|vendeur|serveur)\b/i;
+      const pipeRoleRegex = /\b(?:architect|architecte|engineer|ing[ée]nieur|ing[ée]nieure|developer|d[ée]veloppeur|d[ée]veloppeuse|programmeur|manager|lead|owner|analyst|analyste|contr[oô]leur(?:se)?(?:\s+de\s+gestion|\s+financier(?:e)?)?|auditeur|auditrice|comptable|tr[ée]sorier|tr[ée]sori[eè]re|juriste|fiscaliste|gestionnaire|consultant|consultante|director|directeur|directrice|chef\s+de\s+projet|scrum\s+master|specialist|sp[ée]cialiste|senior|junior|exploitant|technicien|technicienne|administrateur|administratrice|responsable|charg[ée]e?(?:\s+d)?|coordinateur|coordinatrice|approvisionneur|approvisionneuse|pr[ée]visionniste|acheteur|acheteuse|planner|apprenti(?:e)?|alternant(?:e)?|stagiaire|intern|vendeur|serveur)\b/i;
 
       if (cleanParts.length >= 2) {
         const p0 = cleanParts[0];
@@ -4176,6 +4387,15 @@ export function parseAuthenticExperiencesFromCv(
               " pour fiabiliser l'industrialisation des déploiements et l'élasticité des infrastructures",
               " afin de réduire les délais de livraison tout en maintenant un haut niveau de qualité",
             ]);
+          } else if (/maintenance|gmao|sap\s*pm|fiabilit|critic|mtbf|mttr|trs|smed|tpm|5s|pi[eè]ces\s+d[ée]tach|parc\s+machine|moyens?\s+de\s+production/i.test(bLow)) {
+            body += pickUniqueClause([
+              " afin d'optimiser la disponibilité des équipements et la fiabilité de la maintenance",
+              " pour réduire les temps d'arrêt machine et sécuriser la continuité de production",
+              " afin de standardiser les interventions techniques et maîtriser la criticité du parc",
+              " pour structurer la traçabilité des opérations et piloter les indicateurs de fiabilité",
+              " afin de fiabiliser le suivi du parc industriel et la performance des lignes",
+              " pour renforcer la réactivité des interventions et la maîtrise des coûts d'exploitation",
+            ]);
           } else {
             body += pickUniqueClause([
               " afin de sécuriser la tenue des jalons et la satisfaction des parties prenantes",
@@ -4186,6 +4406,9 @@ export function parseAuthenticExperiencesFromCv(
         }
       }
 
+      body = body
+        .replace(/([A-Z]{2,5})\s*\/\s*([A-Z]{2,5})/g, "$1 / $2")
+        .replace(/([A-Z]{2,5})\s*\/\s*([A-Z]{2,5})/g, "$1 / $2");
       body = body.charAt(0).toUpperCase() + body.slice(1);
       return /[.!?]$/.test(body) ? body : `${body}.`;
     };
@@ -4349,6 +4572,9 @@ export function parseAuthenticExperiencesFromCv(
               : "Monitored production incidents, prioritized root-cause fixes, and maintained SLA continuity on critical infrastructure."
           );
           exp.bullets.push("Documented operational runbooks and collaborated with engineering teams to accelerate incident resolution.");
+        } else if (/maintenance|fiabilit|m[ée]thodes|gmao|sap\s*pm|industriel/i.test(expCorpusLower)) {
+          exp.bullets.push("Monitoring equipment reliability KPIs (MTBF, MTTR, OEE) and standardizing preventive maintenance plans within the CMMS.");
+          exp.bullets.push("Coordinating closely with production, technical teams, and suppliers to improve asset availability and reduce downtime.");
         } else {
           exp.bullets.push("Coordinated cross-functional reviews with key stakeholders to secure operational KPIs and deliverables.");
           exp.bullets.push("Monitored performance indicators and implemented continuous improvement action plans.");
@@ -4357,6 +4583,9 @@ export function parseAuthenticExperiencesFromCv(
         if (/supply|demand|planning|approvision|stock|forecast|logistique|pr[ée]vision/i.test(expCorpusLower)) {
           exp.bullets.push("Suivre et analyser les indicateurs clés de performance (taux de service, OTIF, forecast accuracy, couverture de stocks) dans le cadre du processus S&OP.");
           exp.bullets.push("Collaborer étroitement avec les équipes commerciales, marketing et fournisseurs pour anticiper les risques de rupture et optimiser les flux.");
+        } else if (/maintenance|fiabilit|m[ée]thodes|gmao|sap\s*pm|parc\s+machine|moyens?\s+de\s+production/i.test(expCorpusLower)) {
+          exp.bullets.push("Analyser les indicateurs de fiabilité (MTBF, MTTR, TRS) et actualiser les plans de maintenance préventive sous GMAO pour optimiser la disponibilité des équipements.");
+          exp.bullets.push("Coordonner les équipes terrain et le suivi des prestataires techniques afin de résoudre les problématiques mécaniques et sécuriser la continuité industrielle.");
         } else if (/business\s+analyst|analyste\s+m[ée]tier|patrimoine/i.test(expRoleLower) || /moa\b|patrimoine\s+bancaire/i.test(expCorpusLower)) {
           exp.bullets.push(
             isPoTarget && themes.dataAi
@@ -4614,7 +4843,7 @@ export function translateEducationItemToEnglish(edu: any) {
 }
 
 // Extraction authentique de la formation depuis la section FORMATION exclusivement
-const FORMATION_EXPLANATORY_REGEX = /^(?:dipl[oô]me\s+(?:vis[ée]|reconnu|homologu[ée]|certifi[ée])\s+par|titre\s+(?:rncp|enregistr[ée])|conf[ée]rant\s+le\s+grade|[ée]quivalent\s+master|niveau\s+\d|m[ée]moire\s*:|th[eè]se\s*:|mention\s*:|options?\s*:)/i;
+const FORMATION_EXPLANATORY_REGEX = /^(?:dipl[oô]me\s+(?:vis[ée]|reconnu|homologu[ée]|certifi[ée])\s+par|titre\s+(?:rncp|enregistr[ée])|conf[ée]rant\s+le\s+grade|[ée]quivalent\s+master|niveau\s+\d|m[ée]moire\s*:|th[eè]se\s*:|mention\s*(?::|(?:tr[eè]s[\s-]+bien|bien|assez[\s-]+bien|passable)\b)|options?\s*(?::|\s+[A-ZÀ-Ÿa-zà-ÿ])|sp[ée]cialit[ée]s?\s*:|repr[ée]sentant\b)/i;
 const FORMATION_EMBEDDED_CERT_REGEX = /^(?:certifications?|certificats?|toeic|toefl|ielts|cambridge|gmat|gre|tage\s*mage|voltaire|pix|psm|pspo|pmp|itil|safe)\b/i;
 
 export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
@@ -4632,7 +4861,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   const educations: any[] = [];
 
   const instCueRegex = /(?:Universit[ée]|University|[EÉ]cole|IUT|INSA|CNAM|Coll[eè]ge|Lyc[ée]e|Business\s+School|Polytech|HEC|ESSEC|ESCP|EDHEC|Audencia|Sorbonne|Sciences\s+Po|Institut|Academy|Faculty)/i;
-  const degreeCueRegex = /\b(?:Master|Licence|Baccalaur[ée]at|Bac\s*\+|Bachelor|Doctorat|PhD|MBA|BBA|MSc|DUT|BTS|Mast[eè]re|Ing[ée]nieur|Classes?\s+Pr[ée]paratoires?(?:\s+aux\s+Grandes\s+[EÉ]coles)?|CPGE|Programme\s+Grande\s+[EÉ]cole|PGE|Grade\s+de\s+Master|DEUG|DESS|DEA)\b/i;
+  const degreeCueRegex = /\b(?:Master|Licence|Baccalaur[ée]at|Bac\s*\+|BAC\s+[A-Z0-9]{2,}|Bachelor|Doctorat|PhD|MBA|BBA|MSc|DUT|BTS|Mast[eè]re|Ing[ée]nieur(?:e|s|r)?|Cycle\s+Ing[ée]nieur|Classes?\s+Pr[ée]paratoires?(?:\s+aux\s+Grandes\s+[EÉ]coles)?|CPGE|Programme\s+Grande\s+[EÉ]cole|PGE|Grade\s+de\s+Master|DEUG|DESS|DEA|\d+(?:[eè]me|er|e)\s+Ann[ée]e)\b/i;
 
   // Défense en profondeur : si FORMATION est vide ou polluée (texte collé dans désordre), secourir depuis CONTACT/OTHER
   if (rawFormationLines.length === 0) {
@@ -4644,7 +4873,9 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   const isInstitutionLine = (line: string): boolean => {
     if (!line || FORMATION_EXPLANATORY_REGEX.test(line) || FORMATION_EMBEDDED_CERT_REGEX.test(line)) return false;
     const hasInst = instCueRegex.test(line);
-    const hasDegreeCue = degreeCueRegex.test(line);
+    // Ne pas disqualifier "ECOLE SUPERIEUR D'INGÉNIEUR ... (ESILV)" à cause du mot "Ingénieur" dans le nom de l'établissement
+    const lineWithoutSchoolIng = line.replace(/\b[EÉ]coles?(?:\s+(?:Sup[ée]rieure?s?|Nationales?|Polytechniques?|Centrales?))?\s+(?:d['’]|des\s+)Ing[ée]nieurs?\b/gi, "Ecole");
+    const hasDegreeCue = degreeCueRegex.test(lineWithoutSchoolIng);
     return hasInst && !line.includes("·") && !hasDegreeCue;
   };
 
@@ -4653,7 +4884,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   for (let r = 0; r < rawFormationLines.length; r++) {
     const line = rawFormationLines[r].normalize("NFC").trim();
     if (!line) continue;
-    if (/^(?:qualit[ée]s?|langues?(?:\s+(?:et|&)\s+qualit[ée]s?)?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]t|loisirs?|divers|outils?(?:\s+(?:et|&)\s+(?:syst[eè]mes?|logiciels?|m[ée]thodes?))?|comp[eé]tences?)\b/i.test(line)) {
+    if (/^(?:qualit[ée]s?|langues?(?:\s+(?:et|&)\s+(?:qualit[ée]s?|atouts?|centres?\s+d['’]int[ée]r[êe]ts?))?|atouts?|soft\s+skills?|centres?\s+d['’]int[ée]r[êe]ts?|int[ée]r[êe]ts?|loisirs?|divers|outils?(?:\s+(?:et|&)\s+(?:syst[eè]mes?|logiciels?|m[ée]thodes?))?|comp[eé]tences?)\b/i.test(line)) {
       break;
     }
 
@@ -4664,6 +4895,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     const isWrappedContinuation =
       Boolean(prev) &&
       !prevEndsComplete &&
+      !isInstitutionLine(prev) &&
       !isStandaloneDateLine &&
       !FORMATION_EXPLANATORY_REGEX.test(line) &&
       !FORMATION_EMBEDDED_CERT_REGEX.test(line) &&
@@ -4683,6 +4915,27 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
   }
 
   let pendingInstitution = "";
+  let pendingGradYear = "";
+
+  const extractInstAndYear = (rawInst: string): { inst: string; year: string } => {
+    let inst = rawInst.trim();
+    let year = "";
+    const leadingRange = inst.match(/^((?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?)\s*[|–—,-]?\s*(.+)$/i);
+    if (leadingRange && leadingRange[2].trim().length >= 3) {
+      const yrs = leadingRange[1].match(/\b(19\d\d|20\d\d)\b/g);
+      if (yrs && yrs.length > 0) year = yrs[yrs.length - 1];
+      inst = leadingRange[2].trim();
+    }
+    const trailingRange = inst.match(/^(.*?)\s*[|–—,-]\s*((?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?)\s*$/i);
+    if (trailingRange && trailingRange[1].trim().length >= 3) {
+      inst = trailingRange[1].trim();
+      if (!year) {
+        const yrs = trailingRange[2].match(/\b(19\d\d|20\d\d)\b/g);
+        if (yrs && yrs.length > 0) year = yrs[yrs.length - 1];
+      }
+    }
+    return { inst, year };
+  };
 
   for (let i = 0; i < formationLines.length; i++) {
     const line = formationLines[i];
@@ -4691,13 +4944,37 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     // Ignorer les lignes de rubriques parasites ou purement géographiques
     if (/^[A-Za-zÀ-ÿ\s-]+,\s*(?:France|USA|UK|Europe|Belgique|Suisse|Canada|[A-Z][a-z]+)$/i.test(line)) continue;
 
-    // Ligne explicative / d'accréditation rattachée au diplôme précédent (ex: "Diplôme visé par l'État français, conférant le grade de Master...")
-    if (FORMATION_EXPLANATORY_REGEX.test(line)) {
+    // Ligne explicative / d'accréditation / option / mention / activité associative rattachée au diplôme précédent
+    if (FORMATION_EXPLANATORY_REGEX.test(line) && !degreeCueRegex.test(line)) {
       if (educations.length > 0) {
-        const cleanDetail = line.trim();
-        educations[educations.length - 1].honorsOrDetails = educations[educations.length - 1].honorsOrDetails
-          ? `${educations[educations.length - 1].honorsOrDetails} · ${cleanDetail}`
-          : cleanDetail;
+        const cleanDetail = line.replace(/\.$/, "").trim();
+        const lastEdu = educations[educations.length - 1];
+        if (/^options?\b/i.test(cleanDetail) && !lastEdu.field) {
+          lastEdu.field = cleanDetail;
+        } else {
+          lastEdu.honorsOrDetails = lastEdu.honorsOrDetails
+            ? `${lastEdu.honorsOrDetails} · ${cleanDetail}`
+            : cleanDetail;
+        }
+      }
+      continue;
+    }
+
+    // Sous-niveau académique (ex: "2e Année du Cycle Ingénieur option industrie 4.0") suivant un diplôme principal déjà rattaché à l'établissement
+    if (/^\d+(?:[eè]me|er|re|e)?\s+Ann[ée]e\b/i.test(line) && !pendingInstitution && educations.length > 0) {
+      const cleanSubLevel = line.replace(/\bIng[ée]nieurr\b/g, "Ingénieur").replace(/\.$/, "").trim();
+      const lastEdu = educations[educations.length - 1];
+      const optPart = cleanSubLevel.match(/\b(option\s+.+)$/i);
+      if (optPart && !lastEdu.field) {
+        lastEdu.field = optPart[1].charAt(0).toUpperCase() + optPart[1].slice(1).trim();
+        const prefixLevel = cleanSubLevel.slice(0, optPart.index).trim();
+        if (prefixLevel) {
+          lastEdu.honorsOrDetails = lastEdu.honorsOrDetails ? `${lastEdu.honorsOrDetails} · ${prefixLevel}` : prefixLevel;
+        }
+      } else {
+        lastEdu.honorsOrDetails = lastEdu.honorsOrDetails
+          ? `${lastEdu.honorsOrDetails} · ${cleanSubLevel}`
+          : cleanSubLevel;
       }
       continue;
     }
@@ -4708,7 +4985,9 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
     }
 
     if (isInstitutionLine(line)) {
-      pendingInstitution = line;
+      const parsedInst = extractInstAndYear(line);
+      pendingInstitution = parsedInst.inst;
+      if (parsedInst.year) pendingGradYear = parsedInst.year;
       continue;
     }
 
@@ -4745,6 +5024,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       }
     }
 
+    deg = deg.replace(/\bIng[ée]nieurr\b/g, "Ingénieur").replace(/\.$/, "").trim();
     if (!deg) continue;
 
     let degree = deg;
@@ -4780,7 +5060,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
         const firstSeg = nonInstSegs[0];
         const secondSeg = nonInstSegs[1] || "";
         const secondIsGradeQualification = Boolean(secondSeg && /^(?:grade\s+de\s+master|bac\s*\+\s*\d|master|msc|dipl[oô]me)/i.test(secondSeg));
-        const mPrefix = firstSeg.match(/^(Master\s*[12]?(?:\s*\(?\s*M[12]\s*\)?)?|Licence(?:\s+[123]|\s+Professionnelle|\s+Pro)?|DUT|BTS|Bachelor(?:'s)?(?:\s+Degree)?|Mast[eè]re(?:\s+Sp[ée]cialis[ée])?|Doctorat|PhD|MBA|Dipl[oô]me\s+d['’]Ing[ée]nieur)\s+(?:en\s+|in\s+)?(.+)$/i);
+        const mPrefix = firstSeg.match(/^(Master\s*[12]?(?:\s*\(?\s*M[12]\s*\)?)?(?:\s+(?:Professionnel|Pro|Recherche))?|Licence(?:\s+[123]|\s+Professionnelle|\s+Pro)?|DUT|BTS|Bachelor(?:'s)?(?:\s+Degree)?|Mast[eè]re(?:\s+Sp[ée]cialis[ée])?|Doctorat|PhD|MBA|Dipl[oô]me\s+d['’]Ing[ée]nieur)\s+(?:en\s+|in\s+)?(.+)$/i);
         if (mPrefix && mPrefix[2].trim().length >= 3 && !/^(?:MIAGE|MBA|MSc|MS)$/i.test(mPrefix[2].trim())) {
           degree = mPrefix[1].trim();
           const restFieldParts = [mPrefix[2].trim(), ...nonInstSegs.slice(1)];
@@ -4800,20 +5080,29 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       degree = dParts[0].trim();
       field = dParts.slice(1).join(",").trim();
     } else {
-      // Séparer "Licence 3 Commerce et vente" ou "DUT Gestion des entreprises..." -> degree + field
-      const mNoComma = deg.match(/^(Master\s*[12]?(?:\s*\(?\s*M[12]\s*\)?)?|Licence(?:\s+[123]|\s+Professionnelle|\s+Pro)?|DUT|BTS|Bachelor(?:'s)?(?:\s+Degree)?)\s+(?:en\s+|in\s+)?(.+)$/i);
+      // Séparer "Master 2 Professionnel Ingénierie..." ou "2e Année du Cycle Ingénieur option industrie 4.0" -> degree + field
+      const mOptionSplit = deg.match(/^(.+?)\s+(option\s+.+)$/i);
+      const mNoComma = deg.match(/^(Master\s*[12]?(?:\s*\(?\s*M[12]\s*\)?)?(?:\s+(?:Professionnel|Pro|Recherche))?|Licence(?:\s+[123]|\s+Professionnelle|\s+Pro)?|DUT|BTS|Bachelor(?:'s)?(?:\s+Degree)?)\s+(?:en\s+|in\s+)?(.+)$/i);
       if (mNoComma && mNoComma[2].trim().length >= 3 && !/^(?:MIAGE|MBA|MSc|MS)$/i.test(mNoComma[2].trim())) {
         degree = mNoComma[1].trim();
         field = mNoComma[2].trim();
+      } else if (mOptionSplit && mOptionSplit[1].trim().length >= 6) {
+        degree = mOptionSplit[1].trim();
+        field = mOptionSplit[2].charAt(0).toUpperCase() + mOptionSplit[2].slice(1).trim();
       }
     }
 
     // Si aucune institution n'était en attente AVANT le diplôme ni dans la ligne, vérifier la ligne SUIVANTE (format Diplôme puis Université)
     let matchedInstitution = pendingInstitution || inlineInstitution;
+    if (!gradYear && pendingGradYear) {
+      gradYear = pendingGradYear;
+    }
     if (!matchedInstitution && i + 1 < formationLines.length) {
       const nextLine = formationLines[i + 1].normalize("NFC").trim();
-      if (nextLine && isInstitutionLine(nextLine)) {
-        matchedInstitution = nextLine;
+      if (nextLine && !/^(?:19\d\d|20\d\d)\b/.test(nextLine) && isInstitutionLine(nextLine)) {
+        const parsedNextInst = extractInstAndYear(nextLine);
+        matchedInstitution = parsedNextInst.inst;
+        if (!gradYear && parsedNextInst.year) gradYear = parsedNextInst.year;
         i++;
       }
     }
@@ -4836,15 +5125,12 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       honorsOrDetails = honorsOrDetails ? `${honorsOrDetails} · ${honorMatch[2].trim()}` : honorMatch[2].trim();
     }
 
-    // Extraire et nettoyer une année/période accolée au nom de l'établissement (ex: "Université de Montpellier | 2019 – 2021")
-    const instDateSuffix = matchedInstitution.match(/^(.*?)\s*[|–—,-]\s*((?:19\d\d|20\d\d)(?:\s*[-–—à]\s*(?:19\d\d|20\d\d|pr[ée]sent|present))?)\s*$/i);
-    if (instDateSuffix && instDateSuffix[1].trim().length >= 3) {
-      matchedInstitution = instDateSuffix[1].trim();
-      if (!gradYear) {
-        const yrs = instDateSuffix[2].match(/\b(19\d\d|20\d\d)\b/g);
-        if (yrs && yrs.length > 0) {
-          gradYear = yrs[yrs.length - 1];
-        }
+    // Extraire et nettoyer une année/période accolée au nom de l'établissement (début ou fin)
+    if (matchedInstitution) {
+      const cleanedInst = extractInstAndYear(matchedInstitution);
+      matchedInstitution = cleanedInst.inst;
+      if (!gradYear && cleanedInst.year) {
+        gradYear = cleanedInst.year;
       }
     }
 
@@ -4855,7 +5141,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
       if (letters.length >= 5 && letters === letters.toUpperCase()) {
         return s
           .split(/\s+/)
-          .map((w) => (/^(?:MIAGE|MBA|MSc|MS|BBA|DUT|BTS|CPGE|PGE|DEUG|DESS|DEA|PhD|L1|L2|L3|M1|M2|IT|SI)$/i.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
+          .map((w) => (/^(?:MIAGE|MBA|MSc|MS|BBA|DUT|BTS|CPGE|PGE|DEUG|DESS|DEA|PhD|L1|L2|L3|M1|M2|IT|SI|BAC|STI2D)$/i.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
           .join(" ");
       }
       return s;
@@ -4871,6 +5157,7 @@ export function parseAuthenticEducationFromCv(cvText: string, isEn: boolean) {
 
     educations.push(isEn ? translateEducationItemToEnglish(item) : item);
     pendingInstitution = "";
+    pendingGradYear = "";
   }
 
   // Fallback si la section formation n'a pas pu être parsée
@@ -5152,6 +5439,17 @@ export function extractAuthenticPhoneFromCv(cvText: string): string {
   return phone;
 }
 
+export function extractAuthenticEmailFromCv(cvText: string): string {
+  if (!cvText) return "";
+  // Recombiner les adresses email coupées sur 2 lignes par un parseur PDF (ex: "user@gmail\n. com" ou "user@\ndomain.com")
+  const unwrapped = cvText
+    .replace(/@([A-Za-z0-9-]+)\s*\n\s*\.\s*([A-Za-z]{2,10})\b/g, "@$1.$2")
+    .replace(/@\s*\n\s*([A-Za-z0-9.-]+\.[A-Za-z]{2,10})\b/g, "@$1")
+    .replace(/([A-Za-z0-9._%+-]+)\s*\n\s*@([A-Za-z0-9.-]+\.[A-Za-z]{2,10})\b/g, "$1@$2");
+  const m = unwrapped.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,10}/);
+  return m ? m[0].trim() : "";
+}
+
 export function extractAuthenticLocationFromCv(cvText: string, isEn: boolean): string {
   if (!cvText) return isEn ? "Remote / Hybrid" : "France / Hybride";
   // Priorité absolue à l'en-tête / bloc coordonnées du candidat (évite de copier la ville d'une entreprise passée ou d'une université)
@@ -5166,9 +5464,16 @@ export function extractAuthenticLocationFromCv(cvText: string, isEn: boolean): s
     .replace(/https?:\/\/\S+/gi, " ")
     .replace(/@[\w.-]+/g, " ");
 
+  const cpCityMatch = cleanForLocation.match(/\b(\d{5})\s+([A-ZÀ-Ÿ][A-Za-zÀ-ÿ'’\- ]{1,30}?)(?=\s*(?:[|\n•·,]|$))/);
   const locationMatch = cleanForLocation.match(
     /\b(?:London|New\s+York|San\s+Francisco|Paris|Lyon|Marseille|Bordeaux|Toulouse|Nantes|Lille|Rennes|Strasbourg|Montpellier|Nice|Saint-Denis|B[ée]ziers|Berlin|Amsterdam|Dublin|Bruxelles|Gen[eè]ve|Kinshasa|Abidjan|Montr[ée]al|United\s+Kingdom|United\s+States|France|[ÎI]le-de-France|[A-ZÀ-Ÿ][a-zà-ÿ-]+,\s*(?:France|UK|USA|Germany|Netherlands|Belgique|Canada|Suisse))\b/i
   );
+  if (cpCityMatch) {
+    const cityClean = cpCityMatch[2].trim();
+    if (!/\b(?:France|Email|Mail|Phone|Tel|Mobile|Permis|LinkedIn)\b/i.test(cityClean)) {
+      return `${cpCityMatch[1]} ${cityClean}`;
+    }
+  }
   return locationMatch ? locationMatch[0].trim() : (isEn ? "France / Remote" : "France");
 }
 
@@ -5200,8 +5505,8 @@ function generateResilientAtsResult(
   // 1. Extraire les coordonnées et le VRAI NOM du candidat (JAMAIS "Coordonnées")
   const fullName = extractCandidateFullName(cvText);
 
-  const emailMatch = cvText.match(/[\w.-]+@[\w.-]+\.\w+/);
-  const email = emailMatch ? emailMatch[0] : (isEn ? "candidate@email.com" : "contact@candidat.fr");
+  const extractedEmail = extractAuthenticEmailFromCv(cvText);
+  const email = extractedEmail || (isEn ? "candidate@email.com" : "contact@candidat.fr");
 
   const phone = extractAuthenticPhoneFromCv(cvText);
   const location = extractAuthenticLocationFromCv(cvText, isEn);
@@ -5468,9 +5773,22 @@ function generateResilientAtsResult(
   postStarIntegrated.forEach(pushPoolSkill);
   cvOnlyKeywords.forEach(pushPoolSkill);
 
-  const methodRegex = /(?:Agile|Scrum|Kanban|SAFe|Cycle en V|Lean|Six Sigma|PRINCE2|PMP|ITIL|Backlog|User Stories|Recette|UAT|Roadmap|Sprint|Refinement|Release|Architecture|Urbanisation|Spécifications|Modélisation|BPMN|UML|MCD|Cadrage|Cahier des Charges|AMOA|MOA|KPI|Reporting|TMA|Conduite du Changement|Change Management|Design Thinking|Gestion de Projet|Project Management|Gestion des Risques|Priorisation|Assurance Qualité)/i;
+  const methodRegex = /(?:Agile|Scrum|Kanban|SAFe|Cycle en V|Lean|Six Sigma|PRINCE2|PMP|ITIL|Backlog|User Stories|Recette|UAT|Roadmap|Sprint|Refinement|Release|Architecture|Urbanisation|Spécifications|Modélisation|BPMN|UML|MCD|Cadrage|Cahier des Charges|AMOA|MOA|KPI|Reporting|TMA|Conduite du Changement|Change Management|Design Thinking|Gestion de Projet|Project Management|Gestion des Risques|Priorisation|Assurance Qualité|Méthodes Maintenance|Fiabilité Industrielle|Maintenance Industrielle|Maintenance Préventive|GMAO|TPM|5S|SMED|AMDEC|Criticité|Amélioration Continue)/i;
   const softRegex = /(?:Leadership|Management|Analyse|Synthèse|Analysis|Synthesis|Rigueur|Rigor|Autonomie|Autonomy|Problèmes|Priorités|Communication|Collaboration|Équipe|Relationnel|Interpersonal|Adaptation|Adaptability|Proposition|Décision|Organisation|Gouvernance|Governance|Client|Stakeholder)/i;
   const nonInterpersonalMgmtRe = /(?:Inventory|Data|Service\s*Level|Database|Warehouse|Stock|Order|Supply|Demand|Release|Backlog|Project|Product(?:\s+Launch)?|Risk|Change|Process|Trade-Offs)\s+Management/i;
+
+  const roleOnlyLower = (roleTitle || "").toLowerCase();
+  const skillsAndRoleNorm = `${roleTitle} ${criticalRequiredKeywords.join(" ")} ${cvText.slice(0, 600)}`.toLowerCase();
+  const isMaintenanceFocused = /\b(?:maintenance|fiabilit[ée]|m[ée]thodes\s*(?:maintenance|industrielles?)?|gmao|sap\s*pm|tpm|smed|mtbf|mttr|trs|parc\s+machines?|moyens?\s+de\s+production)\b/i.test(skillsAndRoleNorm);
+  const scHitsInScope = (skillsAndRoleNorm.match(/\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/gi) || []).length;
+  const isSupplyChainFocused = /\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/i.test(roleOnlyLower) || (!isMaintenanceFocused && scHitsInScope >= 2);
+  const isProductRole = /\b(?:product\s*owner|proxy\s*po|product\s*manager|chef\s+de\s+produit|scrum\s+master)\b/i.test(roleOnlyLower);
+  const isArchRole = /\b(?:architect\w*|urbanis\w*|cartograph\w*)\b/i.test(roleOnlyLower);
+  const isArchitectureFocused = isArchRole || (!isProductRole && !isSupplyChainFocused && !isMaintenanceFocused && /architect|urbanisation|cartographie|esb|uml|bpmn/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
+  const isProductFocused = isProductRole || (!isArchitectureFocused && !isSupplyChainFocused && !isMaintenanceFocused && /\b(?:product\s*owner|proxy|backlog|scrum|user\s*stories|sprint)\b/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
+  const methodCatTitle = isEn
+    ? (isMaintenanceFocused ? "Maintenance Engineering, Reliability & Continuous Improvement" : isSupplyChainFocused ? "Operations, Planning & Methodologies" : isArchitectureFocused ? "Architecture, Modeling & Delivery" : isProductFocused ? (jobFocus.themes.dataAi ? "Agile Product & Data Delivery" : "Agile Product & Backlog Delivery") : "Operational Delivery & Methodologies")
+    : (isMaintenanceFocused ? "Méthodes Maintenance, Fiabilité & Amélioration Continue" : isSupplyChainFocused ? "Opérations, Planification & Méthodes" : isArchitectureFocused ? "Architecture, Modélisation & Urbanisation SI" : isProductFocused ? (jobFocus.themes.dataAi ? "Méthodologies Agiles & Pilotage Produit Data" : "Méthodologies Agiles & Pilotage Produit") : "Pilotage Opérationnel, Processus & Méthodes");
 
   const coreToolsAndRoleSkills: string[] = [];
   const methodAndArchSkills: string[] = [];
@@ -5487,29 +5805,16 @@ function generateResilientAtsResult(
       }
     } else if (methodRegex.test(s) && methodAndArchSkills.length < 6) {
       methodAndArchSkills.push(s);
-    } else if (coreToolsAndRoleSkills.length < 6) {
+    } else if (coreToolsAndRoleSkills.length < 6 && !(isMaintenanceFocused && /^Supply Chain$/i.test(s))) {
       coreToolsAndRoleSkills.push(s);
-    } else if (methodAndArchSkills.length < 6) {
-      methodAndArchSkills.push(s);
     }
   }
 
   for (const kw of [...matchedKeywords, ...postStarIntegrated, ...cvOnlyKeywords]) {
     if (!coreToolsAndRoleSkills.includes(kw) && !methodAndArchSkills.includes(kw) && !interpersonalSkills.includes(kw)) {
-      if (coreToolsAndRoleSkills.length < 6) coreToolsAndRoleSkills.push(kw);
+      if (coreToolsAndRoleSkills.length < 6 && !(isMaintenanceFocused && /^Supply Chain$/i.test(kw))) coreToolsAndRoleSkills.push(kw);
     }
   }
-
-  const roleOnlyLower = (roleTitle || "").toLowerCase();
-  const skillsAndRoleNorm = `${roleTitle} ${criticalRequiredKeywords.join(" ")} ${cvText.slice(0, 600)}`.toLowerCase();
-  const isSupplyChainFocused = /\b(?:supply\s*chain|demand\s*planning|supply\s*planning|s&op|approvisionnement|logistique|otif|cpfr|pr[ée]vision\s+des\s+ventes)\b/i.test(skillsAndRoleNorm);
-  const isProductRole = /\b(?:product\s*owner|proxy\s*po|product\s*manager|chef\s+de\s+produit|scrum\s+master)\b/i.test(roleOnlyLower);
-  const isArchRole = /\b(?:architect\w*|urbanis\w*|cartograph\w*)\b/i.test(roleOnlyLower);
-  const isArchitectureFocused = isArchRole || (!isProductRole && !isSupplyChainFocused && /architect|urbanisation|cartographie|esb|uml|bpmn/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
-  const isProductFocused = isProductRole || (!isArchitectureFocused && !isSupplyChainFocused && /\b(?:product\s*owner|proxy|backlog|scrum|user\s*stories|sprint)\b/i.test(`${roleTitle} ${criticalRequiredKeywords.join(" ")}`));
-  const methodCatTitle = isEn
-    ? (isSupplyChainFocused ? "Operations, Planning & Methodologies" : isArchitectureFocused ? "Architecture, Modeling & Delivery" : isProductFocused ? (jobFocus.themes.dataAi ? "Agile Product & Data Delivery" : "Agile Product & Backlog Delivery") : "Operational Delivery & Methodologies")
-    : (isSupplyChainFocused ? "Opérations, Planification & Méthodes" : isArchitectureFocused ? "Architecture, Modélisation & Urbanisation SI" : isProductFocused ? (jobFocus.themes.dataAi ? "Méthodologies Agiles & Pilotage Produit Data" : "Méthodologies Agiles & Pilotage Produit") : "Pilotage Opérationnel, Processus & Méthodes");
 
   if (methodAndArchSkills.length < 3) {
     const contextualMethods = matchedKeywords.filter((k) => !coreToolsAndRoleSkills.includes(k) && !interpersonalSkills.includes(k));
@@ -5745,7 +6050,7 @@ function generateResilientAtsResult(
         industry: jobFocus.domainLabel,
         summary: isEn
           ? `Role of ${roleTitle}${hasSpecificCompany ? ` at ${company}` : ""} focused on ${jobOverviewFocusText}.`
-          : `Poste de ${roleTitle}${hasSpecificCompany ? ` chez ${company}` : ""} axé sur ${jobOverviewFocusText}.`
+          : `Poste ${frDe(roleTitle)}${hasSpecificCompany ? ` chez ${company}` : ""} axé sur ${jobOverviewFocusText}.`
       },
       scores: {
         initialAtsScore: computedInitialScore,
@@ -6055,6 +6360,17 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     cv.personalInfo.fullName = !isInvalidCandidateName(realCandidateName) ? realCandidateName : (isEn ? "Candidate" : "Candidat");
   }
 
+  // Normalisation email & récupération authentique si absent ou placeholder
+  const authenticEmail = cvRawText ? extractAuthenticEmailFromCv(cvRawText) : "";
+  if (
+    authenticEmail &&
+    (!cv.personalInfo?.email ||
+      /^(?:contact@candidat\.fr|candidate@email\.com)$/i.test(cv.personalInfo.email.trim()) ||
+      !cv.personalInfo.email.includes("@"))
+  ) {
+    cv.personalInfo.email = authenticEmail;
+  }
+
   // Normalisation téléphonique & récupération authentique si absent ou tronqué
   const authenticPhone = cvRawText ? extractAuthenticPhoneFromCv(cvRawText) : "";
   if (
@@ -6071,13 +6387,15 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     }
   }
 
-  // Protection anti-hallucination de localisation (ex: "uk" extrait à tort d'un email/handle)
+  // Protection anti-hallucination de localisation & récupération CP + Ville authentique
+  const authenticLocation = cvRawText ? extractAuthenticLocationFromCv(cvRawText, isEn) : "";
   if (
     cvRawText &&
     (!cv.personalInfo?.location ||
-      /^uk$/i.test(cv.personalInfo.location.trim()) && !/\bUK\b/.test(cvRawText.replace(/[\w.-]+@[\w.-]+|@\w+/g, "")))
+      (/^(?:france|france\s*\/\s*(?:hybride|remote)|london\s*\/\s*remote)$/i.test(cv.personalInfo.location.trim()) && authenticLocation && !/^(?:france|france\s*\/\s*(?:hybride|remote)|remote\s*\/\s*hybrid)$/i.test(authenticLocation)) ||
+      (/^uk$/i.test(cv.personalInfo.location.trim()) && !/\bUK\b/.test(cvRawText.replace(/[\w.-]+@[\w.-]+|@\w+/g, ""))))
   ) {
-    cv.personalInfo.location = extractAuthenticLocationFromCv(cvRawText, isEn);
+    cv.personalInfo.location = authenticLocation || cv.personalInfo.location;
   }
   if (cvRawText) {
     const authLinkedin = extractAuthenticLinkedInFromCv(cvRawText);
@@ -6325,7 +6643,10 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
   }
 
   // 2. Si le résumé professionnel est minimaliste (< 130 car.) ou contient des mentions/domaines étrangers absents du CV source, le reconstruire strictement depuis le CV réel
-  const leakedForeignTerms = ["salesforce", "miage", "scrum", "kanban", "josian", "nkuli"];
+  const leakedForeignTerms = [
+    "salesforce", "miage", "scrum", "kanban", "josian", "nkuli",
+    "s&op", "forecast accuracy", "otif", "prévision des ventes", "prévisions des ventes"
+  ];
   const hasForeignLeakInSummary =
     Boolean(cvRawText) &&
     Boolean(cv.professionalSummary) &&
@@ -6333,8 +6654,14 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
       const re = new RegExp(`\\b${term}\\b`, "i");
       return re.test(cv.professionalSummary) && !re.test(cvRawText);
     });
+  const isSupplyChainLeakedForNonScRole =
+    Boolean(cvRawText) &&
+    Boolean(cv.professionalSummary) &&
+    /\b(?:supply\s*chain|s&op|forecast\s+accuracy|otif|pr[ée]visions?\s+des\s+ventes)\b/i.test(cv.professionalSummary) &&
+    !/\b(?:supply\s*chain|logistique|approvisionn|demand\s*plan|supply\s*plan|achats?)\b/i.test(`${sg.jobOverview?.title || ""} ${sg.jobOverview?.summary || ""}`) &&
+    ((cvRawText.match(/\b(?:supply\s*chain|s&op|forecast\s+accuracy|otif|pr[ée]visions?\s+des\s+ventes)\b/gi) || []).length <= 1);
 
-  if (!cv.professionalSummary || cv.professionalSummary.trim().length < 130 || hasForeignLeakInSummary) {
+  if (!cv.professionalSummary || cv.professionalSummary.trim().length < 130 || hasForeignLeakInSummary || isSupplyChainLeakedForNonScRole) {
     const rawSum = extractRawSummaryFromCv(cvRawText);
     cv.professionalSummary = buildAdaptedProfessionalSummary(
       rawSum,
@@ -6388,6 +6715,12 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     date: todayFormatted,
     subjectLine: defaultSubject,
   };
+  if (
+    cv.personalInfo?.email &&
+    (!cl.header.candidateEmail || /^(?:contact@candidat\.fr|candidate@email\.com)$/i.test(cl.header.candidateEmail.trim()))
+  ) {
+    cl.header.candidateEmail = cv.personalInfo.email;
+  }
 
   const rawHeaderCompany = typeof cl.header.companyName === "string" ? cl.header.companyName : "";
   const cleanHeaderCompany = sanitizeCompanyName(rawHeaderCompany) || cleanOverviewCompany;
@@ -6563,6 +6896,7 @@ function normalizeAnalysisToEnglish(data: any, cvRawText = '', explicitTargetRol
         else if (/agroalimentaire|grande\s+consommation/i.test(ind)) data.semanticGap.jobOverview.industry = "FMCG, Food & Consumer Goods";
         else if (/sant[ée]|sciences\s+de\s+la\s+vie/i.test(ind)) data.semanticGap.jobOverview.industry = "Healthcare & Life Sciences";
         else if (/banque|assurance|financiers/i.test(ind)) data.semanticGap.jobOverview.industry = "Banking, Insurance & Financial Services";
+        else if (/a[ée]ronautique|spatial|d[ée]fense/i.test(ind)) data.semanticGap.jobOverview.industry = "Aerospace & Defense";
         else if (/automobile|mobilit[ée]/i.test(ind)) data.semanticGap.jobOverview.industry = "Automotive & Mobility";
         else if (/[ée]nergie|environnement/i.test(ind)) data.semanticGap.jobOverview.industry = "Energy, Utilities & Renewables";
         else if (/supply\s+chain|distribution|op[ée]rations/i.test(ind)) data.semanticGap.jobOverview.industry = "Supply Chain, Distribution & Operations";
@@ -6768,7 +7102,7 @@ async function extractTextLocallyFromPdf(base64Data: string): Promise<string> {
         let bestSplitX = 0;
         let bestGutterScore = -1;
 
-        for (let candX = Math.round(vp.width * 0.28); candX <= Math.round(vp.width * 0.65); candX += 4) {
+        for (let candX = Math.round(vp.width * 0.22); candX <= Math.round(vp.width * 0.78); candX += 4) {
           const leftSide = bodySpans.filter((s) => s.x + s.w <= candX + 4);
           const rightSide = bodySpans.filter((s) => s.x >= candX - 4);
           const spanning = bodySpans.filter((s) => s.x < candX - 6 && s.x + s.w > candX + 6);
@@ -6780,6 +7114,12 @@ async function extractTextLocallyFromPdf(base64Data: string): Promise<string> {
           if (leftRows.length < 5 || rightRows.length < 5) continue;
 
           // Exclure les simples dates alignées à droite sur un CV 1 colonne
+          const isStandaloneDateRow = (r: string) =>
+            /^(?:(?:jan|f[ée]v|mar|avr|mai|juin|juil|ao[uû]|sep|oct|nov|d[ée]c|[a-z]+\.?)\s+)?(?:19|20)\d{2}(?:\s*[-–—à]\s*(?:(?:[a-z]+\.?\s+)?(?:19|20)\d{2}|pr[ée]sent|present|aujourd['’]?hui))?$/i.test(r.trim());
+          const nonDateLeftRows = leftRows.filter((r) => !isStandaloneDateRow(r));
+          const nonDateRightRows = rightRows.filter((r) => !isStandaloneDateRow(r));
+          if (nonDateLeftRows.length < 3 || nonDateRightRows.length < 3) continue;
+
           const substantiveLeft = leftSide.filter((s) => s.w > 42 || s.str.split(/\s+/).length >= 2).length;
           const substantiveRight = rightSide.filter((s) => s.w > 42 || s.str.split(/\s+/).length >= 2).length;
           if (substantiveLeft < 4 || substantiveRight < 4) continue;
