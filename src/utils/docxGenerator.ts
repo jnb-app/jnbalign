@@ -185,6 +185,14 @@ export async function generateCvDocxBlob(cv: OptimizedCv): Promise<Blob> {
   );
 
   (cv.experiences || []).forEach((exp) => {
+    const sDate = (exp.startDate || '').trim();
+    const eDate = (exp.endDate || '').trim();
+    const dateRange =
+      sDate && eDate && sDate !== eDate
+        ? `${sDate} - ${eDate}`
+        : sDate && exp.current
+        ? `${sDate} - ${isEn ? 'Present' : 'Présent'}`
+        : sDate || eDate || '';
     children.push(
       new Paragraph({
         spacing: { before: 140, after: 60 },
@@ -203,12 +211,16 @@ export async function generateCvDocxBlob(cv: OptimizedCv): Promise<Blob> {
             color: '334155',
             font: 'Arial',
           }),
-          new TextRun({
-            text: `  [${exp.startDate} - ${exp.endDate}]`,
-            size: 19,
-            color: '64748B',
-            font: 'Arial',
-          }),
+          ...(dateRange
+            ? [
+                new TextRun({
+                  text: `  [${dateRange}]`,
+                  size: 19,
+                  color: '64748B',
+                  font: 'Arial',
+                }),
+              ]
+            : []),
         ],
       })
     );

@@ -4,6 +4,27 @@ import { sanitizeClosingFormula, cleanRecipientTitle, cleanCompanyName } from '.
 import { isEnglishText } from './languageDetector';
 
 /**
+ * Normalise tout texte vers un encodage sûr pour Helvetica / WinAnsi (jsPDF)
+ * afin d'éviter les glyphes corrompus (ex: "→" rendu en "!'", "œ", espaces insécables, puces creuses).
+ */
+export function sanitizePdfText(text?: string): string {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[\u2192\u2794\u21D2\u27A2\u27A4\u25BA\u25B8]/g, '-')
+    .replace(/[\u25CF\u25CB\u25E6\u25AA\u25AB\u2713\u2714]/g, '-')
+    .replace(/\u2026/g, '...')
+    .replace(/\u0153/g, 'oe')
+    .replace(/\u0152/g, 'Oe')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[\u00A0\u202F\u2009]/g, ' ')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
+/**
  * Helper de découpage et de rendu sécurisé pour les lignes libellées (Compétences, Langues, Certifications).
  * Évite tout débordement en dehors de la page A4 (178 mm) et garantit un affichage net sans chevauchement.
  */
@@ -17,11 +38,13 @@ function renderWrappedLabeledLine(
   checkPageBreak: (needed: number) => void,
   lineHeight: number = 4.2
 ): number {
-  if (!text || !text.trim()) return currentY;
+  const safeLabel = sanitizePdfText(label);
+  const safeText = sanitizePdfText(text);
+  if (!safeText) return currentY;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
-  const labelWidth = doc.getTextWidth(label);
+  const labelWidth = doc.getTextWidth(safeLabel);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
@@ -33,13 +56,13 @@ function renderWrappedLabeledLine(
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(15, 23, 42);
-    doc.text(label, marginX, currentY);
+    doc.text(safeLabel, marginX, currentY);
     currentY += lineHeight;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(51, 65, 85);
-    const lines = doc.splitTextToSize(text.trim(), contentWidth);
+    const lines = doc.splitTextToSize(safeText, contentWidth);
     for (const line of lines) {
       checkPageBreak(lineHeight);
       doc.text(line, marginX, currentY);
@@ -47,7 +70,7 @@ function renderWrappedLabeledLine(
     }
   } else {
     const firstLineWidth = contentWidth - labelWidth - 1;
-    const words = text.trim().split(/\s+/);
+    const words = safeText.split(/\s+/);
     const lines: string[] = [];
     let currentLine = '';
     let isFirst = true;
@@ -83,7 +106,7 @@ function renderWrappedLabeledLine(
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(15, 23, 42);
-    doc.text(label, marginX, currentY);
+    doc.text(safeLabel, marginX, currentY);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
@@ -133,7 +156,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(11, 21, 48); // #0B1530 Deep Navy
-  const fullName = (cv.personalInfo.fullName || 'CANDIDAT').toUpperCase();
+  const fullName = sanitizePdfText(cv.personalInfo.fullName || 'CANDIDAT').toUpperCase();
   const nameLines = doc.splitTextToSize(fullName, contentWidth);
   nameLines.forEach((nLine: string) => {
     doc.text(nLine, marginX, y);
@@ -144,7 +167,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(180, 83, 9); // Amber-700
-  const titleText = cv.personalInfo.professionalTitle || 'Expert Métier';
+  const titleText = sanitizePdfText(cv.personalInfo.professionalTitle || 'Expert Métier');
   const titleLines = doc.splitTextToSize(titleText, contentWidth);
   titleLines.forEach((tLine: string) => {
     doc.text(tLine, marginX, y);
@@ -161,7 +184,9 @@ export function downloadCvPdf(cv: OptimizedCv): void {
     cv.personalInfo.location,
     cv.personalInfo.linkedin,
     cv.personalInfo.portfolioUrl,
-  ].filter(Boolean);
+  ]
+    .map((c) => sanitizePdfText(c))
+    .filter(Boolean);
   const contactText = contacts.join('  •  ');
   const contactLines = doc.splitTextToSize(contactText, contentWidth);
   contactLines.forEach((cline: string) => {
@@ -184,7 +209,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10.5);
     doc.setTextColor(11, 21, 48); // Deep Navy
-    doc.text(title.toUpperCase(), marginX, y);
+    doc.text(sanitizePdfText(title).toUpperCase(), marginX, y);
     y += 1.5;
     doc.setDrawColor(217, 119, 6); // Amber-600
     doc.setLineWidth(0.5);
@@ -201,7 +226,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(51, 65, 85); // Slate-700
-    const summaryLines = doc.splitTextToSize(cv.professionalSummary.trim(), contentWidth);
+    const summaryLines = doc.splitTextToSize(sanitizePdfText(cv.professionalSummary), contentWidth);
     summaryLines.forEach((sLine: string) => {
       checkPageBreak(4.5);
       doc.text(sLine, marginX, y);
@@ -219,8 +244,15 @@ export function downloadCvPdf(cv: OptimizedCv): void {
       checkPageBreak(22);
 
       // Ligne 1 : Rôle en gras & Dates
-      const roleStr = exp.role || 'Poste';
-      const dateStr = `${exp.startDate || ''} – ${exp.endDate || 'Présent'}`;
+      const roleStr = sanitizePdfText(exp.role || (isEn ? 'Role' : 'Poste'));
+      const sDate = sanitizePdfText(exp.startDate || '');
+      const eDate = sanitizePdfText(exp.endDate || '');
+      const dateStr =
+        sDate && eDate && sDate !== eDate
+          ? `${sDate} - ${eDate}`
+          : sDate && exp.current
+          ? `${sDate} - ${isEn ? 'Present' : 'Présent'}`
+          : sDate || eDate || '';
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
@@ -255,14 +287,15 @@ export function downloadCvPdf(cv: OptimizedCv): void {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8.5);
       doc.setTextColor(180, 83, 9); // Amber-700
-      const companyText = exp.company || '';
+      const companyText = sanitizePdfText(exp.company || '');
+      const cleanExpLoc = sanitizePdfText(exp.location || '');
 
-      if (exp.location) {
+      if (cleanExpLoc) {
         const compWidth = doc.getTextWidth(companyText);
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8.5);
         doc.setTextColor(100, 116, 139);
-        const locText = `  |  ${exp.location}`;
+        const locText = `  |  ${cleanExpLoc}`;
         const locWidth = doc.getTextWidth(locText);
 
         if (compWidth + locWidth <= contentWidth) {
@@ -285,7 +318,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
           });
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(100, 116, 139);
-          doc.text(exp.location, marginX, y);
+          doc.text(cleanExpLoc, marginX, y);
         }
       } else {
         const compLines = doc.splitTextToSize(companyText, contentWidth);
@@ -303,7 +336,10 @@ export function downloadCvPdf(cv: OptimizedCv): void {
           doc.setFontSize(8.5);
           doc.setTextColor(51, 65, 85);
 
-          const cleanBulletText = bullet.replace(/^[-•*]\s*/, '').trim();
+          const cleanBulletText = sanitizePdfText(
+            bullet.replace(/^(?:[-•*→➔⇒➢➤●▪▫✓✔]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9]))\s*/, '').trim()
+          );
+          if (!cleanBulletText) return;
           const bulletLines = doc.splitTextToSize(cleanBulletText, contentWidth - 6);
           
           checkPageBreak(bulletLines.length * 4.1 + 1);
@@ -335,8 +371,8 @@ export function downloadCvPdf(cv: OptimizedCv): void {
     cv.education.forEach((edu) => {
       checkPageBreak(16);
 
-      const degStr = [edu.degree, edu.field].filter(Boolean).join(' – ') || (isEn ? 'Degree' : 'Diplôme');
-      const gradStr = edu.graduationDate || '';
+      const degStr = sanitizePdfText([edu.degree, edu.field].filter(Boolean).join(' - ') || (isEn ? 'Degree' : 'Diplôme'));
+      const gradStr = sanitizePdfText(edu.graduationDate || '');
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
@@ -372,7 +408,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8.5);
         doc.setTextColor(71, 85, 105);
-        const instLines = doc.splitTextToSize(edu.institution, contentWidth);
+        const instLines = doc.splitTextToSize(sanitizePdfText(edu.institution), contentWidth);
         instLines.forEach((iLine: string) => {
           checkPageBreak(4.2);
           doc.text(iLine, marginX, y);
@@ -384,7 +420,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
         doc.setTextColor(100, 116, 139);
-        const honorLines = doc.splitTextToSize(edu.honorsOrDetails, contentWidth);
+        const honorLines = doc.splitTextToSize(sanitizePdfText(edu.honorsOrDetails), contentWidth);
         honorLines.forEach((hLine: string) => {
           checkPageBreak(3.8);
           doc.text(hLine, marginX, y);
@@ -419,7 +455,7 @@ export function downloadCvPdf(cv: OptimizedCv): void {
 
     if (cv.certifications && cv.certifications.length > 0) {
       const certStr = cv.certifications
-        .map((c) => `${c.name}${c.issuer ? ` – ${c.issuer}` : ''}${c.year ? ` (${c.year})` : ''}`)
+        .map((c) => `${c.name}${c.issuer ? ` - ${c.issuer}` : ''}${c.year ? ` (${c.year})` : ''}`)
         .join('  •  ');
       y = renderWrappedLabeledLine(doc, isEn ? 'Certifications: ' : 'Certifications : ', certStr, marginX, y, contentWidth, checkPageBreak);
     }
@@ -493,14 +529,15 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(11, 21, 48); // Deep Navy
-  doc.text(header.candidateName || (isEn ? 'Candidate' : 'Candidat'), marginX, y);
+  const safeCandName = sanitizePdfText(header.candidateName || (isEn ? 'Candidate' : 'Candidat'));
+  doc.text(safeCandName, marginX, y);
   y += 5;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(71, 85, 105);
   if (header.candidateEmail || header.candidatePhone) {
-    const contactLine = [header.candidateEmail, header.candidatePhone].filter(Boolean).join('  |  ');
+    const contactLine = [sanitizePdfText(header.candidateEmail), sanitizePdfText(header.candidatePhone)].filter(Boolean).join('  |  ');
     doc.text(contactLine, marginX, y);
     y += 5;
   }
@@ -511,7 +548,7 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   const destX = 110;
   const destMaxWidth = pageWidth - marginX - destX; // 210 - 20 - 110 = 80 mm
   let destY = y;
-  const cleanRecipient = cleanRecipientTitle(header.recipientNameOrTitle);
+  const cleanRecipient = sanitizePdfText(cleanRecipientTitle(header.recipientNameOrTitle));
   const recipientLabel = isEn ? `Attention: ${cleanRecipient}` : `À l'attention de : ${cleanRecipient}`;
 
   doc.setFont('helvetica', 'bold');
@@ -521,7 +558,7 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   doc.text(splitRecipient, destX, destY);
   destY += splitRecipient.length * 4.2;
 
-  const safeCompany = cleanCompanyName(header.companyName);
+  const safeCompany = sanitizePdfText(cleanCompanyName(header.companyName));
   if (safeCompany) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
@@ -534,9 +571,11 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(8.5);
   doc.setTextColor(100, 116, 139);
-  const displayDate = (!header.date || header.date === '22 mai 2024' || header.date.includes('22 mai 2024') || header.date === 'May 22, 2024')
-    ? todayFormatted
-    : header.date;
+  const displayDate = sanitizePdfText(
+    (!header.date || header.date === '22 mai 2024' || header.date.includes('22 mai 2024') || header.date === 'May 22, 2024')
+      ? todayFormatted
+      : header.date
+  );
   doc.text(isEn ? `Date: ${displayDate}` : `Date : ${displayDate}`, destX, destY);
   destY += 7;
 
@@ -546,7 +585,7 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(180, 83, 9); // Amber-700
-  let subjectText = header.subjectLine;
+  let subjectText = sanitizePdfText(header.subjectLine);
   if (isEn) {
     if (!subjectText.toLowerCase().startsWith('subject') && !subjectText.toLowerCase().startsWith('re:')) {
       subjectText = `Subject: ${subjectText}`;
@@ -572,7 +611,9 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
     coverLetter.paragraphs?.vous || '',
     coverLetter.paragraphs?.moi || '',
     coverLetter.paragraphs?.nous || '',
-  ].filter(Boolean);
+  ]
+    .map((p) => sanitizePdfText(p))
+    .filter(Boolean);
 
   // Calcul dynamique de l'espace pour garantir la tenue sur une page A4 stricte (max 270mm)
   const totalChars = paragraphs.join(' ').length;
@@ -584,13 +625,13 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(pFontSize);
     doc.setTextColor(51, 65, 85);
-    const pLines = doc.splitTextToSize(p.trim(), contentWidth);
+    const pLines = doc.splitTextToSize(p, contentWidth);
     doc.text(pLines, marginX, y);
     y += pLines.length * pLineHeight + pGap;
   });
 
   // --- FORMULE DE POLITESSE STRICTEMENT ÉPURÉE SANS NOM DU CANDIDAT ---
-  const cleanSignOffText = sanitizeClosingFormula(coverLetter.signOff, header.candidateName);
+  const cleanSignOffText = sanitizePdfText(sanitizeClosingFormula(coverLetter.signOff, header.candidateName));
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(pFontSize);
   doc.setTextColor(51, 65, 85);
@@ -602,7 +643,7 @@ export function downloadCoverLetterPdf(coverLetter: CoverLetter): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(11, 21, 48); // Deep Navy
-  doc.text(header.candidateName || (isEn ? 'Candidate' : 'Candidat'), marginX, y);
+  doc.text(safeCandName, marginX, y);
 
   // Numérotation des pages au bas de chaque page (strictement et uniquement le numéro de la page)
   const totalPages = doc.getNumberOfPages();

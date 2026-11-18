@@ -81,11 +81,20 @@ export function printDocument(
             <h2 style="font-size: 12px; font-weight: 700; color: #0b1530; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; page-break-inside: avoid; page-break-after: avoid;">
               ${isCvEn ? 'Professional Experience' : 'Expériences Professionnelles'}
             </h2>
-            ${cv.experiences.map((exp) => `
+            ${cv.experiences.map((exp) => {
+              const sDate = (exp.startDate || '').trim();
+              const eDate = (exp.endDate || '').trim();
+              const dateRange =
+                sDate && eDate && sDate !== eDate
+                  ? `${sDate} – ${eDate}`
+                  : sDate && exp.current
+                  ? `${sDate} – ${isCvEn ? 'Present' : 'Présent'}`
+                  : sDate || eDate || '';
+              return `
               <div style="margin-bottom: 12px; page-break-inside: avoid;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline;">
                   <strong style="font-size: 12px; color: #0f172a;">${exp.role}</strong>
-                  <span style="font-size: 11px; color: #64748b;">${exp.startDate} – ${exp.endDate}</span>
+                  <span style="font-size: 11px; color: #64748b;">${dateRange}</span>
                 </div>
                 <div style="font-size: 11px; font-weight: 600; color: #b45309; margin-bottom: 5px;">
                   ${exp.company} ${exp.location ? `<span style="color: #64748b; font-weight: normal;">| ${exp.location}</span>` : ''}
@@ -94,7 +103,8 @@ export function printDocument(
                   ${exp.bullets.map((b) => `<li style="margin-bottom: 3.5px;">${b.replace(/^[-•*]\s*/, '')}</li>`).join('')}
                 </ul>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
 
           <div style="margin-bottom: 14px;">
