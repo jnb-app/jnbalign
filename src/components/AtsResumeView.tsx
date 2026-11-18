@@ -109,6 +109,14 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
     isEnglishText(cv.professionalSummary || '') ||
     (cv.experiences?.[0]?.bullets?.[0] ? isEnglishText(cv.experiences[0].bullets[0]) : false);
 
+  const formatExpDates = (exp: ExperienceItem) => {
+    const s = (exp.startDate || '').trim();
+    const e = (exp.endDate || '').trim();
+    if (s && e && s !== e) return `${s} – ${e}`;
+    if (s && exp.current) return `${s} – ${isEn ? 'Present' : 'Présent'}`;
+    return s || e || '';
+  };
+
   // Plain text generator for ATS copy
   const generateRawAtsText = () => {
     let out = `${cv.personalInfo.fullName.toUpperCase()}\n`;
@@ -128,8 +136,9 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
 
     out += `${isEn ? 'PROFESSIONAL EXPERIENCE' : 'EXPÉRIENCES PROFESSIONNELLES'}\n`;
     cv.experiences.forEach((exp) => {
+      const dateRange = formatExpDates(exp);
       out += `${exp.role} - ${exp.company} (${exp.location})\n`;
-      out += `${exp.startDate} - ${exp.endDate}\n`;
+      if (dateRange) out += `${dateRange}\n`;
       exp.bullets.forEach((b) => {
         out += `• ${b}\n`;
       });
@@ -371,7 +380,7 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
                       <span className="text-white font-semibold">{exp.company}</span>
                       <span className="text-slate-400 text-[11px]"> ({exp.location})</span>
                     </div>
-                    <span className="text-slate-400 font-mono text-[11px]">{exp.startDate} - {exp.endDate}</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{formatExpDates(exp)}</span>
                   </div>
 
                   <ul className="space-y-1.5 pl-2 text-xs">
@@ -578,7 +587,7 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
                     </div>
 
                     <div className={`${fontStyles.meta} sm:text-right mt-0.5 sm:mt-0`}>
-                      {exp.startDate} – {exp.endDate}
+                      {formatExpDates(exp)}
                     </div>
                   </div>
 
