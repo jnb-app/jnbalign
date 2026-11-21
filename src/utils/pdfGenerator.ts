@@ -5,7 +5,8 @@ import { isEnglishText } from './languageDetector';
 
 /**
  * Normalise tout texte vers un encodage sûr pour Helvetica / WinAnsi (jsPDF)
- * afin d'éviter les glyphes corrompus (ex: "→" rendu en "!'", "œ", espaces insécables, puces creuses).
+ * afin d'éviter les glyphes corrompus (ex: "→" rendu en "!'", "œ", espaces insécables, puces creuses)
+ * et corriger les micro-défauts de ponctuation résiduels.
  */
 export function sanitizePdfText(text?: string): string {
   if (!text || typeof text !== 'string') return '';
@@ -20,13 +21,17 @@ export function sanitizePdfText(text?: string): string {
     .replace(/[\u2013\u2014]/g, '-')
     .replace(/[\u00A0\u202F\u2009]/g, ' ')
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\s+([,.;])/g, '$1')
+    .replace(/,{2,}/g, ',')
+    .replace(/([,;])\./g, '.')
+    .replace(/(?<!\.)\.\.(?!\.)/g, '.')
     .replace(/[ \t]{2,}/g, ' ')
     .trim();
 }
 
 /**
  * Helper de découpage et de rendu sécurisé pour les lignes libellées (Compétences, Langues, Certifications).
- * Évite tout débordement en dehors de la page A4 (178 mm) et garantit un affichage net sans chevauchement.
+ * Garantit une police lisible (>= 9.5pt) et un affichage net sans débordement.
  */
 function renderWrappedLabeledLine(
   doc: jsPDF,
@@ -36,31 +41,35 @@ function renderWrappedLabeledLine(
   currentY: number,
   contentWidth: number,
   checkPageBreak: (needed: number) => void,
-  lineHeight: number = 4.2
+  bodyFontSize: number = 9.5,
+  lineHeight: number = 4.5,
+  afterGap: number = 0.85
 ): number {
   const safeLabel = sanitizePdfText(label);
   const safeText = sanitizePdfText(text);
   if (!safeText) return currentY;
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
+  doc.setFontSize(bodyFontSize);
   const labelWidth = doc.getTextWidth(safeLabel);
+  // Espace visuel explicite après « : » car sanitizePdfText().trim() retire l'espace final
+  const labelGap = 1.6;
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(bodyFontSize);
 
-  const shouldBreakLabel = labelWidth > contentWidth * 0.68;
+  const shouldBreakLabel = labelWidth + labelGap > contentWidth * 0.58;
 
   if (shouldBreakLabel) {
     checkPageBreak(lineHeight * 2);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(bodyFontSize);
     doc.setTextColor(15, 23, 42);
     doc.text(safeLabel, marginX, currentY);
     currentY += lineHeight;
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
+    doc.setFontSize(bodyFontSize);
     doc.setTextColor(51, 65, 85);
     const lines = doc.splitTextToSize(safeText, contentWidth);
     for (const line of lines) {
@@ -69,7 +78,7 @@ function renderWrappedLabeledLine(
       currentY += lineHeight;
     }
   } else {
-    const firstLineWidth = contentWidth - labelWidth - 1;
+    const firstLineWidth = contentWidth - labelWidth - labelGap - 0.5;
     const words = safeText.split(/\s+/);
     const lines: string[] = [];
     let currentLine = '';
@@ -102,18 +111,18 @@ function renderWrappedLabeledLine(
     }
     if (currentLine) lines.push(currentLine);
 
-    checkPageBreak(Math.min(lines.length * lineHeight + 1, 15));
+    checkPageBreak(Math.min(lines.length * lineHeight + 0.8, 14));
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(bodyFontSize);
     doc.setTextColor(15, 23, 42);
     doc.text(safeLabel, marginX, currentY);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
+    doc.setFontSize(bodyFontSize);
     doc.setTextColor(51, 65, 85);
 
-    if (lines.length > 0) {
-      doc.text(lines[0], marginX + labelWidth, currentY);
+    if (lines.length > 0 && lines[0]) {
+      doc.text(lines[0], marginX + labelWidth + labelGap, currentY);
     }
     for (let i = 1; i < lines.length; i++) {
       currentY += lineHeight;
@@ -123,16 +132,225 @@ function renderWrappedLabeledLine(
     currentY += lineHeight;
   }
 
-  return currentY + 0.8;
+  return currentY + afterGap;
 }
 
 /**
- * Génère et télécharge un fichier PDF haute définition certifié ATS pour le CV.
- * Strictement conforme aux spécifications mono-colonne pour Workday, Taleo, Greenhouse & Lever.
- * Toutes les informations (profil, expériences, formations, compétences, langues, certifications)
- * s'affichent intégralement sans coupure ni débordement hors cadre.
+ * Formate une certification sans répéter l'émetteur s'il figure déjà dans l'intitulé
+ * (ex: évite "Certification PIX - PIX").
  */
-export function downloadCvPdf(cv: OptimizedCv): void {
+function formatCertificationDisplay(name?: string, issuer?: string, year?: string): string {
+  const cleanName = sanitizePdfText(name || '');
+  const cleanIssuer = sanitizePdfText(issuer || '');
+  const cleanYear = sanitizePdfText(year || '');
+  if (!cleanName) return '';
+
+  const norm = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+
+  const showIssuer =
+    Boolean(cleanIssuer) &&
+    norm(cleanIssuer).length > 1 &&
+    !norm(cleanName).includes(norm(cleanIssuer));
+
+  return `${cleanName}${showIssuer ? ` - ${cleanIssuer}` : ''}${cleanYear ? ` (${cleanYear})` : ''}`;
+}
+
+/**
+ * Détermine le gabarit de pagination optimal (1 page Junior/Étudiant/Reconversion vs 2 pages Senior/Cadre)
+ * en s'appuyant sur layoutProfile fourni par le pipeline IA ou sur une heuristique sûre pour les anciens brouillons.
+ */
+function resolveTargetPageMode(cv: OptimizedCv): 1 | 2 {
+  if (cv.layoutProfile?.targetPages === 1 || cv.layoutProfile?.targetPages === 2) {
+    return cv.layoutProfile.targetPages;
+  }
+  const exps = Array.isArray(cv.experiences) ? cv.experiences : [];
+  if (exps.length <= 2) return 1;
+  const years: number[] = [];
+  const currentYear = new Date().getFullYear();
+  exps.forEach((e) => {
+    const sm = String(e.startDate || '').match(/\b(19\d{2}|20\d{2})\b/);
+    const em = String(e.endDate || '').match(/\b(19\d{2}|20\d{2})\b/);
+    if (sm) years.push(Number(sm[1]));
+    if (em) years.push(Number(em[1]));
+    else if (e.current || /pr[ée]sent|current|aujourd/i.test(String(e.endDate || ''))) years.push(currentYear);
+  });
+  if (years.length >= 2) {
+    const span = Math.max(...years) - Math.min(...years);
+    if (span >= 5) return 2;
+    return 1;
+  }
+  return exps.length >= 4 ? 2 : 1;
+}
+
+interface CvPdfLayoutPreset {
+  bodySize: number;
+  metaSize: number;
+  roleSize: number;
+  sectionSize: number;
+  nameSize: number;
+  titleSize: number;
+  nameStep: number;
+  titleStep: number;
+  contactStep: number;
+  headerRuleGap: number;
+  sectionTitleAfter: number;
+  lineH: number;
+  bulletGap: number;
+  expGap: number;
+  sectionGap: number;
+  labeledGap: number;
+  eduGap: number;
+  marginX: number;
+  topMargin: number;
+  bottomMargin: number;
+  sectionBreakGuard: number;
+  expBreakGuard: number;
+  eduBreakGuard: number;
+}
+
+// Tous les paliers respectent STRICTEMENT le plancher de lisibilité >= 9 pt (jamais sous 9 pt)
+const ONE_PAGE_PRESETS: CvPdfLayoutPreset[] = [
+  // Palier 1A : Confort optimal 9,5 pt
+  {
+    bodySize: 9.5,
+    metaSize: 9.0,
+    roleSize: 10.0,
+    sectionSize: 10.5,
+    nameSize: 16.5,
+    titleSize: 11.0,
+    nameStep: 6.0,
+    titleStep: 4.8,
+    contactStep: 4.0,
+    headerRuleGap: 4.8,
+    sectionTitleAfter: 4.3,
+    lineH: 4.2,
+    bulletGap: 0.8,
+    expGap: 2.2,
+    sectionGap: 2.4,
+    labeledGap: 0.75,
+    eduGap: 1.5,
+    marginX: 14,
+    topMargin: 13,
+    bottomMargin: 11.5,
+    sectionBreakGuard: 13,
+    expBreakGuard: 17,
+    eduBreakGuard: 10,
+  },
+  // Palier 1B : Espacements ajustés, police TOUJOURS 9,5 pt (évite les débordements de 2-4 lignes)
+  {
+    bodySize: 9.5,
+    metaSize: 9.0,
+    roleSize: 9.8,
+    sectionSize: 10.0,
+    nameSize: 15.5,
+    titleSize: 10.5,
+    nameStep: 5.5,
+    titleStep: 4.4,
+    contactStep: 3.8,
+    headerRuleGap: 4.1,
+    sectionTitleAfter: 3.8,
+    lineH: 3.9,
+    bulletGap: 0.45,
+    expGap: 1.5,
+    sectionGap: 1.75,
+    labeledGap: 0.5,
+    eduGap: 1.0,
+    marginX: 12.5,
+    topMargin: 10.5,
+    bottomMargin: 9.5,
+    sectionBreakGuard: 11,
+    expBreakGuard: 15,
+    eduBreakGuard: 9,
+  },
+  // Palier 1C : Plancher typographique strict 9,0 pt (profil junior riche à 4+ expériences)
+  {
+    bodySize: 9.0,
+    metaSize: 9.0,
+    roleSize: 9.5,
+    sectionSize: 9.8,
+    nameSize: 15.0,
+    titleSize: 10.0,
+    nameStep: 5.2,
+    titleStep: 4.2,
+    contactStep: 3.7,
+    headerRuleGap: 3.8,
+    sectionTitleAfter: 3.5,
+    lineH: 3.68,
+    bulletGap: 0.35,
+    expGap: 1.25,
+    sectionGap: 1.45,
+    labeledGap: 0.4,
+    eduGap: 0.85,
+    marginX: 11.5,
+    topMargin: 9.5,
+    bottomMargin: 8.5,
+    sectionBreakGuard: 10,
+    expBreakGuard: 14,
+    eduBreakGuard: 8.5,
+  },
+];
+
+const TWO_PAGE_PRESETS: CvPdfLayoutPreset[] = [
+  // Palier 2A : Confort exécutif 10 pt
+  {
+    bodySize: 10.0,
+    metaSize: 9.0,
+    roleSize: 10.5,
+    sectionSize: 11.0,
+    nameSize: 18.0,
+    titleSize: 11.5,
+    nameStep: 6.8,
+    titleStep: 5.5,
+    contactStep: 4.2,
+    headerRuleGap: 6.0,
+    sectionTitleAfter: 5.1,
+    lineH: 4.7,
+    bulletGap: 1.25,
+    expGap: 3.4,
+    sectionGap: 3.8,
+    labeledGap: 0.9,
+    eduGap: 2.3,
+    marginX: 16,
+    topMargin: 15.5,
+    bottomMargin: 15,
+    sectionBreakGuard: 18,
+    expBreakGuard: 21,
+    eduBreakGuard: 13,
+  },
+  // Palier 2B : Anti-débordement en Page 3 pour seniors très denses (police 9,5 pt)
+  {
+    bodySize: 9.5,
+    metaSize: 9.0,
+    roleSize: 10.0,
+    sectionSize: 10.5,
+    nameSize: 16.5,
+    titleSize: 11.0,
+    nameStep: 6.0,
+    titleStep: 4.8,
+    contactStep: 4.0,
+    headerRuleGap: 4.8,
+    sectionTitleAfter: 4.3,
+    lineH: 4.2,
+    bulletGap: 0.8,
+    expGap: 2.2,
+    sectionGap: 2.5,
+    labeledGap: 0.7,
+    eduGap: 1.5,
+    marginX: 13.5,
+    topMargin: 12,
+    bottomMargin: 12,
+    sectionBreakGuard: 14,
+    expBreakGuard: 18,
+    eduBreakGuard: 11,
+  },
+];
+
+function renderCvDocumentWithPreset(cv: OptimizedCv, preset: CvPdfLayoutPreset, isEn: boolean): jsPDF {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -141,42 +359,68 @@ export function downloadCvPdf(cv: OptimizedCv): void {
 
   const pageWidth = 210;
   const pageHeight = 297;
-  const marginX = 16;
-  const contentWidth = pageWidth - marginX * 2; // 178 mm
-  let y = 18;
+  const {
+    bodySize,
+    metaSize,
+    roleSize,
+    sectionSize,
+    nameSize,
+    titleSize,
+    nameStep,
+    titleStep,
+    contactStep,
+    headerRuleGap,
+    sectionTitleAfter,
+    lineH,
+    bulletGap,
+    expGap,
+    sectionGap,
+    labeledGap,
+    eduGap,
+    marginX,
+    topMargin,
+    bottomMargin,
+    sectionBreakGuard,
+    expBreakGuard,
+    eduBreakGuard,
+  } = preset;
+
+  const bottomLimit = pageHeight - bottomMargin;
+  const contentWidth = pageWidth - marginX * 2;
+  let y = topMargin;
 
   const checkPageBreak = (neededHeight: number) => {
-    if (y + neededHeight > pageHeight - 16) {
+    if (y + neededHeight > bottomLimit) {
       doc.addPage();
-      y = 18;
+      y = topMargin;
     }
   };
 
   // --- EN-TÊTE DU CANDIDAT ---
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(nameSize);
   doc.setTextColor(11, 21, 48); // #0B1530 Deep Navy
   const fullName = sanitizePdfText(cv.personalInfo.fullName || 'CANDIDAT').toUpperCase();
   const nameLines = doc.splitTextToSize(fullName, contentWidth);
   nameLines.forEach((nLine: string) => {
     doc.text(nLine, marginX, y);
-    y += 6.5;
+    y += nameStep;
   });
 
   // Titre professionnel
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
+  doc.setFontSize(titleSize);
   doc.setTextColor(180, 83, 9); // Amber-700
   const titleText = sanitizePdfText(cv.personalInfo.professionalTitle || 'Expert Métier');
   const titleLines = doc.splitTextToSize(titleText, contentWidth);
   titleLines.forEach((tLine: string) => {
     doc.text(tLine, marginX, y);
-    y += 5.5;
+    y += titleStep;
   });
 
-  // Coordonnées & Liens (découpés avec sécurité pour ne jamais déborder)
+  // Coordonnées & Liens (>= 9pt)
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(metaSize);
   doc.setTextColor(71, 85, 105); // Slate-600
   const contacts = [
     cv.personalInfo.email,
@@ -191,23 +435,21 @@ export function downloadCvPdf(cv: OptimizedCv): void {
   const contactLines = doc.splitTextToSize(contactText, contentWidth);
   contactLines.forEach((cline: string) => {
     doc.text(cline, marginX, y);
-    y += 4;
+    y += contactStep;
   });
-  y += 2;
+  y += 1.0;
 
   // Ligne de séparation
   doc.setDrawColor(203, 213, 225); // Slate-300
   doc.setLineWidth(0.3);
   doc.line(marginX, y, pageWidth - marginX, y);
-  y += 6;
-
-  const isEn = cv.languageMode === 'en' || isEnglishText(cv.professionalSummary || '') || (cv.experiences?.[0]?.bullets?.[0] ? isEnglishText(cv.experiences[0].bullets[0]) : false);
+  y += headerRuleGap;
 
   // Helper pour afficher un titre de section ATS standard (protection anti-orphelin)
   const renderSectionTitle = (title: string) => {
-    checkPageBreak(22); // Garantit que le titre ne reste jamais seul en bas de page
+    checkPageBreak(sectionBreakGuard);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10.5);
+    doc.setFontSize(sectionSize);
     doc.setTextColor(11, 21, 48); // Deep Navy
     doc.text(sanitizePdfText(title).toUpperCase(), marginX, y);
     y += 1.5;
@@ -217,33 +459,57 @@ export function downloadCvPdf(cv: OptimizedCv): void {
     doc.setDrawColor(226, 232, 240); // Slate-200
     doc.setLineWidth(0.2);
     doc.line(marginX + 35, y, pageWidth - marginX, y);
-    y += 5;
+    y += sectionTitleAfter;
   };
 
-  // --- PROFIL PROFESSIONNEL / PROFESSIONAL SUMMARY ---
+  // --- 1. PROFIL PROFESSIONNEL / PROFESSIONAL SUMMARY (PAGE 1 — DÉCISIF) ---
   if (cv.professionalSummary && cv.professionalSummary.trim()) {
     renderSectionTitle(isEn ? 'Professional Summary' : 'Profil Professionnel');
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    doc.setFontSize(bodySize);
     doc.setTextColor(51, 65, 85); // Slate-700
     const summaryLines = doc.splitTextToSize(sanitizePdfText(cv.professionalSummary), contentWidth);
     summaryLines.forEach((sLine: string) => {
-      checkPageBreak(4.5);
+      checkPageBreak(lineH + 0.4);
       doc.text(sLine, marginX, y);
-      y += 4.2;
+      y += lineH;
     });
-    y += 3;
+    y += sectionGap;
   }
 
-  // --- EXPÉRIENCES PROFESSIONNELLES / PROFESSIONAL EXPERIENCE (MÉTHODE STAR) ---
+  // --- 2. COMPÉTENCES CLÉS & TECHNOLOGIES (PAGE 1 — DÉCISIF ATS) ---
+  if (Array.isArray(cv.skillsCategories) && cv.skillsCategories.length > 0) {
+    renderSectionTitle(isEn ? 'Core Competencies & Key Skills' : 'Compétences & Technologies');
+
+    cv.skillsCategories.forEach((cat) => {
+      const catLabel = isEn
+        ? `${cat.categoryName || 'Skills'}:`
+        : `${cat.categoryName || 'Compétences'} :`;
+      const skillsStr = Array.isArray(cat.skills) ? cat.skills.join(', ') : '';
+      y = renderWrappedLabeledLine(
+        doc,
+        catLabel,
+        skillsStr,
+        marginX,
+        y,
+        contentWidth,
+        checkPageBreak,
+        bodySize,
+        lineH,
+        labeledGap
+      );
+    });
+    y += sectionGap;
+  }
+
+  // --- 3. EXPÉRIENCES PROFESSIONNELLES (RÉCENTES DÉCISIVES EN PAGE 1, ANCIENNES EN PAGE 2) ---
   if (Array.isArray(cv.experiences) && cv.experiences.length > 0) {
     renderSectionTitle(isEn ? 'Professional Experience' : 'Expériences Professionnelles');
 
     cv.experiences.forEach((exp) => {
-      // Protection pour conserver le rôle avec au moins sa première puce
-      checkPageBreak(22);
+      // Garde-fou pour conserver le titre du poste avec sa société et au moins sa première puce
+      checkPageBreak(expBreakGuard);
 
-      // Ligne 1 : Rôle en gras & Dates
       const roleStr = sanitizePdfText(exp.role || (isEn ? 'Role' : 'Poste'));
       const sDate = sanitizePdfText(exp.startDate || '');
       const eDate = sanitizePdfText(exp.endDate || '');
@@ -255,12 +521,12 @@ export function downloadCvPdf(cv: OptimizedCv): void {
           : sDate || eDate || '';
 
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
+      doc.setFontSize(metaSize);
       doc.setTextColor(100, 116, 139); // Slate-500
       const dateWidth = doc.getTextWidth(dateStr);
 
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9.5);
+      doc.setFontSize(roleSize);
       doc.setTextColor(15, 23, 42); // Slate-900
       const maxRoleWidth = contentWidth - dateWidth - 4;
       const roleLines = doc.splitTextToSize(roleStr, maxRoleWidth);
@@ -268,24 +534,24 @@ export function downloadCvPdf(cv: OptimizedCv): void {
 
       // Date alignée à droite
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
+      doc.setFontSize(metaSize);
       doc.setTextColor(100, 116, 139);
       doc.text(dateStr, pageWidth - marginX - dateWidth, y);
 
       if (roleLines.length > 1) {
         for (let i = 1; i < roleLines.length; i++) {
-          y += 4.2;
+          y += lineH;
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(9.5);
+          doc.setFontSize(roleSize);
           doc.setTextColor(15, 23, 42);
           doc.text(roleLines[i], marginX, y);
         }
       }
-      y += 4.5;
+      y += lineH + 0.1;
 
-      // Ligne 2 : Entreprise & Localisation (avec découpage si entreprise longue)
+      // Ligne 2 : Entreprise & Localisation (>= 9pt)
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8.5);
+      doc.setFontSize(metaSize);
       doc.setTextColor(180, 83, 9); // Amber-700
       const companyText = sanitizePdfText(exp.company || '');
       const cleanExpLoc = sanitizePdfText(exp.location || '');
@@ -293,14 +559,14 @@ export function downloadCvPdf(cv: OptimizedCv): void {
       if (cleanExpLoc) {
         const compWidth = doc.getTextWidth(companyText);
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
+        doc.setFontSize(metaSize);
         doc.setTextColor(100, 116, 139);
         const locText = `  |  ${cleanExpLoc}`;
         const locWidth = doc.getTextWidth(locText);
 
         if (compWidth + locWidth <= contentWidth) {
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(8.5);
+          doc.setFontSize(metaSize);
           doc.setTextColor(180, 83, 9);
           doc.text(companyText, marginX, y);
 
@@ -309,12 +575,12 @@ export function downloadCvPdf(cv: OptimizedCv): void {
           doc.text(locText, marginX + compWidth, y);
         } else {
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(8.5);
+          doc.setFontSize(metaSize);
           doc.setTextColor(180, 83, 9);
           const compLines = doc.splitTextToSize(companyText, contentWidth);
           compLines.forEach((cLine: string) => {
             doc.text(cLine, marginX, y);
-            y += 4;
+            y += lineH;
           });
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(100, 116, 139);
@@ -324,63 +590,61 @@ export function downloadCvPdf(cv: OptimizedCv): void {
         const compLines = doc.splitTextToSize(companyText, contentWidth);
         compLines.forEach((cLine: string) => {
           doc.text(cLine, marginX, y);
-          y += 4;
+          y += lineH;
         });
       }
-      y += 4.2;
+      y += lineH + 0.1;
 
-      // Puces de réalisations (Bullets STAR avec vérification ligne par ligne anti-débordement)
+      // Puces de réalisations STAR (>= 9pt / 9.5pt / 10pt)
       if (Array.isArray(exp.bullets)) {
         exp.bullets.forEach((bullet) => {
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8.5);
+          doc.setFontSize(bodySize);
           doc.setTextColor(51, 65, 85);
 
           const cleanBulletText = sanitizePdfText(
             bullet.replace(/^(?:[-•*→➔⇒➢➤●▪▫✓✔]+|[o○◦](?=\s+[A-ZÀ-Ÿ0-9]))\s*/, '').trim()
           );
           if (!cleanBulletText) return;
-          const bulletLines = doc.splitTextToSize(cleanBulletText, contentWidth - 6);
-          
-          checkPageBreak(bulletLines.length * 4.1 + 1);
+          const bulletLines = doc.splitTextToSize(cleanBulletText, contentWidth - 5.5);
 
-          // Puce symbole
+          checkPageBreak(bulletLines.length * lineH + 0.5);
+
           doc.setTextColor(180, 83, 9);
           doc.text('•', marginX + 0.8, y);
 
-          // Texte de la puce ligne par ligne pour éviter tout chevauchement ou rupture
           doc.setTextColor(51, 65, 85);
           for (let bIdx = 0; bIdx < bulletLines.length; bIdx++) {
-            checkPageBreak(4.2);
-            doc.text(bulletLines[bIdx], marginX + 4.5, y);
+            checkPageBreak(lineH + 0.4);
+            doc.text(bulletLines[bIdx], marginX + 4.3, y);
             if (bIdx < bulletLines.length - 1) {
-              y += 4.1;
+              y += lineH;
             }
           }
-          y += 5.2;
+          y += lineH + bulletGap;
         });
       }
-      y += 2.5;
+      y += expGap;
     });
   }
 
-  // --- FORMATION / EDUCATION ---
+  // --- 4. FORMATION / EDUCATION (ÉTABLISSEMENT + LIEU/MENTION SUR 1 LIGNE COMPACTE) ---
   if (Array.isArray(cv.education) && cv.education.length > 0) {
     renderSectionTitle(isEn ? 'Education' : 'Formation');
 
     cv.education.forEach((edu) => {
-      checkPageBreak(16);
+      checkPageBreak(eduBreakGuard);
 
       const degStr = sanitizePdfText([edu.degree, edu.field].filter(Boolean).join(' - ') || (isEn ? 'Degree' : 'Diplôme'));
       const gradStr = sanitizePdfText(edu.graduationDate || '');
 
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
+      doc.setFontSize(metaSize);
       doc.setTextColor(100, 116, 139);
       const gradWidth = gradStr ? doc.getTextWidth(gradStr) : 0;
 
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
+      doc.setFontSize(bodySize);
       doc.setTextColor(15, 23, 42);
       const maxDegWidth = gradWidth > 0 ? contentWidth - gradWidth - 4 : contentWidth;
       const degLines = doc.splitTextToSize(degStr, maxDegWidth);
@@ -388,92 +652,134 @@ export function downloadCvPdf(cv: OptimizedCv): void {
 
       if (gradStr) {
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
+        doc.setFontSize(metaSize);
         doc.setTextColor(100, 116, 139);
         doc.text(gradStr, pageWidth - marginX - gradWidth, y);
       }
 
       if (degLines.length > 1) {
         for (let i = 1; i < degLines.length; i++) {
-          y += 4;
+          y += lineH;
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(9);
+          doc.setFontSize(bodySize);
           doc.setTextColor(15, 23, 42);
           doc.text(degLines[i], marginX, y);
         }
       }
-      y += 4.2;
+      y += lineH - 0.1;
 
-      if (edu.institution) {
+      const cleanInst = sanitizePdfText(edu.institution || '');
+      const cleanHonors = sanitizePdfText(edu.honorsOrDetails || '');
+      const combinedSubLine = [cleanInst, cleanHonors].filter(Boolean).join('  |  ');
+
+      if (combinedSubLine) {
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
+        doc.setFontSize(metaSize);
         doc.setTextColor(71, 85, 105);
-        const instLines = doc.splitTextToSize(sanitizePdfText(edu.institution), contentWidth);
-        instLines.forEach((iLine: string) => {
-          checkPageBreak(4.2);
-          doc.text(iLine, marginX, y);
-          y += 4;
+        const subLines = doc.splitTextToSize(combinedSubLine, contentWidth);
+        subLines.forEach((sLine: string) => {
+          checkPageBreak(lineH);
+          doc.text(sLine, marginX, y);
+          y += lineH - 0.25;
         });
       }
 
-      if (edu.honorsOrDetails) {
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(8);
-        doc.setTextColor(100, 116, 139);
-        const honorLines = doc.splitTextToSize(sanitizePdfText(edu.honorsOrDetails), contentWidth);
-        honorLines.forEach((hLine: string) => {
-          checkPageBreak(3.8);
-          doc.text(hLine, marginX, y);
-          y += 3.8;
-        });
-      }
-
-      y += 2.5;
+      y += eduGap;
     });
+    y += Math.max(0.5, sectionGap - eduGap);
   }
 
-  // --- COMPÉTENCES CLÉS & EXPERTISE / CORE COMPETENCIES (Découpage anti-débordement sécurisé) ---
-  if (Array.isArray(cv.skillsCategories) && cv.skillsCategories.length > 0) {
-    renderSectionTitle(isEn ? 'Core Competencies & Key Skills' : 'Compétences & Technologies');
-
-    cv.skillsCategories.forEach((cat) => {
-      const catLabel = `${cat.categoryName || (isEn ? 'Skills' : 'Compétences')} : `;
-      const skillsStr = Array.isArray(cat.skills) ? cat.skills.join(', ') : '';
-      y = renderWrappedLabeledLine(doc, catLabel, skillsStr, marginX, y, contentWidth, checkPageBreak);
-    });
-    y += 2;
-  }
-
-  // --- LANGUES & CERTIFICATIONS (Découpage multi-lignes anti-débordement) ---
+  // --- 5. LANGUES & CERTIFICATIONS (SECONDAIRE — BAS DE PAGE 1 OU PAGE 2) ---
   if ((cv.languages && cv.languages.length > 0) || (cv.certifications && cv.certifications.length > 0)) {
     renderSectionTitle(isEn ? 'Certifications & Languages' : 'Langues & Certifications');
 
     if (cv.languages && cv.languages.length > 0) {
       const langStr = cv.languages.map((l) => `${l.language} (${l.proficiency})`).join('  •  ');
-      y = renderWrappedLabeledLine(doc, isEn ? 'Languages: ' : 'Langues : ', langStr, marginX, y, contentWidth, checkPageBreak);
+      y = renderWrappedLabeledLine(
+        doc,
+        isEn ? 'Languages:' : 'Langues :',
+        langStr,
+        marginX,
+        y,
+        contentWidth,
+        checkPageBreak,
+        bodySize,
+        lineH,
+        labeledGap
+      );
     }
 
     if (cv.certifications && cv.certifications.length > 0) {
       const certStr = cv.certifications
-        .map((c) => `${c.name}${c.issuer ? ` - ${c.issuer}` : ''}${c.year ? ` (${c.year})` : ''}`)
+        .map((c) => formatCertificationDisplay(c.name, c.issuer, c.year))
+        .filter(Boolean)
         .join('  •  ');
-      y = renderWrappedLabeledLine(doc, isEn ? 'Certifications: ' : 'Certifications : ', certStr, marginX, y, contentWidth, checkPageBreak);
+      if (certStr) {
+        y = renderWrappedLabeledLine(
+          doc,
+          isEn ? 'Certifications:' : 'Certifications :',
+          certStr,
+          marginX,
+          y,
+          contentWidth,
+          checkPageBreak,
+          bodySize,
+          lineH,
+          labeledGap
+        );
+      }
     }
   }
 
-  // Numérotation des pages au bas de chaque page (strictement et uniquement le numéro de la page)
+  // Numérotation discrète uniquement sur les CV multi-pages (un CV 1 page reste épuré)
   const totalPages = doc.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184); // Slate-400
-    const pageText = `Page ${i} / ${totalPages}`;
-    const textWidth = doc.getTextWidth(pageText);
-    doc.text(pageText, (pageWidth - textWidth) / 2, pageHeight - 9);
+  if (totalPages > 1) {
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(148, 163, 184);
+      const pageText = `Page ${i} / ${totalPages}`;
+      const textWidth = doc.getTextWidth(pageText);
+      doc.text(pageText, (pageWidth - textWidth) / 2, pageHeight - 7.5);
+    }
   }
 
-  // Sauvegarde / Téléchargement immédiat
+  return doc;
+}
+
+/**
+ * Construit le document jsPDF du CV en appliquant un calibrage adaptatif multi-passes :
+ * - Profils juniors/étudiants/reconversion (cible 1 page) : teste 9,5 pt confortable → 9,5 pt ajusté → 9,0 pt strict
+ *   afin de tenir sur 1 page exacte sans jamais descendre sous le plancher de 9 pt.
+ * - Profils seniors/cadres (cible 2 pages) : confort 10 pt, avec repli 9,5 pt si risque de débordement en Page 3.
+ */
+export function buildCvPdfDocument(cv: OptimizedCv): { doc: jsPDF; isEn: boolean } {
+  const targetPages = resolveTargetPageMode(cv);
+  const isEn =
+    cv.languageMode === 'en' ||
+    isEnglishText(cv.professionalSummary || '') ||
+    (cv.experiences?.[0]?.bullets?.[0] ? isEnglishText(cv.experiences[0].bullets[0]) : false);
+
+  const presets = targetPages === 1 ? ONE_PAGE_PRESETS : TWO_PAGE_PRESETS;
+  let chosenDoc = renderCvDocumentWithPreset(cv, presets[0], isEn);
+
+  for (let i = 1; i < presets.length; i++) {
+    if (chosenDoc.getNumberOfPages() <= targetPages) {
+      break;
+    }
+    chosenDoc = renderCvDocumentWithPreset(cv, presets[i], isEn);
+  }
+
+  return { doc: chosenDoc, isEn };
+}
+
+/**
+ * Génère et télécharge un fichier PDF haute définition certifié ATS pour le CV.
+ * Strictement conforme aux spécifications mono-colonne pour Workday, Taleo, Greenhouse & Lever.
+ */
+export function downloadCvPdf(cv: OptimizedCv): void {
+  const { doc, isEn } = buildCvPdfDocument(cv);
   const cleanFileName = isEn
     ? `Resume_${(cv.personalInfo.fullName || 'Candidate').replace(/[^\w\d]/g, '_')}.pdf`
     : `CV_${(cv.personalInfo.fullName || 'Candidat').replace(/[^\w\d]/g, '_')}.pdf`;
