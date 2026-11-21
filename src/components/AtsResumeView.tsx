@@ -302,8 +302,22 @@ export const AtsResumeView: React.FC<AtsResumeViewProps> = ({
           )}
         </div>
 
-        {/* Right: Technical certification badge & STAR hint outside the parchment */}
-        <div className="flex items-center gap-3 text-xs">
+        {/* Right: Calibrated page-length metadata & STAR hint outside the parchment */}
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          {cv.layoutProfile && (
+            <span
+              className="text-slate-300 light:text-slate-600 font-medium"
+              title={cv.layoutProfile.reason}
+            >
+              {cv.layoutProfile.targetPages === 1
+                ? isEn
+                  ? 'Calibrated: 1 page · Font ≥ 9.5pt'
+                  : 'Calibrage : 1 page · Police ≥ 9,5 pt'
+                : isEn
+                ? 'Calibrated: 2 pages · Font 10pt'
+                : 'Calibrage : 2 pages · Police 10 pt'}
+            </span>
+          )}
           <span className="hidden sm:inline-flex items-center gap-1.5 text-amber-300 light:text-amber-700 font-medium">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 light:text-amber-600" />
             <span>Survolez une puce pour l'affiner (STAR)</span>
