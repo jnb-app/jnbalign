@@ -45,6 +45,13 @@ export interface LanguageItem {
   proficiency: string;
 }
 
+export interface CvLayoutProfile {
+  targetPages: 1 | 2;
+  seniorityTier: 'junior' | 'senior';
+  estimatedYearsExperience: number;
+  reason: string;
+}
+
 export interface OptimizedCv {
   personalInfo: PersonalInfo;
   professionalSummary: string;
@@ -54,6 +61,7 @@ export interface OptimizedCv {
   certifications?: CertificationItem[];
   languages?: LanguageItem[];
   languageMode?: 'fr' | 'en';
+  layoutProfile?: CvLayoutProfile;
 }
 
 export interface KeywordsAnalysis {
