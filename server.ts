@@ -2,6 +2,9 @@ import express from "express";
 import http from "http";
 import path from "path";
 import fs from "fs";
+import os from "os";
+import crypto from "crypto";
+import { execFile } from "child_process";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
@@ -41,13 +44,14 @@ app.use((err: any, _req: express.Request, res: express.Response, next: express.N
 
 app.use(express.static(path.resolve(__dirname, "public")));
 
-function getGeminiClient(): GoogleGenAI {
+function getGeminiClient(apiVersion?: string): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("Clé d'API GEMINI_API_KEY absente dans les variables d'environnement.");
   }
   return new GoogleGenAI({
     apiKey,
+    ...(apiVersion ? { apiVersion } : {}),
     httpOptions: {
       headers: {
         "User-Agent": "aistudio-build",
@@ -7973,7 +7977,426 @@ export function normalizePipelineResult(data: any, language: 'fr' | 'en' = 'fr',
     cl.paragraphs.nous = cl.paragraphs.nous.replace(new RegExp(`[\\s,\\.\\n–—]*${escaped}[\\s\\.]*$`, "i"), "").trim();
   }
 
+  // 4. Garde-fou Calibrage Longueur (1 page Junior <5 ans / 2 pages Senior 5-15+ ans), Ponctuation & Anti-Répétition
+  applyDensityAndQualityGuardrails(data, cvRawText, isEn);
+
   return data;
+}
+
+interface DetectedCvLayoutProfile {
+  targetPages: 1 | 2;
+  seniorityTier: "junior" | "senior";
+  estimatedYearsExperience: number;
+  reason: string;
+}
+
+function estimateCandidateSeniorityProfile(
+  cvRawText: string,
+  experiences: any[],
+  isEn: boolean
+): DetectedCvLayoutProfile {
+  const safeText = String(cvRawText || "");
+  const currentYear = new Date().getFullYear();
+
+  // 1. Recherche d'une mention explicite d'années d'expérience dans le CV source
+  let explicitYears = 0;
+  const expYearMatches = safeText.matchAll(
+    /\b(\d{1,2})\s*\+?\s*(?:ans?|ann[ée]es?|years?)\s+(?:d['’]exp[ée]rience|of\s+experience)/gi
+  );
+  for (const m of expYearMatches) {
+    const val = parseInt(m[1], 10);
+    if (Number.isFinite(val) && val > 0 && val <= 45) {
+      explicitYears = Math.max(explicitYears, val);
+    }
+  }
+
+  // 2. Calcul de l'amplitude chronologique réelle des expériences retenues
+  const yearsFound: number[] = [];
+  if (Array.isArray(experiences) && experiences.length > 0) {
+    for (const exp of experiences) {
+      const startM = String(exp?.startDate || "").match(/\b(19\d{2}|20\d{2})\b/);
+      const endM = String(exp?.endDate || "").match(/\b(19\d{2}|20\d{2})\b/);
+      if (startM) {
+        const y = parseInt(startM[1], 10);
+        if (y >= 1975 && y <= currentYear) yearsFound.push(y);
+      }
+      if (endM) {
+        const y = parseInt(endM[1], 10);
+        if (y >= 1975 && y <= currentYear + 1) yearsFound.push(Math.min(y, currentYear));
+      } else if (exp?.current || /pr[ée]sent|current|aujourd/i.test(String(exp?.endDate || ""))) {
+        yearsFound.push(currentYear);
+      }
+    }
+  } else if (safeText) {
+    // Pré-estimation avant parsing complet (pour guider le prompt Gemini)
+    const expSection = parseCvSections(safeText).EXPERIENCE.join(" ");
+    const dateRangeRe = /\b(19\d{2}|20\d{2})\s*(?:[-–—à]|to)\s*(19\d{2}|20\d{2}|pr[ée]sent|current|aujourd['’]?hui)\b/gi;
+    let m: RegExpExecArray | null;
+    while ((m = dateRangeRe.exec(expSection || safeText)) !== null) {
+      const y1 = parseInt(m[1], 10);
+      const y2 = /\d{4}/.test(m[2]) ? parseInt(m[2], 10) : currentYear;
+      if (y1 >= 1975 && y1 <= currentYear) yearsFound.push(y1);
+      if (y2 >= 1975 && y2 <= currentYear + 1) yearsFound.push(Math.min(y2, currentYear));
+    }
+  }
+
+  const spanYears = yearsFound.length >= 2 ? Math.max(0, Math.max(...yearsFound) - Math.min(...yearsFound)) : 0;
+  const estimatedYears = Math.max(explicitYears, spanYears);
+
+  // 3. Signaux profil Junior / Étudiant / Reconversion vs Senior / Cadre / Tech riche
+  const isJuniorOrReconversionCue =
+    /\b(?:[ée]tudiant(?:e)?|jeune\s+dipl[oô]m[ée](?:e)?|en\s+reconversion|reconversion\s+professionnelle|recherche\s+d['’](?:un\s+)?(?:stage|alternance)|contrat\s+d['’]apprentissage|alternant(?:e)?|stagiaire|junior|recent\s+graduate|career\s+change|internship)\b/i.test(
+      safeText.slice(0, 1400)
+    );
+
+  const isSeniorExecutiveCue =
+    /\b(?:senior|directeur|directrice|head\s+of|vp\b|vice\s+president|architecte|principal|staff\s+engineer|lead\s+|cadre\s+dirigeant|responsable\s+de\s+d[ée]partement|tech\s+lead|engineering\s+manager|product\s+director)\b/i.test(
+      `${safeText.slice(0, 1400)} ${(experiences || []).map((e: any) => e?.role || "").join(" ")}`
+    );
+
+  const substantiveExpCount = Array.isArray(experiences) ? experiences.length : 0;
+
+  let targetPages: 1 | 2 = 1;
+  if (estimatedYears >= 5) {
+    targetPages = 2;
+  } else if (isJuniorOrReconversionCue && estimatedYears < 5) {
+    targetPages = 1;
+  } else if (isSeniorExecutiveCue && (estimatedYears >= 4 || substantiveExpCount >= 3)) {
+    targetPages = 2;
+  } else if (substantiveExpCount >= 4 && estimatedYears >= 4) {
+    targetPages = 2;
+  } else {
+    targetPages = 1;
+  }
+
+  const seniorityTier: "junior" | "senior" = targetPages === 2 ? "senior" : "junior";
+  const reason =
+    targetPages === 1
+      ? isEn
+        ? `1-page calibration (${estimatedYears > 0 ? `~${estimatedYears} yrs` : "early-career / transition"}) — crisp essentials with >= 9.5pt font.`
+        : `Format calibré 1 page (${estimatedYears > 0 ? `~${estimatedYears} ans` : "profil junior / étudiant / reconversion"}) — essentiel priorisé avec police >= 9,5 pt.`
+      : isEn
+      ? `2-page calibration (${estimatedYears > 0 ? `~${estimatedYears} yrs` : "senior / project-rich"}) — decisive impact on Page 1, secondary history on Page 2 (10pt font).`
+      : `Format calibré 2 pages (${estimatedYears > 0 ? `~${estimatedYears} ans` : "profil senior / cadre / riche en projets"}) — décisif en Page 1, secondaire en Page 2 (police 10 pt).`;
+
+  return {
+    targetPages,
+    seniorityTier,
+    estimatedYearsExperience: estimatedYears,
+    reason,
+  };
+}
+
+function polishTypographicPunctuation(text: string, isEn: boolean, isBullet = false): string {
+  if (!text || typeof text !== "string") return "";
+
+  let s = text
+    .replace(/[\u00A0\u202F\u2009]/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+
+  if (!s) return "";
+
+  // 1. Supprimer les mots grammaticaux involontairement doublés ("de de", "et et", "la la", "the the"...)
+  s = s.replace(
+    /\b(de|du|des|le|la|les|un|une|et|ou|en|au|aux|pour|avec|sur|dans|par|à|a|d['’]|l['’]|the|and|of|to|in|for|with|on|at)\s+\1\b/gi,
+    "$1"
+  );
+
+  // 2. Corriger les espaces parasites après apostrophe française ("d' une" -> "d'une", "l' équipe" -> "l'équipe")
+  if (!isEn) {
+    s = s.replace(/\b([dlcjnmstquDLJNMSTQU])['’]\s+([a-zàâäéèêëîïôöùûüçA-ZÀ-Ÿ])/g, "$1'$2");
+  }
+
+  // 3. Corriger ponctuations doubles / cassées (sans toucher aux décimales, URLs ni abréviations tech)
+  s = s
+    .replace(/\s+([,.])/g, "$1")
+    .replace(/,{2,}/g, ",")
+    .replace(/;{2,}/g, ";")
+    .replace(/([,;])\s*\./g, ".")
+    .replace(/\.\s*,/g, ".")
+    .replace(/(?<!\.)\.\.(?!\.)/g, ".")
+    .replace(/\(\s+/g, "(")
+    .replace(/\s+\)/g, ")")
+    .replace(/([,;])([A-Za-zÀ-ÿ])/g, "$1 $2");
+
+  // Espace manquant après un point de fin de phrase suivi d'une majuscule (préserve .NET, Node.js, URLs, initiales)
+  s = s.replace(/([a-zà-ÿ]{3,})\.([A-ZÀ-Ÿ][a-zà-ÿ]{2,})/g, "$1. $2");
+
+  // Normaliser l'espacement autour des deux-points (sauf URLs https://, heures 14:30 ou ratios 16:9)
+  if (isEn) {
+    s = s.replace(/(?<!https?)(?<!\d)\s+:(?!\/\/)(?!\d)/g, ":").replace(/(?<!https?)(?<!\d):([A-Za-z])/g, ": $1");
+  } else {
+    s = s.replace(/(?<!https?)(?<!\d)\s*:\s*(?!\/\/)(?!\d)/g, " : ");
+  }
+
+  s = s.replace(/[ \t]{2,}/g, " ").trim();
+
+  if (isBullet) {
+    // Retirer ponctuation flottante en fin de puce et garantir un point final homogène
+    s = s.replace(/[,;:\-–—]+\s*$/, "").trim();
+    if (s.length > 0) {
+      s = s.charAt(0).toUpperCase() + s.slice(1);
+      if (!/[.!?]$/.test(s)) {
+        s = `${s}.`;
+      }
+    }
+  } else if (s.length > 0 && !/[.!?]$/.test(s) && s.split(/\s+/).length >= 6) {
+    s = `${s.replace(/[,;:]+\s*$/, "")}.`;
+  }
+
+  return s;
+}
+
+const FR_VERB_SYNONYM_POOL: Record<string, string[]> = {
+  piloter: ["Coordonner", "Superviser", "Diriger", "Animer"],
+  gerer: ["Superviser", "Administrer", "Orchestrer", "Piloter"],
+  optimiser: ["Améliorer", "Rationaliser", "Renforcer", "Fluidifier"],
+  developper: ["Concevoir", "Déployer", "Construire", "Élaborer"],
+  concevoir: ["Élaborer", "Structurer", "Développer", "Modéliser"],
+  assurer: ["Garantir", "Sécuriser", "Maintenir", "Veiller à"],
+  analyser: ["Évaluer", "Auditer", "Examiner", "Diagnostiquer"],
+  coordonner: ["Animer", "Orchestrer", "Synchroniser", "Fédérer"],
+  realiser: ["Exécuter", "Produire", "Mener", "Déployer"],
+  accompagner: ["Conseiller", "Former", "Soutenir", "Guider"],
+  structurer: ["Organiser", "Formaliser", "Standardiser", "Cadrer"],
+  deployer: ["Implémenter", "Mettre en œuvre", "Intégrer", "Lancer"],
+  ameliorer: ["Optimiser", "Renforcer", "Accélérer", "Fiabiliser"],
+  mettre: ["Déployer", "Instaurer", "Établir", "Implémenter"],
+};
+
+const EN_VERB_SYNONYM_POOL: Record<string, string[]> = {
+  spearheaded: ["Orchestrated", "Championed", "Directed", "Led"],
+  managed: ["Directed", "Oversaw", "Coordinated", "Supervised"],
+  led: ["Spearheaded", "Guided", "Directed", "Steered"],
+  developed: ["Engineered", "Built", "Designed", "Architected"],
+  optimized: ["Streamlined", "Enhanced", "Accelerated", "Refined"],
+  delivered: ["Executed", "Shipped", "Achieved", "Produced"],
+  implemented: ["Deployed", "Established", "Rolled out", "Integrated"],
+  analyzed: ["Evaluated", "Assessed", "Audited", "Investigated"],
+  designed: ["Architected", "Crafted", "Formulated", "Structured"],
+  coordinated: ["Orchestrated", "Aligned", "Synchronized", "Facilitated"],
+};
+
+function normalizeTokenKey(word: string): string {
+  return word
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function deduplicateAndDiversifyBullets(
+  bullets: any[],
+  isEn: boolean,
+  maxBullets: number
+): string[] {
+  if (!Array.isArray(bullets)) return [];
+
+  const pool = isEn ? EN_VERB_SYNONYM_POOL : FR_VERB_SYNONYM_POOL;
+  const usedVerbs = new Set<string>();
+  const keptTokens: Set<string>[] = [];
+  const result: string[] = [];
+
+  for (const raw of bullets) {
+    if (typeof raw !== "string") continue;
+    let b = polishTypographicPunctuation(raw, isEn, true);
+    if (!b || b.length < 8) continue;
+
+    // Éliminer les puces quasi-identiques au sein d'un même poste (>82% de chevauchement lexical)
+    const words = b
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 4);
+    const wordSet = new Set(words);
+    const isNearDuplicate =
+      wordSet.size >= 4 &&
+      keptTokens.some((prev) => {
+        let overlap = 0;
+        wordSet.forEach((w) => {
+          if (prev.has(w)) overlap++;
+        });
+        const ratio = overlap / Math.min(wordSet.size, prev.size);
+        return ratio >= 0.82;
+      });
+    if (isNearDuplicate) continue;
+
+    // Diversifier le verbe d'ouverture si exactement le même verbe a déjà été utilisé dans ce poste
+    const firstWordMatch = b.match(/^([A-Za-zÀ-ÿ]+)(\s+.*)$/);
+    if (firstWordMatch) {
+      const firstWord = firstWordMatch[1];
+      const rest = firstWordMatch[2];
+      const verbKey = normalizeTokenKey(firstWord);
+      // Ne pas toucher à "Mettre en place" directement sauf remplacement complet propre
+      if (usedVerbs.has(verbKey)) {
+        if (!isEn && verbKey === "mettre" && /^\s+en\s+place\b/i.test(rest)) {
+          const alt = ["Déployer", "Instaurer", "Établir", "Implémenter"].find(
+            (cand) => !usedVerbs.has(normalizeTokenKey(cand))
+          );
+          if (alt) {
+            b = `${alt}${rest.replace(/^\s+en\s+place\b/i, "")}`;
+            usedVerbs.add(normalizeTokenKey(alt));
+          }
+        } else if (pool[verbKey]) {
+          const alt = pool[verbKey].find((cand) => !usedVerbs.has(normalizeTokenKey(cand)));
+          if (alt) {
+            b = `${alt}${rest}`;
+            usedVerbs.add(normalizeTokenKey(alt));
+          }
+        }
+      } else {
+        usedVerbs.add(verbKey);
+      }
+    }
+
+    keptTokens.push(wordSet);
+    result.push(b);
+    if (result.length >= maxBullets) break;
+  }
+
+  return result;
+}
+
+function deduplicateSkillsCategories(
+  categories: any[],
+  maxCategories: number,
+  maxSkillsPerCat: number,
+  isEn: boolean
+): any[] {
+  if (!Array.isArray(categories)) return [];
+  const seenSkills = new Set<string>();
+  const cleaned: any[] = [];
+
+  for (const cat of categories) {
+    if (!cat || !Array.isArray(cat.skills)) continue;
+    const uniqueSkills: string[] = [];
+    for (const sk of cat.skills) {
+      if (typeof sk !== "string") continue;
+      const cleanSk = sk.replace(/\s+/g, " ").replace(/[,;.]+\s*$/, "").trim();
+      if (!cleanSk || cleanSk.length < 2) continue;
+      const key = normalizeTokenKey(cleanSk);
+      if (!key || seenSkills.has(key)) continue;
+      seenSkills.add(key);
+      uniqueSkills.push(cleanSk);
+      if (uniqueSkills.length >= maxSkillsPerCat) break;
+    }
+    if (uniqueSkills.length > 0) {
+      const catName = polishTypographicPunctuation(
+        String(cat.categoryName || (isEn ? "Core Skills" : "Compétences Clés")),
+        isEn,
+        false
+      ).replace(/[.:\-]+$/, "").trim();
+      cleaned.push({
+        categoryName: catName || (isEn ? "Core Skills" : "Compétences Clés"),
+        skills: uniqueSkills,
+      });
+    }
+    if (cleaned.length >= maxCategories) break;
+  }
+
+  return cleaned;
+}
+
+function trimSummaryAtSentenceBoundary(summary: string, maxChars: number): string {
+  if (!summary || summary.length <= maxChars) return summary;
+  const sentences = summary.match(/[^.!?]+[.!?]+/g);
+  if (!sentences || sentences.length <= 2) return summary;
+  let acc = "";
+  for (const sent of sentences) {
+    const candidate = acc ? `${acc} ${sent.trim()}` : sent.trim();
+    if (candidate.length > maxChars && acc.length >= 160) {
+      break;
+    }
+    acc = candidate;
+  }
+  return acc || summary;
+}
+
+function applyDensityAndQualityGuardrails(data: any, cvRawText: string, isEn: boolean): void {
+  if (!data) return;
+
+  // 1. CV Optimisé : détection seniorité, densité 1p vs 2p, ponctuation & anti-répétitions
+  if (data.optimizedCv) {
+    const cv = data.optimizedCv;
+    const layout = estimateCandidateSeniorityProfile(cvRawText, cv.experiences || [], isEn);
+    cv.layoutProfile = layout;
+
+    const isOnePage = layout.targetPages === 1;
+
+    // Résumé professionnel : ponctuation propre + concision adaptée (1p: max ~390 car., 2p: max ~520 car.)
+    if (typeof cv.professionalSummary === "string") {
+      const polishedSummary = polishTypographicPunctuation(cv.professionalSummary, isEn, false);
+      cv.professionalSummary = trimSummaryAtSentenceBoundary(polishedSummary, isOnePage ? 390 : 520);
+    }
+
+    // Compétences : zéro doublon entre catégories + densité maîtrisée
+    if (Array.isArray(cv.skillsCategories) && cv.skillsCategories.length > 0) {
+      cv.skillsCategories = deduplicateSkillsCategories(
+        cv.skillsCategories,
+        isOnePage ? 3 : 4,
+        isOnePage ? 6 : 8,
+        isEn
+      );
+    }
+
+    // Expériences : puces calibrées (Page 1 prioritaire pour récentes, condensées pour anciennes) + verbes diversifiés
+    if (Array.isArray(cv.experiences)) {
+      const hasManyOnePageExps = isOnePage && cv.experiences.length >= 4;
+      cv.experiences = cv.experiences.map((exp: any, idx: number) => {
+        const maxBullets = isOnePage
+          ? hasManyOnePageExps
+            ? idx === 0
+              ? 4
+              : idx === 1
+              ? 3
+              : 2
+            : idx < 2
+            ? 4
+            : 3
+          : idx < 2
+          ? 5
+          : 3;
+        return {
+          ...exp,
+          role: polishTypographicPunctuation(String(exp.role || ""), isEn, false).replace(/\.$/, ""),
+          company: polishTypographicPunctuation(String(exp.company || ""), isEn, false).replace(/\.$/, ""),
+          bullets: deduplicateAndDiversifyBullets(exp.bullets || [], isEn, maxBullets),
+        };
+      });
+    }
+
+    // Certifications : évite les répétitions du type "Certification PIX - PIX" (écran + PDF + Word)
+    if (Array.isArray(cv.certifications) && cv.certifications.length > 0) {
+      const normKey = (s: string) =>
+        s
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]/g, "");
+      cv.certifications = cv.certifications.map((cert: any) => {
+        const name = polishTypographicPunctuation(String(cert.name || ""), isEn, false).replace(/\.$/, "");
+        let issuer = polishTypographicPunctuation(String(cert.issuer || ""), isEn, false).replace(/\.$/, "");
+        if (issuer && normKey(issuer).length > 1 && normKey(name).includes(normKey(issuer))) {
+          issuer = "";
+        }
+        return { ...cert, name, issuer };
+      });
+    }
+  }
+
+  // 2. Lettre de motivation : nettoyage ponctuation & doublons lexicaux
+  if (data.coverLetter?.paragraphs) {
+    const p = data.coverLetter.paragraphs;
+    if (typeof p.vous === "string") p.vous = polishTypographicPunctuation(p.vous, isEn, false);
+    if (typeof p.moi === "string") p.moi = polishTypographicPunctuation(p.moi, isEn, false);
+    if (typeof p.nous === "string") p.nous = polishTypographicPunctuation(p.nous, isEn, false);
+  }
+  if (typeof data.coverLetter?.signOff === "string") {
+    data.coverLetter.signOff = polishTypographicPunctuation(data.coverLetter.signOff, isEn, false);
+  }
 }
 
 function normalizeAnalysisToEnglish(data: any, cvRawText = '', explicitTargetRole = ''): any {
@@ -9440,6 +9863,9 @@ app.post(PIPELINE_ROUTES, async (req, res) => {
       year: "numeric",
     });
 
+    const hasReliablePreText = resolvedCvText.trim().length >= 120;
+    const preDetectedLayout = estimateCandidateSeniorityProfile(resolvedCvText, [], isEn);
+
     const promptInstruction = isEn ? `
 You are an Executive Recruiter and International ATS (Applicant Tracking Systems: Workday, Taleo, Greenhouse, Lever, iCIMS) Expert.
 
@@ -9454,6 +9880,24 @@ Your role is to execute a rigorous semantic tailoring pipeline aligning a candid
   Examples: Spearheaded, Engineered, Orchestrated, Scaled, Streamlined, Accelerated, Championed, Delivered, Pioneered, Optimized, Formulated, Deployed, Standardized.
 - NEVER use weak or passive verbs (e.g., "Responsible for", "Worked on", "Assisted with", "Helped", "Participated in").
 - Apply the STAR formula: Action Verb + Context/Scope + Measurable Result or Quantified Impact.
+
+### 📐 PAGE LENGTH, DENSITY & EDITORIAL QUALITY CALIBRATION:
+${!hasReliablePreText
+  ? `- ADAPTIVE PAGE LENGTH BASED ON VISUAL CV SENIORITY:
+  * If Student / Recent Graduate / Junior (< 5 years) or Career Changer -> TARGET STRICTLY 1 SINGLE A4 PAGE (comfortable >= 9.5pt font, never cramming): sharp 2–3 sentence summary, 2–3 concise skill categories (4–6 skills each), 2–3 top roles with 3–4 crisp STAR bullets each.
+  * If Senior (5–15+ years), Executive, or Project-Rich Technical Profile -> TARGET 2 BALANCED A4 PAGES (10pt font): PAGE 1 holds decisive content (3-sentence summary, core skills, 2–3 recent key roles with 3–5 STAR bullets); PAGE 2 holds older condensed roles (2–3 bullets), Education, Certifications & Languages.`
+  : preDetectedLayout.targetPages === 1
+  ? `- DETECTED PROFILE: Student / Recent Graduate / Junior (< 5 years) or Career Changer -> TARGET STRICTLY 1 SINGLE A4 PAGE (with comfortable >= 9.5pt typography, NEVER cramming):
+  * Keep 'professionalSummary' sharp and concise (2–3 tight sentences, max ~340 characters).
+  * Keep 'skillsCategories' focused (2–3 crisp categories, 4–6 skills each, ZERO duplicates across categories).
+  * Retain the 2–3 most relevant roles with 3–4 concise, high-impact STAR bullets each (1–2 lines max per bullet).`
+  : `- DETECTED PROFILE: Experienced / Senior (5–15+ years), Executive, or Project-Rich Technical Profile -> TARGET 2 BALANCED A4 PAGES (at 10pt typography, NEVER overflowing to a sparse 3rd page):
+  * PAGE 1 PRIORITY (Decisive): Concise 3-sentence summary, core skills, and the 2–3 most recent decisive experiences (3–5 strong STAR bullets each).
+  * PAGE 2 (Supporting): Older experiences condensed (2–3 sharp bullets each), Education, Certifications, and Languages.`}
+- ZERO REPETITION & IMPECCABLE PUNCTUATION:
+  * NEVER start two bullets within the same role with the same action verb.
+  * NEVER repeat the same skill in two different skill categories.
+  * Ensure clean, uniform punctuation (no double periods/commas, no stray trailing commas, every bullet ends cleanly with a single period).
 
 ### RÈGLE D'OR ABSOLUE - ZERO HALLUCINATION (FACTUAL FIDELITY):
 - NEVER invent fictitious employers, fake degrees, false employment dates, or fabricate experiences not present in the source CV.
@@ -9549,6 +9993,24 @@ Ton rôle est d'exécuter un pipeline d'adaptation sémantique rigoureux entre l
 - NE JAMAIS inventer d'employeur fictif, de diplôme imaginaire, de dates fausses ou d'expérience qui n'existe pas dans le CV source.
 - Tu dois REFORMULER les VÉRITABLES réalisations du candidat en utilisant des verbes d'action percutants (méthode STAR : Action + Contexte + Résultat mesurable si présent) et en intégrant le vocabulaire technique et méthodologique exact de l'offre d'emploi.
 - Si le candidat a utilisé des compétences transférables ou synonymes (ex: "géré une équipe" vs "Management transversal et leadership agile"), adapte la formulation avec les mots-clés exacts de l'offre SANS fabriquer de faux chiffres s'ils n'étaient pas mentionnés, mais en renforçant l'impact.
+
+### 📐 CALAGE LONGUEUR, DENSITÉ & QUALITÉ RÉDACTIONNELLE (IMPÉRATIF) :
+${!hasReliablePreText
+  ? `- LONGUEUR ADAPTÉE AU PROFIL DU CV VISUEL :
+  * Étudiant, jeune diplômé, profil junior (< 5 ans) ou en reconversion -> OBJECTIF STRICT : 1 SEULE PAGE A4 (police confortable >= 9,5 pt, jamais compressée) : résumé concis (2-3 phrases), 2-3 catégories de compétences (4-6 items max chacune, zéro doublon), 2-3 expériences clés avec 3-4 puces STAR synthétiques.
+  * Profil senior (5 à 15+ ans), cadre ou métier technique riche en projets -> OBJECTIF : 2 PAGES A4 ÉQUILIBRÉES (police 10 pt) : PAGE 1 dédiée au décisif (synthèse 3 phrases, compétences clés, 2-3 expériences récentes à 3-5 puces STAR), PAGE 2 dédiée au secondaire (expériences anciennes condensées à 2-3 puces, Formation, Certifications, Langues).`
+  : preDetectedLayout.targetPages === 1
+  ? `- PROFIL DÉTECTÉ : Étudiant, jeune diplômé, junior (< 5 ans d'expérience) ou reconversion -> OBJECTIF STRICT : 1 SEULE PAGE A4 LISIBLE (sans jamais descendre la police sous 9,5 pt) :
+  * Va droit à l'essentiel : 'professionalSummary' concis et percutant (2 à 3 phrases courtes, max ~340 caractères).
+  * 'skillsCategories' : 2 à 3 catégories synthétiques (4 à 6 compétences clés par catégorie, ZÉRO doublon).
+  * 'experiences' : 2 à 3 expériences les plus pertinentes, avec 3 à 4 puces STAR courtes et denses en impact par poste (1 à 2 lignes max par puce).`
+  : `- PROFIL DÉTECTÉ : Senior (5 à 15+ ans d'expérience), cadre ou métier technique riche en projets -> OBJECTIF : 2 PAGES A4 ÉQUILIBRÉES (police confortable 10 pt, sans jamais déborder sur une 3e page) :
+  * PAGE 1 (DÉCISIF) : Synthèse exécutive de 3 phrases, compétences clés prioritaires (3 à 4 catégories sans doublon), et les 2 à 3 expériences récentes les plus décisives (3 à 5 puces STAR à fort impact).
+  * PAGE 2 (SECONDAIRE) : Expériences plus anciennes condensées (2 à 3 puces synthétiques par poste), Formation, Certifications et Langues.`}
+- PONCTUATION IRRÉPROCHABLE & ZÉRO RÉPÉTITION :
+  * Ne JAMAIS débuter deux puces d'une même expérience par le même verbe d'action (varier : Piloter, Structurer, Optimiser, Déployer, Concevoir, Coordonner, Analyser, Sécuriser).
+  * Ne JAMAIS répéter une même compétence dans deux catégories différentes, ni répéter deux fois le même mot consécutif.
+  * Ponctuation française impeccable : aucune double ponctuation (.., ,,), aucune virgule orpheline en fin de puce, chaque puce se termine proprement par un point final unique.
 
 ### 🎯 RÈGLE D'ALIGNEMENT SUR L'OFFRE + VALORISATION DE LA PLUS-VALUE DIFFÉRENCIANTE :
 - L'OFFRE D'EMPLOI CIBLE EST LE FIL CONDUCTEUR PRIORITAIRE : Détermine l'intitulé du poste et l'entreprise cible PRIORITAIREMENT depuis le texte de l'offre d'emploi cible. Si l'intitulé fourni en paramètre optionnel semble déconnecté du contenu de l'offre, IGNORE l'intitulé optionnel et utilise celui extrait de l'offre.
@@ -9814,40 +10276,65 @@ Réponds au format JSON :
   }
 });
 
-// Synthèse vocale humaine studio via Gemini TTS (gemini-3.8-flash-lite-tts)
-// Dédoublement strict et garanti :
-// Homme -> Voix 'Fenrir' (baryton posé, timbre masculin naturel d'impact)
-// Femme -> Voix 'Kore' (timbre féminin mélodieux, chaleureux et naturel)
+// Cache mémoire des pistes audio TTS pour une lecture et un export vidéo instantanés
+const ttsAudioCache = new Map<string, { audioBase64: string; mimeType: string; voiceUsed: string }>();
+const TTS_CACHE_MAX = 80;
+
+// Synthèse vocale humaine studio via Gemini TTS (gemini-3.8-flash-tts / gemini-3.8-flash-lite-tts)
+// Styles supportés :
+// - 'commercial' : voix pub FR/EN dynamique, souriante, énergique, motivante et non machinale (Zephyr / Puck)
+// - 'espresso'   : timbre grave posé et chaleureux (Fenrir / Kore)
+// - 'pitch'      : cadence d'entretien professionnelle naturelle (Fenrir / Kore)
 app.post("/api/tts", async (req, res) => {
   try {
-    const { text, gender = "male", language = "fr", style = "pitch" } = req.body;
+    const { text, gender = "female", language = "fr", style = "pitch", voice } = req.body;
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "Texte manquant pour la synthèse vocale." });
     }
 
-    const ai = getGeminiClient();
     const isEn = language === "en";
+    const allowedVoices = new Set(["Puck", "Charon", "Kore", "Fenrir", "Zephyr"]);
 
-    // Voix native studio Gemini TTS
-    // Homme -> Fenrir (baryton posé, timbre chaud de prestige)
-    // Femme -> Kore (timbre mélodieux, chaleureux et naturel)
-    const voiceName = gender === "male" ? "Fenrir" : "Kore";
+    // Sélection du timbre vocal natif Gemini Studio TTS
+    let voiceName: string;
+    if (typeof voice === "string" && allowedVoices.has(voice)) {
+      voiceName = voice;
+    } else if (style === "commercial") {
+      // Timbres pub dynamiques, lumineux et entraînants :
+      // Femme -> Zephyr (lumineuse, chaleureuse, souriante, très dynamique)
+      // Homme -> Puck (énergique, charismatique, moderne et motivant)
+      voiceName = gender === "male" ? "Puck" : "Zephyr";
+    } else {
+      voiceName = gender === "male" ? "Fenrir" : "Kore";
+    }
 
     const cleanText = text
       .replace(/[«»"“”]/g, "")
       .replace(/\bATS\b/gi, isEn ? "A T S" : "A T S")
-      .replace(/\bSTAR\b/gi, "S T A R")
+      .replace(/\bPDF\b/gi, isEn ? "P D F" : "P D F")
       .replace(/\bKPI\b/gi, "K P I")
+      .replace(/\bSTAR\b/gi, style === "commercial" ? "STAR" : "S T A R")
       .replace(/%/g, isEn ? " percent" : " pour cent")
       .trim();
 
-    const systemInstruction = style === "espresso"
-      ? (isEn
-          ? "You are an elite, captivating voiceover artist for a luxury espresso commercial (think Nespresso, George Clooney, deep, velvety, calm, magnetic, warm baritone). Read the provided text verbatim with impeccable cadence. Do not add any extra words, intro, or commentary. Speak strictly the text provided."
-          : "Tu es un comédien voix-off de prestige pour une publicité de café expresso de luxe (style Nespresso, George Clooney, voix grave, chaleureuse, veloutée, captivante, posée, magnétique). Lis le texte exactement comme fourni en français, avec un rythme irrésistible qui donne envie de rester sur la vidéo. Ne prononce AUCUN commentaire, aucune formule de politesse ni introduction. Lis uniquement et strictement le texte fourni mot pour mot.")
-      : (isEn
-          ? "You are a professional candidate in a job interview. Read the text verbatim with confidence, warmth, and natural flow. Do not add any extra words, intro, or commentary. Speak strictly the text provided."
-          : "Tu es un candidat professionnel en entretien d'embauche. Lis le texte exactement mot pour mot de façon posée, naturelle, fluide et convaincante. Ne prononce AUCUN commentaire ni introduction. Lis uniquement et strictement le texte fourni mot pour mot.");
+    const cacheKey = `${language}|${style}|${voiceName}|${cleanText}`;
+    const cached = ttsAudioCache.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        audioBase64: cached.audioBase64,
+        mimeType: cached.mimeType,
+        voiceUsed: cached.voiceUsed,
+        gender,
+        cached: true,
+      });
+    }
+
+    // Gemini 3.8 TTS (speechConfig) requiert l'endpoint v1beta (le SDK v3 utilise v1 par défaut)
+    const ai = getGeminiClient("v1beta");
+
+    // Envoyer uniquement le texte exact à lire (sans préfixe d'instruction qui serait lu à voix haute)
+    const ttsModels = ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"];
 
     const response = await callGeminiWithFallback(
       (modelName) =>
@@ -9868,7 +10355,7 @@ app.post("/api/tts", async (req, res) => {
             },
           },
         }),
-      ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"],
+      ttsModels,
       2,
       25000
     );
@@ -9877,6 +10364,16 @@ app.post("/api/tts", async (req, res) => {
     if (!base64Audio) {
       throw new Error("Aucune piste audio renvoyée par le modèle TTS.");
     }
+
+    if (ttsAudioCache.size >= TTS_CACHE_MAX) {
+      const oldestKey = ttsAudioCache.keys().next().value;
+      if (oldestKey) ttsAudioCache.delete(oldestKey);
+    }
+    ttsAudioCache.set(cacheKey, {
+      audioBase64: base64Audio,
+      mimeType: "audio/wav",
+      voiceUsed: voiceName,
+    });
 
     res.json({
       success: true,
@@ -9899,6 +10396,7 @@ app.post("/api/tts", async (req, res) => {
     res.status(503).json({
       success: false,
       error: "Synthèse vocale distante indisponible. Utilisation de la voix vocale locale.",
+      reason: cleanReason,
     });
   }
 });
@@ -10066,6 +10564,107 @@ app.get("/api/download-video/:id", (req, res) => {
     return res.status(404).json({ success: false, error: "Fichier vidéo non généré." });
   }
 });
+
+// Finalisation MP4 certifiée TikTok / Reels / LinkedIn (H.264 yuv420p + AAC 192k + durée exacte 45s)
+// Corrige le bug natif Chromium MediaRecorder (WebM sans header Duration / PTS décalés > 60 min)
+app.post(
+  "/api/finalize-video",
+  express.raw({ type: ["video/webm", "application/octet-stream", "*/*"], limit: "90mb" }),
+  async (req, res) => {
+    const uid = crypto.randomBytes(8).toString("hex");
+    const tmpIn = path.join(os.tmpdir(), `jnb_j5_in_${uid}.webm`);
+    const tmpOut = path.join(os.tmpdir(), `jnb_j5_out_${uid}.mp4`);
+
+    const cleanup = () => {
+      try {
+        if (fs.existsSync(tmpIn)) fs.unlinkSync(tmpIn);
+      } catch {
+        // Ignore cleanup errors
+      }
+      try {
+        if (fs.existsSync(tmpOut)) fs.unlinkSync(tmpOut);
+      } catch {
+        // Ignore cleanup errors
+      }
+    };
+
+    try {
+      const rawBuf = req.body;
+      if (!Buffer.isBuffer(rawBuf) || rawBuf.length < 1024) {
+        return res.status(400).json({ success: false, error: "Flux vidéo WebM invalide ou vide." });
+      }
+
+      const rawDur = parseFloat(String(req.query.duration || "45"));
+      const targetDuration = Number.isFinite(rawDur) ? Math.max(5, Math.min(60, rawDur)) : 45;
+      const safeFilename =
+        String(req.query.filename || "JNB_Align_J5_Screencast_45s.mp4")
+          .replace(/[^a-zA-Z0-9._-]/g, "_")
+          .replace(/\.webm$/i, ".mp4") || "JNB_Align_J5_Screencast_45s.mp4";
+
+      await fs.promises.writeFile(tmpIn, rawBuf);
+
+      const runBin = (bin: string, args: string[], timeoutMs = 90000): Promise<string> =>
+        new Promise((resolve, reject) => {
+          execFile(bin, args, { timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+            if (err) {
+              reject(new Error(stderr || err.message));
+            } else {
+              resolve(stdout || "");
+            }
+          });
+        });
+
+      // Vérifier si une piste audio est présente dans le WebM enregistré
+      let hasAudio = false;
+      try {
+        const probeOut = await runBin(
+          "ffprobe",
+          ["-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type", "-of", "csv=p=0", tmpIn],
+          15000
+        );
+        hasAudio = probeOut.trim().length > 0;
+      } catch {
+        hasAudio = false;
+      }
+
+      // Réinitialiser strictement les timestamps vidéo + audio à 0.000s et borner à exactement 45.0s
+      const ffArgs: string[] = [
+        "-y",
+        "-fflags", "+genpts",
+        "-i", tmpIn,
+        "-vf", "setpts=PTS-STARTPTS",
+        ...(hasAudio ? ["-af", "asetpts=PTS-STARTPTS"] : []),
+        "-t", String(targetDuration),
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-crf", "22",
+        "-pix_fmt", "yuv420p",
+        "-r", "30",
+        "-vsync", "cfr",
+        ...(hasAudio ? ["-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"] : ["-an"]),
+        "-movflags", "+faststart",
+        tmpOut,
+      ];
+
+      await runBin("ffmpeg", ffArgs, 90000);
+
+      const mp4Buf = await fs.promises.readFile(tmpOut);
+      cleanup();
+
+      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}"`);
+      res.setHeader("Content-Length", String(mp4Buf.length));
+      return res.status(200).send(mp4Buf);
+    } catch (err: any) {
+      cleanup();
+      console.error("[Finalize Video] Erreur conversion MP4 :", err?.message?.slice(0, 260) || err);
+      return res.status(500).json({
+        success: false,
+        error: "Échec de la finalisation MP4 sur le serveur.",
+      });
+    }
+  }
+);
 
 // Endpoint de lecture du contenu markdown du dossier stratégique
 app.get("/api/marketing-doc-content", (_req, res) => {
