@@ -37,6 +37,7 @@ import {
 import { downloadCvPdf, downloadCoverLetterPdf, downloadBothPdfs, downloadApplicationPackPdf } from '../utils/pdfGenerator';
 import { downloadCvDocx, downloadCoverLetterDocx } from '../utils/docxGenerator';
 import { isEnglishText } from '../utils/languageDetector';
+import { trackAppEvent } from '../services/analyticsClient';
 
 interface DocumentsStudioViewProps {
   cv: OptimizedCv;
@@ -127,6 +128,10 @@ export const DocumentsStudioView: React.FC<DocumentsStudioViewProps> = ({
   // Download pack handler with toast feedback
   const handleDownloadPack = () => {
     downloadApplicationPackPdf(cv, coverLetter);
+    void trackAppEvent('download', {
+      language: isEn ? 'en' : 'fr',
+      detail: 'pack_pdf',
+    });
     setDownloadedFormat('pack-pdf');
     setIsSuccessModalOpen(true);
     if (onToast) {
@@ -145,6 +150,10 @@ export const DocumentsStudioView: React.FC<DocumentsStudioViewProps> = ({
     } else {
       downloadCoverLetterPdf(coverLetter);
     }
+    void trackAppEvent('download', {
+      language: isEn ? 'en' : 'fr',
+      detail: activeTab === 'cv' ? 'cv_pdf' : 'letter_pdf',
+    });
     setDownloadedFormat('single-pdf');
     if (onToast) {
       onToast(
@@ -163,6 +172,10 @@ export const DocumentsStudioView: React.FC<DocumentsStudioViewProps> = ({
       } else {
         await downloadCoverLetterDocx(coverLetter);
       }
+      void trackAppEvent('download', {
+        language: isEn ? 'en' : 'fr',
+        detail: activeTab === 'cv' ? 'cv_docx' : 'letter_docx',
+      });
       setDownloadedFormat('single-docx');
       if (onToast) {
         onToast(

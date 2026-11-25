@@ -4,6 +4,7 @@ import { SAMPLE_PRESETS } from '../data/presets';
 import { detectLanguageFromText } from '../utils/languageDetector';
 import { validateCvDocument, validateJobOfferDocument } from '../utils/documentValidator';
 import { cleanCompanyName } from '../utils/coverLetterSanitizer';
+import { trackAppEvent } from '../services/analyticsClient';
 import {
   UploadCloud,
   FileText,
@@ -163,6 +164,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
       const text = await file.text();
       setCvText(text);
       setCvBase64(null);
+      void trackAppEvent('file_upload', { language: effectiveLanguage, detail: 'cv_txt' });
       return;
     }
 
@@ -185,6 +187,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
         const data = await res.json();
         if (data.text) {
           setCvText(data.text);
+          void trackAppEvent('file_upload', { language: effectiveLanguage, detail: 'cv_file' });
           const val = validateCvDocument(data.text);
           if (!val.isValid) {
             setErrorMsg(val.error || "Document non conforme.");
@@ -222,6 +225,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
       const text = await file.text();
       setJobText(text);
       setJobBase64(null);
+      void trackAppEvent('file_upload', { language: effectiveLanguage, detail: 'job_txt' });
       const val = validateJobOfferDocument(text);
       if (!val.isValid) {
         setErrorMsg(val.error || "Document non conforme.");
@@ -248,6 +252,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({
         const data = await res.json();
         if (data.text) {
           setJobText(data.text);
+          void trackAppEvent('file_upload', { language: effectiveLanguage, detail: 'job_file' });
           const val = validateJobOfferDocument(data.text);
           if (!val.isValid) {
             setErrorMsg(val.error || "Document non conforme.");
@@ -570,6 +575,11 @@ export const ImportStep: React.FC<ImportStepProps> = ({
         siteName: data.siteName || '',
         characterCount: data.characterCount || data.text.length,
         url: trimmed,
+      });
+
+      void trackAppEvent('url_extract', {
+        language: data.detectedLanguage || effectiveLanguage,
+        detail: data.siteName || 'url',
       });
     } catch (err: any) {
       console.warn("Extraction URL :", err);
