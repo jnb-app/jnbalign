@@ -1,0 +1,197 @@
+{
+  "entities": {
+    "AnalyticsDaily": {
+      "title": "AnalyticsDaily",
+      "description": "Daily anonymous aggregate telemetry counters for JNB Align (GDPR-compliant, zero PII).",
+      "type": "object",
+      "properties": {
+        "dateKey": {
+          "type": "string",
+          "description": "UTC date key in YYYY-MM-DD format matching document ID.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^20[2-9][0-9]-[0-1][0-9]-[0-3][0-9]$"
+        },
+        "visits": {
+          "type": "integer",
+          "description": "Number of page visits on this date."
+        },
+        "analyses": {
+          "type": "integer",
+          "description": "Number of ATS CV analyses launched on this date."
+        },
+        "urls": {
+          "type": "integer",
+          "description": "Number of job offers extracted by URL on this date."
+        },
+        "downloads": {
+          "type": "integer",
+          "description": "Number of PDF or Word document downloads on this date."
+        },
+        "copies": {
+          "type": "integer",
+          "description": "Number of raw text copies on this date."
+        },
+        "uploads": {
+          "type": "integer",
+          "description": "Number of CV or job offer documents attached on this date."
+        },
+        "mobileEvents": {
+          "type": "integer",
+          "description": "Count of actions from mobile devices on this date."
+        },
+        "desktopEvents": {
+          "type": "integer",
+          "description": "Count of actions from desktop devices on this date."
+        },
+        "langFr": {
+          "type": "integer",
+          "description": "Count of actions in French mode on this date."
+        },
+        "langEn": {
+          "type": "integer",
+          "description": "Count of actions in International English mode on this date."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the last recorded counter update."
+        }
+      },
+      "required": [
+        "dateKey",
+        "visits",
+        "analyses",
+        "urls",
+        "downloads",
+        "copies",
+        "uploads",
+        "mobileEvents",
+        "desktopEvents",
+        "langFr",
+        "langEn",
+        "updatedAt"
+      ]
+    },
+    "AnalyticsVisitor": {
+      "title": "AnalyticsVisitor",
+      "description": "Anonymous non-PII browser identifier record for persistent unique visitor counting.",
+      "type": "object",
+      "properties": {
+        "visitorId": {
+          "type": "string",
+          "description": "Random client-generated non-PII identifier matching document ID.",
+          "minLength": 6,
+          "maxLength": 64,
+          "pattern": "^usr_[a-zA-Z0-9_\\-]+$"
+        },
+        "firstDateKey": {
+          "type": "string",
+          "description": "UTC date key of first seen visit.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^20[2-9][0-9]-[0-1][0-9]-[0-3][0-9]$"
+        },
+        "isMobile": {
+          "type": "boolean",
+          "description": "Whether the initial visit was on a mobile viewport."
+        },
+        "language": {
+          "type": "string",
+          "enum": ["fr", "en"],
+          "minLength": 2,
+          "maxLength": 2,
+          "description": "Initial language mode."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of first registration."
+        }
+      },
+      "required": [
+        "visitorId",
+        "firstDateKey",
+        "isMobile",
+        "language",
+        "createdAt"
+      ]
+    },
+    "AnalyticsConfig": {
+      "title": "AnalyticsConfig",
+      "description": "Publicly readable non-PII runtime analytics configuration (Google Analytics 4 measurement ID).",
+      "type": "object",
+      "properties": {
+        "ga4MeasurementId": {
+          "type": "string",
+          "description": "Optional GA4 Measurement ID (format G-XXXXXXXXXX) or empty string.",
+          "maxLength": 24,
+          "pattern": "^(|G-[A-Z0-9]{6,16})$"
+        },
+        "ga4Enabled": {
+          "type": "boolean",
+          "description": "Whether GA4 script loading and event forwarding are enabled."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last admin update."
+        }
+      },
+      "required": [
+        "ga4MeasurementId",
+        "ga4Enabled",
+        "updatedAt"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authoritative RBAC document granting Admin dashboard read/config privileges.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the administrator.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"],
+          "minLength": 5,
+          "maxLength": 5,
+          "description": "Fixed administrator role."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when admin access was granted."
+        }
+      },
+      "required": [
+        "uid",
+        "role",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/analytics_daily/{dateId}": {
+      "schema": { "$ref": "#/entities/AnalyticsDaily" },
+      "description": "Daily anonymous aggregate action counters (visits, analyses, urls, downloads, copies, uploads). Atomic +1 public increment, Admin-only reads."
+    },
+    "/analytics_visitors/{visitorId}": {
+      "schema": { "$ref": "#/entities/AnalyticsVisitor" },
+      "description": "Anonymous unique browser IDs (create-only public, Admin-only reads)."
+    },
+    "/app_config/{configId}": {
+      "schema": { "$ref": "#/entities/AnalyticsConfig" },
+      "description": "Single public config document ('analytics') storing optional GA4 Measurement ID. Admin-only writes."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Administrator registry managed solely by the bootstrapped project owner."
+    }
+  }
+}

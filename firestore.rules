@@ -1,0 +1,226 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // GLOBAL HARDENED PRIMITIVES
+    // =========================================================================
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidDateKey(id) {
+      return id is string && id.size() == 10 && id.matches('^20[2-9][0-9]-[0-1][0-9]-[0-3][0-9]$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'josianlechantre@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() &&
+        request.auth.token.email_verified == true &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isNonNegCounter(val) {
+      return val is int && val >= 0 && val <= 10000000;
+    }
+
+    function isInitialCounter(val) {
+      return val is int && val >= 0 && val <= 1;
+    }
+
+    function isStepIncrement(nextVal, prevVal) {
+      return nextVal is int && prevVal is int && nextVal >= prevVal && nextVal <= prevVal + 1;
+    }
+
+    // =========================================================================
+    // ENTITY VALIDATION BLUEPRINTS (Anti-Update-Gap — No existing()/diff())
+    // =========================================================================
+
+    function isValidAnalyticsDaily(data, dateId) {
+      return data.keys().hasAll([
+          'dateKey', 'visits', 'analyses', 'urls', 'downloads', 'copies', 'uploads',
+          'mobileEvents', 'desktopEvents', 'langFr', 'langEn', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'dateKey', 'visits', 'analyses', 'urls', 'downloads', 'copies', 'uploads',
+          'mobileEvents', 'desktopEvents', 'langFr', 'langEn', 'updatedAt'
+        ]) &&
+        data.dateKey is string &&
+        data.dateKey.size() == 10 &&
+        data.dateKey == dateId &&
+        isValidDateKey(data.dateKey) &&
+        isNonNegCounter(data.visits) &&
+        isNonNegCounter(data.analyses) &&
+        isNonNegCounter(data.urls) &&
+        isNonNegCounter(data.downloads) &&
+        isNonNegCounter(data.copies) &&
+        isNonNegCounter(data.uploads) &&
+        isNonNegCounter(data.mobileEvents) &&
+        isNonNegCounter(data.desktopEvents) &&
+        isNonNegCounter(data.langFr) &&
+        isNonNegCounter(data.langEn) &&
+        data.updatedAt is timestamp &&
+        data.updatedAt == request.time;
+    }
+
+    function isInitialDailyPayload(data) {
+      return isInitialCounter(data.visits) &&
+        isInitialCounter(data.analyses) &&
+        isInitialCounter(data.urls) &&
+        isInitialCounter(data.downloads) &&
+        isInitialCounter(data.copies) &&
+        isInitialCounter(data.uploads) &&
+        isInitialCounter(data.mobileEvents) &&
+        isInitialCounter(data.desktopEvents) &&
+        isInitialCounter(data.langFr) &&
+        isInitialCounter(data.langEn);
+    }
+
+    function isValidAtomicDailyIncrement() {
+      return incoming().diff(existing()).affectedKeys().hasOnly([
+          'visits', 'analyses', 'urls', 'downloads', 'copies', 'uploads',
+          'mobileEvents', 'desktopEvents', 'langFr', 'langEn', 'updatedAt'
+        ]) &&
+        isStepIncrement(incoming().visits, existing().visits) &&
+        isStepIncrement(incoming().analyses, existing().analyses) &&
+        isStepIncrement(incoming().urls, existing().urls) &&
+        isStepIncrement(incoming().downloads, existing().downloads) &&
+        isStepIncrement(incoming().copies, existing().copies) &&
+        isStepIncrement(incoming().uploads, existing().uploads) &&
+        isStepIncrement(incoming().mobileEvents, existing().mobileEvents) &&
+        isStepIncrement(incoming().desktopEvents, existing().desktopEvents) &&
+        isStepIncrement(incoming().langFr, existing().langFr) &&
+        isStepIncrement(incoming().langEn, existing().langEn);
+    }
+
+    function isValidAnalyticsVisitor(data, visitorId) {
+      return data.keys().hasAll(['visitorId', 'firstDateKey', 'isMobile', 'language', 'createdAt']) &&
+        data.keys().hasOnly(['visitorId', 'firstDateKey', 'isMobile', 'language', 'createdAt']) &&
+        data.visitorId is string &&
+        data.visitorId.size() >= 6 &&
+        data.visitorId.size() <= 64 &&
+        data.visitorId == visitorId &&
+        data.visitorId.matches('^usr_[a-zA-Z0-9_\\-]+$') &&
+        data.firstDateKey is string &&
+        data.firstDateKey.size() == 10 &&
+        isValidDateKey(data.firstDateKey) &&
+        data.isMobile is bool &&
+        data.language is string &&
+        data.language.size() == 2 &&
+        data.language in ['fr', 'en'] &&
+        data.createdAt is timestamp &&
+        data.createdAt == request.time;
+    }
+
+    function isValidAnalyticsConfig(data) {
+      return data.keys().hasAll(['ga4MeasurementId', 'ga4Enabled', 'updatedAt']) &&
+        data.keys().hasOnly(['ga4MeasurementId', 'ga4Enabled', 'updatedAt']) &&
+        data.ga4MeasurementId is string &&
+        data.ga4MeasurementId.size() <= 24 &&
+        (data.ga4MeasurementId == '' || data.ga4MeasurementId.matches('^G-[A-Z0-9]{6,16}$')) &&
+        data.ga4Enabled is bool &&
+        data.updatedAt is timestamp &&
+        data.updatedAt == request.time;
+    }
+
+    function isValidAdminDoc(data, adminId) {
+      return data.keys().hasAll(['uid', 'role', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'role', 'createdAt']) &&
+        data.uid is string &&
+        data.uid.size() >= 1 &&
+        data.uid.size() <= 128 &&
+        data.uid == adminId &&
+        data.role is string &&
+        data.role.size() == 5 &&
+        data.role == 'admin' &&
+        data.createdAt is timestamp &&
+        data.createdAt == request.time;
+    }
+
+    // =========================================================================
+    // COLLECTION RULES
+    // =========================================================================
+
+    // Daily Anonymous Aggregate Counters (Public +1 atomic write, Admin-only read)
+    match /analytics_daily/{dateId} {
+      allow get: if isSignedIn() && isValidDateKey(dateId) && isAdmin();
+      allow list: if isBootstrappedAdmin();
+      allow create: if isValidDateKey(dateId) &&
+        isValidAnalyticsDaily(incoming(), dateId) &&
+        (isInitialDailyPayload(incoming()) || isAdmin());
+      allow update: if isValidDateKey(dateId) &&
+        isValidAnalyticsDaily(incoming(), dateId) &&
+        incoming().dateKey == existing().dateKey &&
+        (
+          isValidAtomicDailyIncrement() ||
+          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+            'visits', 'analyses', 'urls', 'downloads', 'copies', 'uploads',
+            'mobileEvents', 'desktopEvents', 'langFr', 'langEn', 'updatedAt'
+          ]))
+        );
+      allow delete: if false;
+    }
+
+    // Anonymous Unique Browser IDs (Public create-only, Admin-only read)
+    match /analytics_visitors/{visitorId} {
+      allow get: if isSignedIn() && isValidId(visitorId) && isAdmin();
+      allow list: if isBootstrappedAdmin();
+      allow create: if isValidId(visitorId) && isValidAnalyticsVisitor(incoming(), visitorId);
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Public Runtime Analytics Config (GA4 Measurement ID only — Zero PII)
+    match /app_config/{configId} {
+      allow get: if isValidId(configId) && configId == 'analytics';
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        isValidId(configId) &&
+        configId == 'analytics' &&
+        isValidAnalyticsConfig(incoming()) &&
+        isAdmin();
+      allow update: if isSignedIn() &&
+        isValidId(configId) &&
+        configId == 'analytics' &&
+        isValidAnalyticsConfig(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['ga4MeasurementId', 'ga4Enabled', 'updatedAt']) &&
+        isAdmin();
+      allow delete: if false;
+    }
+
+    // Authoritative Admin Registry
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (request.auth.uid == adminId || isBootstrappedAdmin());
+      allow list: if isBootstrappedAdmin();
+      allow create: if isSignedIn() && isValidId(adminId) && isValidAdminDoc(incoming(), adminId) && isBootstrappedAdmin();
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(adminId) && isBootstrappedAdmin();
+    }
+  }
+}

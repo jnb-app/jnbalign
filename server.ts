@@ -10317,7 +10317,24 @@ app.post("/api/tts", async (req, res) => {
       .replace(/%/g, isEn ? " percent" : " pour cent")
       .trim();
 
-    const cacheKey = `${language}|${style}|${voiceName}|${cleanText}`;
+    // Direction vocale native (speechMetadata.style n'est jamais lu à voix haute par Gemini 3.8 TTS)
+    const voiceDirection = isEn
+      ? style === "commercial"
+        ? gender === "male"
+          ? "Native neutral English speaker. Dynamic, confident, warm and motivating male commercial narrator with crisp modern pacing."
+          : "Native neutral English speaker. Bright, dynamic, warm and motivating female commercial narrator."
+        : gender === "male"
+        ? "Clear, poised, professional native English male speaker."
+        : "Clear, poised, professional native English female speaker."
+      : style === "commercial"
+      ? gender === "male"
+        ? "Accent français natif de France métropolitaine (Paris / France standard, STRICTEMENT SANS accent québécois ni canadien). Voix masculine dynamique, chaleureuse, charismatique, moderne et très motivante, rythme fluide et énergique de lancement produit."
+        : "Accent français natif de France métropolitaine (Paris / France standard, STRICTEMENT SANS accent québécois ni canadien). Voix féminine dynamique, souriante, moderne et motivante."
+      : gender === "male"
+      ? "Accent français natif de France métropolitaine (France standard, sans accent québécois). Voix masculine posée, claire, professionnelle et chaleureuse."
+      : "Accent français natif de France métropolitaine (France standard, sans accent québécois). Voix féminine posée, claire, professionnelle et naturelle.";
+
+    const cacheKey = `v2-metro|${language}|${style}|${gender}|${voiceName}|${cleanText}`;
     const cached = ttsAudioCache.get(cacheKey);
     if (cached) {
       return res.json({
@@ -10330,11 +10347,14 @@ app.post("/api/tts", async (req, res) => {
       });
     }
 
-    // Gemini 3.8 TTS (speechConfig) requiert l'endpoint v1beta (le SDK v3 utilise v1 par défaut)
+    // Gemini 3.8 TTS (speechConfig + speechMetadata) requiert l'endpoint v1beta
     const ai = getGeminiClient("v1beta");
 
-    // Envoyer uniquement le texte exact à lire (sans préfixe d'instruction qui serait lu à voix haute)
-    const ttsModels = ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"];
+    // gemini-3.8-flash-tts excelle en Voice Design (accent métropolitain strict & énergie dynamique)
+    const ttsModels =
+      style === "commercial"
+        ? ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]
+        : ["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"];
 
     const response = await callGeminiWithFallback(
       (modelName) =>
@@ -10343,7 +10363,14 @@ app.post("/api/tts", async (req, res) => {
           contents: [
             {
               role: "user",
-              parts: [{ text: cleanText }],
+              parts: [
+                {
+                  text: cleanText,
+                  speechMetadata: {
+                    style: voiceDirection,
+                  },
+                },
+              ],
             },
           ],
           config: {
@@ -10406,15 +10433,26 @@ app.post("/api/tts", async (req, res) => {
 // ==========================================
 const ANALYTICS_FILE = path.join(__dirname, "data", "app_metrics.json");
 
+interface DailyAnalyticsEntry {
+  visits: number;
+  analyses: number;
+  downloads: number;
+  urls: number;
+  copies: number;
+  uploads: number;
+}
+
 interface AnalyticsData {
   totalVisits: number;
   uniqueVisitors: number;
   totalAnalyses: number;
   totalUrlExtractions: number;
   totalDownloads: number;
+  totalCopies: number;
+  totalUploads: number;
   devices: { mobile: number; desktop: number };
   languages: { fr: number; en: number };
-  dailyStats: Record<string, { visits: number; analyses: number; downloads: number; urls: number }>;
+  dailyStats: Record<string, DailyAnalyticsEntry>;
   firstSeen: string;
   lastActive: string;
 }
@@ -10422,26 +10460,38 @@ interface AnalyticsData {
 const knownVisitorIds = new Set<string>();
 
 function loadAnalytics(): AnalyticsData {
-  try {
-    if (fs.existsSync(ANALYTICS_FILE)) {
-      const raw = fs.readFileSync(ANALYTICS_FILE, "utf-8");
-      return JSON.parse(raw);
-    }
-  } catch (err) {
-    console.warn("Erreur lecture analytics :", err);
-  }
-  return {
+  const fallback: AnalyticsData = {
     totalVisits: 0,
     uniqueVisitors: 0,
     totalAnalyses: 0,
     totalUrlExtractions: 0,
     totalDownloads: 0,
+    totalCopies: 0,
+    totalUploads: 0,
     devices: { mobile: 0, desktop: 0 },
     languages: { fr: 0, en: 0 },
     dailyStats: {},
     firstSeen: new Date().toISOString(),
     lastActive: new Date().toISOString(),
   };
+  try {
+    if (fs.existsSync(ANALYTICS_FILE)) {
+      const raw = fs.readFileSync(ANALYTICS_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      return {
+        ...fallback,
+        ...parsed,
+        totalCopies: parsed.totalCopies || 0,
+        totalUploads: parsed.totalUploads || 0,
+        devices: { ...fallback.devices, ...(parsed.devices || {}) },
+        languages: { ...fallback.languages, ...(parsed.languages || {}) },
+        dailyStats: parsed.dailyStats || {},
+      };
+    }
+  } catch (err) {
+    console.warn("Erreur lecture analytics :", err);
+  }
+  return fallback;
 }
 
 const analyticsState: AnalyticsData = loadAnalytics();
@@ -10458,13 +10508,40 @@ function saveAnalytics(): void {
   }
 }
 
+type ServerAnalyticsEventType =
+  | "visit"
+  | "pipeline_launch"
+  | "url_extract"
+  | "download"
+  | "copy_text"
+  | "file_upload";
+
+const VALID_ANALYTICS_EVENTS = new Set<ServerAnalyticsEventType>([
+  "visit",
+  "pipeline_launch",
+  "url_extract",
+  "download",
+  "copy_text",
+  "file_upload",
+]);
+
 function recordAnalyticsEvent(
-  type: "visit" | "pipeline_launch" | "url_extract" | "download",
+  type: ServerAnalyticsEventType,
   details?: { isMobile?: boolean; language?: string; clientId?: string; engine?: string }
 ): void {
   const today = new Date().toISOString().slice(0, 10);
   if (!analyticsState.dailyStats[today]) {
-    analyticsState.dailyStats[today] = { visits: 0, analyses: 0, downloads: 0, urls: 0 };
+    analyticsState.dailyStats[today] = {
+      visits: 0,
+      analyses: 0,
+      downloads: 0,
+      urls: 0,
+      copies: 0,
+      uploads: 0,
+    };
+  } else {
+    analyticsState.dailyStats[today].copies = analyticsState.dailyStats[today].copies || 0;
+    analyticsState.dailyStats[today].uploads = analyticsState.dailyStats[today].uploads || 0;
   }
   analyticsState.lastActive = new Date().toISOString();
 
@@ -10500,6 +10577,14 @@ function recordAnalyticsEvent(
       analyticsState.totalDownloads = (analyticsState.totalDownloads || 0) + 1;
       analyticsState.dailyStats[today].downloads = (analyticsState.dailyStats[today].downloads || 0) + 1;
       break;
+    case "copy_text":
+      analyticsState.totalCopies = (analyticsState.totalCopies || 0) + 1;
+      analyticsState.dailyStats[today].copies = (analyticsState.dailyStats[today].copies || 0) + 1;
+      break;
+    case "file_upload":
+      analyticsState.totalUploads = (analyticsState.totalUploads || 0) + 1;
+      analyticsState.dailyStats[today].uploads = (analyticsState.dailyStats[today].uploads || 0) + 1;
+      break;
   }
 
   saveAnalytics();
@@ -10508,11 +10593,35 @@ function recordAnalyticsEvent(
 // Endpoint de consultation des statistiques anonymisées
 app.get("/api/stats", (_req, res) => {
   const today = new Date().toISOString().slice(0, 10);
+  const todayRow = analyticsState.dailyStats[today];
+  const dailyHistory = Object.entries(analyticsState.dailyStats || {})
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, 90)
+    .map(([dateKey, d]) => ({
+      dateKey,
+      visits: d.visits || 0,
+      analyses: d.analyses || 0,
+      urls: d.urls || 0,
+      downloads: d.downloads || 0,
+      copies: d.copies || 0,
+      uploads: d.uploads || 0,
+    }));
+
   res.json({
     success: true,
     data: {
       ...analyticsState,
-      activeToday: analyticsState.dailyStats[today] || { visits: 0, analyses: 0, downloads: 0, urls: 0 },
+      totalCopies: analyticsState.totalCopies || 0,
+      totalUploads: analyticsState.totalUploads || 0,
+      activeToday: {
+        visits: todayRow?.visits || 0,
+        analyses: todayRow?.analyses || 0,
+        downloads: todayRow?.downloads || 0,
+        urls: todayRow?.urls || 0,
+        copies: todayRow?.copies || 0,
+        uploads: todayRow?.uploads || 0,
+      },
+      dailyHistory,
     },
   });
 });
@@ -10681,8 +10790,12 @@ app.get("/api/marketing-doc-content", (_req, res) => {
 app.post(["/api/track-event", "/api/track-event/"], (req, res) => {
   try {
     const { event, clientId, isMobile, language } = req.body || {};
-    if (event) {
-      recordAnalyticsEvent(event, { clientId, isMobile, language });
+    if (typeof event === "string" && VALID_ANALYTICS_EVENTS.has(event as ServerAnalyticsEventType)) {
+      recordAnalyticsEvent(event as ServerAnalyticsEventType, {
+        clientId: typeof clientId === "string" ? clientId.slice(0, 64) : undefined,
+        isMobile: typeof isMobile === "boolean" ? isMobile : undefined,
+        language: language === "en" ? "en" : "fr",
+      });
     }
     return res.json({ success: true });
   } catch (err) {
