@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Header } from './components/Header';
 import { PortailAvenir } from './components/PortailAvenir';
 import { ImportStep } from './components/ImportStep';
@@ -26,13 +26,16 @@ import { AlertCircle, Compass, Sparkles, Lock } from 'lucide-react';
 import { ToastNotification, ToastMessage } from './components/ToastNotification';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { LegalTermsModal } from './components/LegalTermsModal';
-import { LogoStudioModal } from './components/LogoStudioModal';
-import { MarketingDossierModal } from './components/MarketingDossierModal';
 import { FeedbackModal } from './components/FeedbackModal';
-import { TikTokVideoModal } from './components/TikTokVideoModal';
 import { trackAppEvent } from './services/analyticsClient';
+import { loadAndInitGa4FromConfig } from './services/ga4';
 import { validateCvDocument, validateJobOfferDocument } from './utils/documentValidator';
 import { detectLanguageFromText } from './utils/languageDetector';
+import { isAiStudioMarketingEnvironment } from './utils/marketingStudioGate';
+
+const LazyMarketingStudioHub = React.lazy(() =>
+  import('./components/MarketingStudioHub').then((m) => ({ default: m.MarketingStudioHub }))
+);
 
 export default function App() {
   // Top-Level View Router: 'portail' (Vue 1) | 'studio' (Vue 2)
@@ -196,7 +199,28 @@ export default function App() {
   const [isLogoStudioOpen, setIsLogoStudioOpen] = useState<boolean>(false);
   const [isMarketingDossierOpen, setIsMarketingDossierOpen] = useState<boolean>(false);
   const [isTikTokModalOpen, setIsTikTokModalOpen] = useState<boolean>(false);
+  const [isScreencastJ5Open, setIsScreencastJ5Open] = useState<boolean>(false);
+  const [isCarouselJ4Open, setIsCarouselJ4Open] = useState<boolean>(false);
+  const [isVideoJ3Open, setIsVideoJ3Open] = useState<boolean>(false);
+  const [isLaunchJ0Open, setIsLaunchJ0Open] = useState<boolean>(false);
+  const [isPostLaunchJ1Open, setIsPostLaunchJ1Open] = useState<boolean>(false);
+  const [isVideoJ2Open, setIsVideoJ2Open] = useState<boolean>(false);
+  const [isKitJ3Open, setIsKitJ3Open] = useState<boolean>(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
+
+  // Studios marketing réservés exclusivement à AI Studio / dev local (jamais chargés sur jnbalign.com)
+  const marketingStudioEnabled = isAiStudioMarketingEnvironment();
+  const hasAnyMarketingModalOpen =
+    isLogoStudioOpen ||
+    isMarketingDossierOpen ||
+    isTikTokModalOpen ||
+    isScreencastJ5Open ||
+    isCarouselJ4Open ||
+    isVideoJ3Open ||
+    isLaunchJ0Open ||
+    isPostLaunchJ1Open ||
+    isVideoJ2Open ||
+    isKitJ3Open;
 
   useEffect(() => {
     try {
@@ -206,8 +230,11 @@ export default function App() {
     }
     setSavedSessions(getSavedSessions());
 
-    // Enregistrement anonyme d'une visite pour le compteur de fréquentation
-    trackAppEvent('visit', { language: targetLanguage });
+    // Chargement optionnel Google Analytics 4 (si configuré dans l'Admin ou .env)
+    void loadAndInitGa4FromConfig().finally(() => {
+      // Enregistrement anonyme d'une visite pour le compteur persistant + GA4
+      void trackAppEvent('visit', { language: targetLanguage });
+    });
 
     // Vérifier si un brouillon a été restauré
     const draft = loadActiveDraft();
@@ -497,6 +524,12 @@ export default function App() {
 
       setResult(responseData.data);
 
+      // Persistance Firestore + GA4 de l'analyse (skipServer car /api/pipeline-tailor l'a déjà enregistré côté serveur)
+      void trackAppEvent('pipeline_launch', {
+        language: responseData.data.languageMode || effectiveLanguageToUse,
+        skipServer: true,
+      });
+
       // Auto-save session in localStorage (Axe 4)
       try {
         saveCandidatureSession({
@@ -535,6 +568,10 @@ export default function App() {
     } else {
       downloadCvPdf(result.optimizedCv);
     }
+    void trackAppEvent('download', {
+      language: result.languageMode || 'fr',
+      detail: targetDoc === 'coverLetter' ? 'letter_pdf' : 'cv_pdf',
+    });
   };
 
   // Print triggered (resilient print dialog without sandbox issues)
@@ -565,6 +602,10 @@ export default function App() {
     });
     navigator.clipboard.writeText(out);
     setCopiedRaw(true);
+    void trackAppEvent('copy_text', {
+      language: result.languageMode || 'fr',
+      detail: 'cv_raw',
+    });
     addToast(
       'Texte brut copié !',
       'Votre CV est dans votre presse-papier, prêt à coller dans Workday, Indeed ou votre espace candidat.',
@@ -674,7 +715,6 @@ export default function App() {
         savedSessionsCount={savedSessions.length}
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenStats={() => setIsStatsOpen(true)}
-        onOpenTikTokStudio={() => setIsTikTokModalOpen(true)}
         isAdmin={isAdmin}
         theme={theme}
         onToggleTheme={handleToggleTheme}
@@ -702,7 +742,6 @@ export default function App() {
           }}
           savedSessionsCount={savedSessions.length}
           onOpenHistory={() => setIsHistoryOpen(true)}
-          onOpenTikTokStudio={() => setIsTikTokModalOpen(true)}
           isAdmin={isAdmin}
         />
       )}
@@ -730,7 +769,7 @@ export default function App() {
             {result && (
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-slate-400 light:text-slate-600">Score ATS actuel :</span>
-                <span className="font-bold font-mono text-emerald-400 light:text-emerald-700 bg-emerald-950/60 light:bg-emerald-50 border border-emerald-500/30 light:border-emerald-200 px-2.5 py-0.5 rounded-lg text-xs shadow-xs">
+                <span className="font-bold font-mono tabular-nums text-emerald-400 light:text-emerald-700 bg-emerald-950/60 light:bg-emerald-50 border border-emerald-500/30 light:border-emerald-200 px-2.5 py-0.5 rounded-lg text-xs shadow-xs">
                   {result.semanticGap.scores.optimizedAtsScore}%
                 </span>
               </div>
@@ -865,15 +904,16 @@ export default function App() {
         isOpen={isStatsOpen}
         onClose={() => setIsStatsOpen(false)}
         onAdminStateChange={(val) => setIsAdmin(val)}
-        onOpenMarketingDossier={() => setIsMarketingDossierOpen(true)}
-        onOpenLogoStudio={() => setIsLogoStudioOpen(true)}
-        onOpenTikTokStudio={() => setIsTikTokModalOpen(true)}
-      />
-
-      {/* Official TikTok Launch Video Studio & Simulator Modal (J-7) - Réservé Admin */}
-      <TikTokVideoModal
-        isOpen={isTikTokModalOpen && isAdmin}
-        onClose={() => setIsTikTokModalOpen(false)}
+        onOpenMarketingDossier={marketingStudioEnabled ? () => setIsMarketingDossierOpen(true) : undefined}
+        onOpenLogoStudio={marketingStudioEnabled ? () => setIsLogoStudioOpen(true) : undefined}
+        onOpenTikTokStudio={marketingStudioEnabled ? () => setIsTikTokModalOpen(true) : undefined}
+        onOpenScreencastJ5={marketingStudioEnabled ? () => setIsScreencastJ5Open(true) : undefined}
+        onOpenCarouselJ4={marketingStudioEnabled ? () => setIsCarouselJ4Open(true) : undefined}
+        onOpenVideoJ3={marketingStudioEnabled ? () => setIsVideoJ3Open(true) : undefined}
+        onOpenLaunchJ0={marketingStudioEnabled ? () => setIsLaunchJ0Open(true) : undefined}
+        onOpenPostLaunchJ1={marketingStudioEnabled ? () => setIsPostLaunchJ1Open(true) : undefined}
+        onOpenVideoJ2={marketingStudioEnabled ? () => setIsVideoJ2Open(true) : undefined}
+        onOpenKitJ3={marketingStudioEnabled ? () => setIsKitJ3Open(true) : undefined}
       />
 
       {/* Legal & Terms Modal (CGU, RGPD, Mentions Légales) */}
@@ -883,23 +923,61 @@ export default function App() {
         defaultTab={legalTab}
       />
 
-      {/* Official Brand Logo Studio Modal (Avatar & Profile Picture Kit) - Réservé Admin */}
-      <LogoStudioModal
-        isOpen={isLogoStudioOpen && isAdmin}
-        onClose={() => setIsLogoStudioOpen(false)}
-      />
-
-      {/* In-App Reader for Marketing & Launch Strategy Dossier - Réservé Admin */}
-      <MarketingDossierModal
-        isOpen={isMarketingDossierOpen && isAdmin}
-        onClose={() => setIsMarketingDossierOpen(false)}
-      />
-
       {/* Support & Feedback In-App Modal */}
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
       />
+
+      {/* Studios Marketing (Chargement dynamique strictement réservé à AI Studio — 0 Ko en production jnbalign.com) */}
+      {marketingStudioEnabled && isAdmin && hasAnyMarketingModalOpen && (
+        <Suspense fallback={null}>
+          <LazyMarketingStudioHub
+            isAdmin={isAdmin}
+            isLogoStudioOpen={isLogoStudioOpen}
+            onCloseLogoStudio={() => setIsLogoStudioOpen(false)}
+            isMarketingDossierOpen={isMarketingDossierOpen}
+            onCloseMarketingDossier={() => setIsMarketingDossierOpen(false)}
+            isTikTokModalOpen={isTikTokModalOpen}
+            onCloseTikTokModal={() => setIsTikTokModalOpen(false)}
+            isScreencastJ5Open={isScreencastJ5Open}
+            onCloseScreencastJ5={() => setIsScreencastJ5Open(false)}
+            onTryScreencastDemoInStudio={() => {
+              const demoPreset = SAMPLE_PRESETS[1] || SAMPLE_PRESETS[0];
+              if (demoPreset) {
+                handleLoadPreset(demoPreset);
+              }
+              setActiveView('studio');
+              setCurrentStep(1);
+              addToast(
+                'Profil démo chargé dans le Studio',
+                'Cliquez sur « Optimiser » pour reproduire la démonstration en direct.',
+                'info'
+              );
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            isCarouselJ4Open={isCarouselJ4Open}
+            onCloseCarouselJ4={() => setIsCarouselJ4Open(false)}
+            isVideoJ3Open={isVideoJ3Open}
+            onCloseVideoJ3={() => setIsVideoJ3Open(false)}
+            isLaunchJ0Open={isLaunchJ0Open}
+            onCloseLaunchJ0={() => setIsLaunchJ0Open(false)}
+            isPostLaunchJ1Open={isPostLaunchJ1Open}
+            onClosePostLaunchJ1={() => setIsPostLaunchJ1Open(false)}
+            isVideoJ2Open={isVideoJ2Open}
+            onCloseVideoJ2={() => setIsVideoJ2Open(false)}
+            isKitJ3Open={isKitJ3Open}
+            onCloseKitJ3={() => setIsKitJ3Open(false)}
+            onOpenScreencastJ5={() => setIsScreencastJ5Open(true)}
+            onOpenCarouselJ4={() => setIsCarouselJ4Open(true)}
+            onOpenVideoJ3={() => setIsVideoJ3Open(true)}
+            onOpenLaunchJ0={() => setIsLaunchJ0Open(true)}
+            onOpenPostLaunchJ1={() => setIsPostLaunchJ1Open(true)}
+            onOpenVideoJ2={() => setIsVideoJ2Open(true)}
+            onOpenKitJ3={() => setIsKitJ3Open(true)}
+          />
+        </Suspense>
+      )}
 
       {/* Toast Notification Container (Axe 3: Micro-feedbacks) */}
       <ToastNotification toasts={toasts} onDismiss={dismissToast} />
@@ -964,11 +1042,11 @@ export default function App() {
               Support & Retours
             </button>
 
-            {/* Barre Admin (visible uniquement sur le navigateur de l'administrateur connecté) */}
+            {/* Barre Admin (visible uniquement sur le navigateur de l'administrateur connecté — mobile & ordinateur) */}
             {isAdmin && (
               <>
                 <span aria-hidden="true" className="text-slate-600 light:text-slate-400">·</span>
-                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300">
+                <div className="inline-flex flex-wrap items-center justify-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 light:text-amber-800">
                   <button
                     type="button"
                     onClick={() => setIsStatsOpen(true)}
@@ -977,15 +1055,82 @@ export default function App() {
                   >
                     <span>⚙️ Espace Admin</span>
                   </button>
-                  <span className="text-amber-500/40">|</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsTikTokModalOpen(true)}
-                    className="font-bold text-rose-300 hover:text-rose-200 cursor-pointer flex items-center gap-1"
-                    title="Ouvrir le simulateur vidéo TikTok J-7"
-                  >
-                    <span>🎬 Vidéo TikTok J-7</span>
-                  </button>
+                  {marketingStudioEnabled && (
+                    <>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsKitJ3Open(true)}
+                        className="font-bold text-emerald-300 light:text-emerald-700 hover:text-emerald-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le Kit complet J+3 — 1er CV Teardown (Carrousel PDF 6 slides + Vidéo 30s)"
+                      >
+                        <span>🎯 Kit J+3 (Teardown)</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsVideoJ2Open(true)}
+                        className="font-bold text-amber-300 light:text-amber-800 hover:text-amber-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir la Vidéo J+2 — Astuce Test Ctrl+F en 5 secondes (MP4 25s)"
+                      >
+                        <span>⚡ Vidéo J+2 (Ctrl+F)</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsPostLaunchJ1Open(true)}
+                        className="font-bold text-emerald-300 light:text-emerald-700 hover:text-emerald-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le Studio Post-Lancement J+1 à J+30 (Vidéo 30s, Visuels HD & Plan 30j)"
+                      >
+                        <span>📈 Studio J+1→J+30</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsLaunchJ0Open(true)}
+                        className="font-bold text-amber-300 light:text-amber-800 hover:text-amber-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le Studio Jour J — Grand Lancement Public (Vidéo 35s, Visuels HD & Kit 6 plateformes)"
+                      >
+                        <span>🚀 Studio Jour J</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsVideoJ3Open(true)}
+                        className="font-bold text-purple-300 light:text-purple-700 hover:text-purple-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le studio Vidéo Mobile J-3 (30s Import URL)"
+                      >
+                        <span>Vidéo Mobile J-3</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCarouselJ4Open(true)}
+                        className="font-bold text-emerald-300 light:text-emerald-700 hover:text-emerald-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le studio Carrousel PDF LinkedIn J-4 (Canva vs ATS)"
+                      >
+                        <span>Carrousel PDF J-4</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsScreencastJ5Open(true)}
+                        className="font-bold text-amber-300 light:text-amber-800 hover:text-amber-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le studio Vidéo Screencast J-5 (45s)"
+                      >
+                        <span>Démo Vidéo J-5 (45s)</span>
+                      </button>
+                      <span className="text-amber-500/40">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsTikTokModalOpen(true)}
+                        className="font-bold text-rose-300 light:text-rose-700 hover:text-rose-200 cursor-pointer flex items-center gap-1"
+                        title="Ouvrir le simulateur vidéo TikTok J-7"
+                      >
+                        <span>🎬 Vidéo TikTok J-7</span>
+                      </button>
+                    </>
+                  )}
                   <span className="text-amber-500/40">|</span>
                   <button
                     type="button"
@@ -993,6 +1138,16 @@ export default function App() {
                       localStorage.removeItem('jnb_admin_authorized');
                       setIsAdmin(false);
                       setIsStatsOpen(false);
+                      setIsKitJ3Open(false);
+                      setIsVideoJ2Open(false);
+                      setIsPostLaunchJ1Open(false);
+                      setIsLaunchJ0Open(false);
+                      setIsVideoJ3Open(false);
+                      setIsCarouselJ4Open(false);
+                      setIsScreencastJ5Open(false);
+                      setIsTikTokModalOpen(false);
+                      setIsMarketingDossierOpen(false);
+                      setIsLogoStudioOpen(false);
                       addToast('Déconnexion Admin', 'Vous avez quitté le mode administrateur.', 'info');
                     }}
                     className="text-slate-400 hover:text-rose-400 cursor-pointer"
